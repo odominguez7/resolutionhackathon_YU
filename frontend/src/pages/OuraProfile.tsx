@@ -95,6 +95,7 @@ const OuraProfile = () => {
   const [sleepHistory, setSleepHistory] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [workouts, setWorkouts] = useState<any[]>([]);
+  const [stressData, setStressData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -103,11 +104,13 @@ const OuraProfile = () => {
       api.get("/api/oura/sleep-history"),
       api.get("/api/oura/stats"),
       api.get("/api/oura/workouts"),
+      api.get("/api/oura/stress-detail"),
     ])
-      .then(([sh, st, wo]) => {
+      .then(([sh, st, wo, sd]) => {
         setSleepHistory(sh.data ?? []);
         setStats(st);
         setWorkouts(wo.data ?? []);
+        setStressData(sd.data ?? []);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -146,7 +149,7 @@ const OuraProfile = () => {
     remPct: d.remSleepPct ?? 0,
     lightPct: Math.max(0, 100 - (d.deepSleepPct ?? 0) - (d.remSleepPct ?? 0) - (d.awakePct ?? 0)),
     awakePct: d.awakePct ?? 0,
-    stressMin: d.stressLevel != null ? Math.round(d.stressLevel) : 0,
+    stressMin: d.stressMin ?? 0,
     sleepHrs: d.totalSleepSeconds ? +(d.totalSleepSeconds / 3600).toFixed(1) : 0,
   }));
 
@@ -312,30 +315,55 @@ const OuraProfile = () => {
         {/* ═══════ STRESS ANALYSIS ═══════ */}
         <GlassCard delay={500}>
           <SectionTitle icon={Zap} title="Stress Analysis" />
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="label" tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false}
-                axisLine={{ stroke: "#334155" }} interval={interval} />
-              <YAxis tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false}
-                axisLine={{ stroke: "#334155" }}
-                label={{ value: "Stress Level", angle: -90, position: "insideLeft", fill: "#475569", fontSize: 10 }} />
-              <Tooltip content={<DarkTooltip />} />
-              <Bar dataKey="stressMin" name="Stress Level" radius={[4, 4, 0, 0]}
-                fill="#f59e0b"
-                shape={(props: any) => {
-                  const { x, y, width, height, payload } = props;
-                  const c = stressBarColor(payload);
-                  return <rect x={x} y={y} width={width} height={height} rx={4} fill={c} />;
-                }}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-          <div className="flex items-center justify-center gap-6 mt-3 text-xs text-slate-500">
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-red-500" /> Stressful</span>
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500" /> Normal</span>
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-green-500" /> Restored</span>
-          </div>
+          {stressData.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={stressData.map(d => ({ ...d, label: fmtDate(d.day) }))} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis dataKey="label" tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false}
+                    axisLine={{ stroke: "#334155" }} interval={tickInterval(stressData.length)} />
+                  <YAxis tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false}
+                    axisLine={{ stroke: "#334155" }}
+                    label={{ value: "Stress (min)", angle: -90, position: "insideLeft", fill: "#475569", fontSize: 10 }} />
+                  <Tooltip content={<DarkTooltip />} />
+                  <Bar dataKey="stressMin" name="Stress (min)" radius={[4, 4, 0, 0]}
+                    fill="#f59e0b"
+                    shape={(props: any) => {
+                      const { x, y, width, height, payload } = props;
+                      const s = (payload.summary ?? "").toLowerCase();
+                      const c = s.includes("stress") ? "#ef4444" : s.includes("restor") ? "#22c55e" : "#f59e0b";
+                      return <rect x={x} y={y} width={width} height={height} rx={4} fill={c} />;
+                    }}
+                  />
+                  <Bar dataKey="recoveryMin" name="Recovery (min)" radius={[4, 4, 0, 0]}
+                    fill="#22c55e" fillOpacity={0.4}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="flex items-center justify-center gap-6 mt-3 text-xs text-slate-500">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-red-500" /> Stressful</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500" /> Normal</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-green-500/60" /> Recovery</span>
+              </div>
+              {/* Stress stats */}
+              <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/[0.05]">
+                <div className="text-center">
+                  <p className="text-xs text-slate-500">Stressful Days</p>
+                  <p className="text-2xl font-bold text-red-400">{stressData.filter(d => (d.summary ?? "").toLowerCase().includes("stress")).length}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-slate-500">Normal Days</p>
+                  <p className="text-2xl font-bold text-amber-400">{stressData.filter(d => d.summary === "normal").length}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-slate-500">Avg Stress</p>
+                  <p className="text-2xl font-bold text-slate-300">{stressData.length > 0 ? Math.round(stressData.reduce((s, d) => s + (d.stressMin || 0), 0) / stressData.length) : 0}<span className="text-sm text-slate-500 ml-1">min</span></p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-slate-500 text-sm">No stress data available</p>
+          )}
         </GlassCard>
 
         {/* ═══════ SLEEP STAGES OVER TIME ═══════ */}

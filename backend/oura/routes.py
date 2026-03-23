@@ -232,3 +232,75 @@ def get_heart_rate_detail():
             "readings": len(readings),
         })
     return {"data": data}
+
+
+@router.get("/refresh")
+async def refresh_from_oura():
+    """Pull fresh data from Oura API and update in-memory stores."""
+    from .live import (
+        has_live_token, fetch_sleep_live, fetch_daily_sleep_live,
+        fetch_daily_stress_live, fetch_daily_readiness_live, fetch_workouts_live,
+    )
+
+    if not has_live_token():
+        return {"status": "error", "message": "No Oura token configured"}
+
+    global SLEEP_SESSIONS, DAILY_SLEEP, DAILY_READINESS, DAILY_STRESS, WORKOUTS
+    global _sleep_by_day, _score_by_day, _readiness_by_day, _stress_by_day
+
+    sleep = await fetch_sleep_live()
+    daily_sleep = await fetch_daily_sleep_live()
+    daily_stress = await fetch_daily_stress_live()
+    daily_readiness = await fetch_daily_readiness_live()
+    workouts = await fetch_workouts_live()
+
+    if sleep:
+        SLEEP_SESSIONS = sleep
+        _sleep_by_day.clear()
+        for s in sleep:
+            if s.get("type") == "long_sleep" or s["day"] not in _sleep_by_day:
+                _sleep_by_day[s["day"]] = s
+
+    if daily_sleep:
+        DAILY_SLEEP = daily_sleep
+        _score_by_day.clear()
+        _score_by_day.update({d["day"]: d.get("score", 0) for d in daily_sleep})
+
+    if daily_stress:
+        DAILY_STRESS = daily_stress
+        _stress_by_day.clear()
+        _stress_by_day.update({d["day"]: d for d in daily_stress})
+
+    if daily_readiness:
+        DAILY_READINESS = daily_readiness
+        _readiness_by_day.clear()
+        _readiness_by_day.update({d["day"]: d for d in daily_readiness})
+
+    if workouts:
+        WORKOUTS = workouts
+
+    return {
+        "status": "ok",
+        "refreshed": {
+            "sleep_sessions": len(SLEEP_SESSIONS),
+            "daily_scores": len(DAILY_SLEEP),
+            "stress_days": len(DAILY_STRESS),
+            "readiness_days": len(DAILY_READINESS),
+            "workouts": len(WORKOUTS),
+        },
+        "message": "Live data refreshed from Oura API",
+    }
+
+
+@router.get("/status")
+def oura_status():
+    """Check Oura data status."""
+    from .live import has_live_token
+    return {
+        "has_data": len(SLEEP_SESSIONS) > 0,
+        "has_live_token": has_live_token(),
+        "total_days": len(_sleep_by_day),
+        "total_sleep_sessions": len(SLEEP_SESSIONS),
+        "total_workouts": len(WORKOUTS),
+        "source": "live" if has_live_token() else "exported",
+    }
