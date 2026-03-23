@@ -86,8 +86,8 @@ const VITAL_DATA_KEYS: Record<string, string> = {
   "Heart Rate": "avgHeartRate",
   "HRV": "hrv",
   "Resp Rate": "avgRespRate",
-  "Bed Temp": "avgBedTempC",
-  "Toss & Turns": "tnt",
+  "Readiness": "readinessScore",
+  "Restless": "tnt",
 };
 
 /* ---------- main component ---------- */
@@ -96,16 +96,50 @@ const Dashboard = () => {
   const [checkins, setCheckins] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<any>(null);
+  const [stressData, setStressData] = useState<any[]>([]);
 
   useEffect(() => {
+    // Dashboard uses 100% REAL Oura Ring data
     Promise.all([
-      api.get("/api/sleep/trends").catch(() => ({ trends: [] })),
-      api.get("/api/checkin/history").catch(() => ({ checkins: [] })),
-      api.get("/api/sleep/summary").catch(() => null),
-    ]).then(([t, c, s]) => {
-      setTrends(t.trends || []);
-      setCheckins(c.checkins || []);
-      setSummary(s);
+      api.get("/api/oura/sleep-history").catch(() => ({ data: [] })),
+      api.get("/api/oura/stats").catch(() => null),
+      api.get("/api/oura/stress-detail").catch(() => ({ data: [] })),
+    ]).then(([sh, stats, sd]) => {
+      const ouraData = sh.data || [];
+      // Map Oura fields to what the charts expect
+      setTrends(ouraData);
+      setStressData(sd.data || []);
+      // Build checkins from stress data
+      const stressList = sd.data || [];
+      const stressByDay: Record<string, any> = {};
+      stressList.forEach((s: any) => { stressByDay[s.day] = s; });
+      setCheckins(ouraData.map((d: any) => {
+        const st = stressByDay[d.day] || {};
+        const stressHigh = st.stressHigh || 0;
+        const stressLevel = Math.min(10, Math.max(1, Math.round(stressHigh / 3600) + 1));
+        return {
+          date: d.day,
+          mood: Math.max(1, Math.min(10, Math.round((d.readinessScore + d.sleepScore) / 20))),
+          energy: Math.max(1, Math.min(10, Math.round(d.readinessScore / 10))),
+          stress: stressLevel,
+          sleep_quality_self: Math.max(1, Math.min(10, Math.round(d.sleepScore / 10))),
+        };
+      }));
+      // Build summary from stats
+      if (stats && ouraData.length > 0) {
+        const latest = ouraData[ouraData.length - 1];
+        const baselineAvg = stats.avgSleepScore || 80;
+        const currentScore = latest.sleepScore || 0;
+        const dropPct = baselineAvg > 0 ? Math.round(((baselineAvg - currentScore) / baselineAvg) * 100 * 10) / 10 : 0;
+        setSummary({
+          currentScore,
+          baselineAvg: Math.round(baselineAvg),
+          dropPercent: dropPct,
+          currentHRV: latest.hrv || 0,
+          baselineHRV: Math.round(stats.avgHRV || 0),
+          alertLevel: dropPct > 15 ? "high" : dropPct > 5 ? "moderate" : "low",
+        });
+      }
       setLoading(false);
     });
   }, []);
@@ -133,8 +167,8 @@ const Dashboard = () => {
     { icon: Heart, label: "Heart Rate", value: `${latest.avgHeartRate ?? "--"}`, unit: "bpm", change: pctChange(latest.avgHeartRate, avgOf(baselineSlice, "avgHeartRate")), color: COLORS.red },
     { icon: Activity, label: "HRV", value: `${latest.hrv ?? "--"}`, unit: "ms", change: pctChange(latest.hrv, avgOf(baselineSlice, "hrv")), color: COLORS.purple },
     { icon: Wind, label: "Resp Rate", value: `${latest.avgRespRate ?? "--"}`, unit: "/min", change: pctChange(latest.avgRespRate, avgOf(baselineSlice, "avgRespRate")), color: COLORS.blue },
-    { icon: Thermometer, label: "Bed Temp", value: `${latest.avgBedTempC ?? "--"}`, unit: "C", change: pctChange(latest.avgBedTempC, avgOf(baselineSlice, "avgBedTempC")), color: COLORS.amber },
-    { icon: RotateCcw, label: "Toss & Turns", value: `${latest.tnt ?? "--"}`, unit: "", change: pctChange(latest.tnt, avgOf(baselineSlice, "tnt")), color: COLORS.slate },
+    { icon: TrendingUp, label: "Readiness", value: `${latest.readinessScore ?? "--"}`, unit: "/100", change: pctChange(latest.readinessScore, avgOf(baselineSlice, "readinessScore")), color: COLORS.amber },
+    { icon: RotateCcw, label: "Restless", value: `${latest.tnt ?? "--"}`, unit: "periods", change: pctChange(latest.tnt, avgOf(baselineSlice, "tnt")), color: COLORS.slate },
   ] : [];
 
   // Refs for staggered animation
@@ -167,8 +201,24 @@ const Dashboard = () => {
     <div className="min-h-screen pb-16" style={{ background: "linear-gradient(180deg, #0a0e27 0%, #111638 50%, #0d1229 100%)" }}>
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
 
-        {/* ======== SCORE HEADER ======== */}
+        {/* ======== LIVE DATA BADGE ======== */}
         <div ref={headerRef}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Live Data</span>
+              </div>
+              <span className="text-xs text-slate-500">from Omar's Oura Ring — {trends.length} days tracked</span>
+            </div>
+            <Link to="/oura">
+              <Button variant="ghost" className="text-xs text-slate-400 hover:text-white">
+                Full Oura Profile →
+              </Button>
+            </Link>
+          </div>
+
+          {/* ======== SCORE HEADER ======== */}
           <div className={`relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r ${scoreColor.bg} backdrop-blur-xl p-8`}
                style={{ background: "rgba(15, 22, 49, 0.6)", backdropFilter: "blur(24px)" }}>
             {/* Glow accent */}
@@ -177,7 +227,7 @@ const Dashboard = () => {
             <div className="relative flex flex-wrap items-center gap-10">
               {/* Main score */}
               <div className="flex flex-col items-center">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2 font-medium">Sleep Score</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2 font-medium">Sleep Score (Oura)</p>
                 <p className="text-8xl font-black tabular-nums leading-none"
                    style={{ background: `linear-gradient(135deg, ${scoreColor.from}, ${scoreColor.to})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                   {animatedScore}
