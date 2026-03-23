@@ -180,7 +180,7 @@ const OuraProfile = () => {
   const [cardioAge, setCardioAge] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [interval, setInterval_] = useState<Interval>("ALL");
+  const [range, setRange] = useState<Interval>("ALL");
 
   useEffect(() => {
     Promise.all([
@@ -212,24 +212,24 @@ const OuraProfile = () => {
     sleepHrs: d.totalSleepSeconds ? +(d.totalSleepSeconds / 3600).toFixed(1) : 0,
   })), [sleepHistory]);
 
-  const chart = useMemo(() => sliceDays(allChart, interval), [allChart, interval]);
-  const stressChart = useMemo(() => sliceDays(stressData, interval).map((d: any) => ({ ...d, label: fmtDate(d.day) })), [stressData, interval]);
-  const cardioChart = useMemo(() => sliceDays(cardioAge, interval).map((d: any) => ({ ...d, label: fmtDate(d.day) })), [cardioAge, interval]);
+  const chart = useMemo(() => sliceDays(allChart, range), [allChart, range]);
+  const stressChart = useMemo(() => sliceDays(stressData, range).map((d: any) => ({ ...d, label: fmtDate(d.day) })), [stressData, range]);
+  const cardioChart = useMemo(() => sliceDays(cardioAge, range).map((d: any) => ({ ...d, label: fmtDate(d.day) })), [cardioAge, range]);
 
   const latest = allChart.length ? allChart[allChart.length - 1] : null;
   const ti = tickInterval(chart.length);
 
   /* ── bedtime data ── */
   const bedtimeData = useMemo(() => {
-    return sliceDays(sleepHistory, interval)
+    return sliceDays(sleepHistory, range)
       .filter((d: any) => d.bedtimeStart)
       .map((d: any) => {
         const dt = new Date(d.bedtimeStart);
         let mins = dt.getHours() * 60 + dt.getMinutes();
-        if (mins > 720) mins -= 1440; // normalize so 11PM = -60, midnight = 0, 1AM = 60
+        if (mins > 720) mins -= 1440;
         return { label: fmtDate(d.day), mins, time: fmtTime(d.bedtimeStart) };
       });
-  }, [sleepHistory, interval]);
+  }, [sleepHistory, range]);
 
   /* ── loading / error ── */
   if (loading) return (
@@ -278,16 +278,16 @@ const OuraProfile = () => {
                 <span className="w-2 h-2 rounded-full bg-emerald-400" style={{ animation: "oura-pulse-dot 1.5s ease-in-out infinite" }} />
                 Live Data
               </span>
-              <span className="text-slate-500 text-xs">{stats?.totalDays ?? allChart.length} days &middot; {dateRange}</span>
+              <span className="text-slate-500 text-xs">{stats?.totalDays ?? allChart.length} days total &middot; {dateRange} &middot; Showing {chart.length} days</span>
             </div>
 
             {/* interval toggle */}
             <div className="flex items-center justify-center gap-1 pt-2">
               {(["7D", "14D", "30D", "ALL"] as Interval[]).map((iv) => (
                 <button key={iv}
-                  onClick={() => setInterval_(iv)}
+                  onClick={() => setRange(iv)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer border-0
-                    ${interval === iv ? "bg-emerald-500/20 text-emerald-400 shadow-[0_0_12px_rgba(74,222,128,.15)]" : "text-slate-500 hover:text-slate-300 bg-transparent"}`}>
+                    ${range === iv ? "bg-emerald-500/20 text-emerald-400 shadow-[0_0_12px_rgba(74,222,128,.15)]" : "text-slate-500 hover:text-slate-300 bg-transparent"}`}>
                   {iv}
                 </button>
               ))}
