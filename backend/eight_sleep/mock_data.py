@@ -137,7 +137,16 @@ def generate_current_night() -> dict:
     }
 
 
-# Pre-generate data on module load
-MOCK_INTERVALS = generate_intervals()
-MOCK_TRENDS = generate_trends()
-MOCK_CURRENT = generate_current_night()
+# Use real Oura data if available, otherwise fall back to mock
+from .oura_adapter import has_oura_data, OURA_TRENDS, OURA_INTERVALS, OURA_CURRENT
+
+if has_oura_data() and OURA_TRENDS:
+    print(f"[YU RestOS] Using REAL Oura Ring data ({len(OURA_TRENDS)} days)")
+    MOCK_INTERVALS = OURA_INTERVALS
+    MOCK_TRENDS = OURA_TRENDS
+    MOCK_CURRENT = OURA_CURRENT
+else:
+    print("[YU RestOS] Using mock Eight Sleep data (no Oura data found)")
+    MOCK_INTERVALS = generate_intervals()
+    MOCK_TRENDS = generate_trends()
+    MOCK_CURRENT = generate_current_night()
