@@ -36,13 +36,13 @@ if not TOKEN:
 BASE = "https://api.ouraring.com"
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
-# Date range: last 30 days
+# Date range: FULL HISTORY (go back 2 years)
 END_DATE = datetime.now().strftime("%Y-%m-%d")
-START_DATE = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+START_DATE = (datetime.now() - timedelta(days=730)).strftime("%Y-%m-%d")
 
-# For heartrate, use datetime format
+# For heartrate, use datetime format (last 30 days — too much data otherwise)
 END_DT = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-START_DT = (datetime.now() - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%S")
+START_DT = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%S")
 
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "oura_data")
 os.makedirs(OUTPUT_DIR, exist_ok=True)

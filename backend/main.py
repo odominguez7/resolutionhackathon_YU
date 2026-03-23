@@ -7,6 +7,7 @@ from drift.routes import router as drift_router
 from coaching.routes import router as coaching_router
 from actions.routes import router as actions_router
 from feedback.routes import router as feedback_router
+from oura.routes import router as oura_router
 
 app = FastAPI(title="YU RestOS", version="2.0.0")
 
@@ -24,6 +25,7 @@ app.include_router(drift_router, prefix="/api/drift", tags=["drift"])
 app.include_router(coaching_router, prefix="/api/coaching", tags=["coaching"])
 app.include_router(actions_router, prefix="/api/actions", tags=["actions"])
 app.include_router(feedback_router, prefix="/api/feedback", tags=["feedback"])
+app.include_router(oura_router, prefix="/api/oura", tags=["oura"])
 
 
 @app.get("/api/health")

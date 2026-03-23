@@ -12,6 +12,7 @@ import Recovery from "@/pages/Recovery";
 import ActionStatus from "@/pages/ActionStatus";
 import Debrief from "@/pages/Debrief";
 import XRay from "@/pages/XRay";
+import OuraProfile from "@/pages/OuraProfile";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/action-status" element={<ActionStatus />} />
               <Route path="/debrief" element={<Debrief />} />
               <Route path="/xray" element={<XRay />} />
+              <Route path="/oura" element={<OuraProfile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

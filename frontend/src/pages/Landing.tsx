@@ -199,6 +199,20 @@ const Landing = () => (
                 See My Dashboard
               </Button>
             </Link>
+            <Link to="/oura">
+              <Button
+                size="lg"
+                className="px-8 py-6 text-base font-semibold rounded-xl"
+                style={{
+                  color: "#10b981",
+                  borderColor: "rgba(16,185,129,0.4)",
+                  background: "rgba(16,185,129,0.1)",
+                  border: "1px solid rgba(16,185,129,0.3)",
+                }}
+              >
+                My Oura Ring Data
+              </Button>
+            </Link>
             <Link to="/checkin">
               <Button
                 size="lg"
