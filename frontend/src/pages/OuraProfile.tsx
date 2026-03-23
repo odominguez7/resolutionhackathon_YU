@@ -453,7 +453,7 @@ const OuraProfile = () => {
         <Glass delay={560}>
           <Title icon={TrendingUp} title="Readiness + Activity" />
           <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={chart} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
+            <AreaChart data={chart.filter((d: any) => d.activityScore > 0)} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
               <defs>
                 <linearGradient id="rdyG" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#4ADE80" stopOpacity={0.3} /><stop offset="100%" stopColor="#4ADE80" stopOpacity={0.02} />
