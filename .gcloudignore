@@ -1,16 +1,10 @@
-#!include:.gitignore
 .git/
 venv/
 **/node_modules/
 **/dist/
 __pycache__/
 *.pyc
-*.lock
 *.lockb
 Dockerfile.original
 Dockerfile.cloud
 .DS_Store
-openapi-1.28.json
-omega_runtime.py
-scripts/athlete_profile.md
-frontend/bun.lockb

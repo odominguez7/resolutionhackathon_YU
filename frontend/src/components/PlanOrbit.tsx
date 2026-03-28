@@ -516,19 +516,20 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                   ) : aiWorkout && !aiWorkout.error ? (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <p className="text-xl font-black text-white">{aiWorkout.session_name || "Your Session"}</p>
+                        <p className="text-xl font-black text-white">{aiWorkout.title || aiWorkout.session_name || "Your Session"}</p>
                         <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase" style={{ background: "rgba(248,113,113,.08)", color: "#F87171" }}>{aiWorkout.duration_min || 30} min</span>
                       </div>
+                      {aiWorkout.why_this_workout && <p className="text-xs text-slate-400 mb-2">{aiWorkout.why_this_workout}</p>}
                       {aiWorkout.warmup && <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,.04)", border: "1px solid rgba(245,158,11,.06)" }}>
-                        <p className="text-[9px] font-bold uppercase text-amber-400/60 mb-1">Warmup</p>
+                        <p className="text-[9px] font-bold uppercase text-amber-400/60 mb-1">Warmup ({aiWorkout.warmup.duration_min || 5} min)</p>
                         {aiWorkout.warmup.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-300">{m}</p>)}
                       </div>}
-                      {aiWorkout.main_set && <div className="rounded-xl p-3" style={{ background: "rgba(248,113,113,.04)", border: "1px solid rgba(248,113,113,.06)" }}>
-                        <p className="text-[9px] font-bold uppercase text-red-400/60 mb-1">{aiWorkout.main_set.format || "Main"} {aiWorkout.main_set.rounds ? `· ${aiWorkout.main_set.rounds} rounds` : ""}</p>
-                        {aiWorkout.main_set.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-white font-medium">{m}</p>)}
-                      </div>}
+                      {(aiWorkout.main_set || aiWorkout.workout) && (() => { const ms = aiWorkout.main_set || aiWorkout.workout; return <div className="rounded-xl p-3" style={{ background: "rgba(248,113,113,.04)", border: "1px solid rgba(248,113,113,.06)" }}>
+                        <p className="text-[9px] font-bold uppercase text-red-400/60 mb-1">{aiWorkout.format || ms.format || "Main"} {ms.rounds ? `· ${ms.rounds} rounds` : ""}</p>
+                        {ms.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-white font-medium">{m}</p>)}
+                      </div>; })()}
                       {aiWorkout.cooldown && <div className="rounded-xl p-3" style={{ background: "rgba(74,222,128,.04)", border: "1px solid rgba(74,222,128,.06)" }}>
-                        <p className="text-[9px] font-bold uppercase text-emerald-400/60 mb-1">Cooldown</p>
+                        <p className="text-[9px] font-bold uppercase text-emerald-400/60 mb-1">Cooldown ({aiWorkout.cooldown.duration_min || 5} min)</p>
                         {aiWorkout.cooldown.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-300">{m}</p>)}
                       </div>}
                       <button onClick={() => { setWorkoutType(null); setAiWorkout(null); }} className="text-[10px] text-blue-400 cursor-pointer border-0 bg-transparent">Change workout type</button>
@@ -748,15 +749,15 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                       </div>
                       <div>
                         <h3 className="text-sm font-black text-white">Ask YU</h3>
-                        <p className="text-[9px] text-emerald-400/50">Your AI copilot</p>
+                        <p className="text-[9px] text-emerald-400/50">Keeps you on track all week</p>
                       </div>
                     </div>
                     <div className="max-h-[400px] overflow-y-auto mb-3 space-y-2.5" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.05) transparent" }}>
                       {chatMessages.length === 0 && (
                         <div>
-                          <p className="text-xs text-slate-400 mb-3">I see your calendar, body data, and goal. What do you need?</p>
+                          <p className="text-xs text-slate-400 mb-3">Check in daily. I'll tell you what's next, what to skip, and how to stay on track.</p>
                           <div className="space-y-1.5">
-                            {["What should I cancel?", "How do I stay accountable?", "Protect my sleep", "What's most important?", "Am I overdoing it?"].map(q => (
+                            {["What should I do right now?", "Walk me through tomorrow", "What should I cancel?", "How's my recovery looking?", "Keep me accountable this week"].map(q => (
                               <motion.button key={q} onClick={() => sendChat(q)}
                                 className="w-full text-left text-xs px-3 py-2.5 rounded-xl font-medium cursor-pointer border-0"
                                 style={{ background: "rgba(16,185,129,.03)", color: "#4ADE80", border: "1px solid rgba(16,185,129,.08)" }}
