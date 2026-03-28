@@ -3,6 +3,8 @@ import { useState, useRef } from "react";
 import { Calendar, Moon, Heart, Dumbbell, Brain, Zap, MapPin, Coffee, Flame, Sparkles, ChevronRight, Bed, Activity, Send, MessageCircle, Target, ArrowRight } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
+const API = typeof window !== "undefined" && window.location.hostname !== "localhost" ? "" : "http://localhost:8000";
+
 type Props = { todayData: any; calendarEvents: any[]; stats: any; sleepHistory?: any[]; stressData?: any[] };
 
 export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHistory = [], stressData = [] }: Props) {
@@ -34,7 +36,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
     setChatMessages(prev => [...prev, { role: "user", text }]);
     setChatSending(true);
     try {
-      const resp = await fetch("http://localhost:8000/api/calendar/chat", {
+      const resp = await fetch("/api/calendar/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text + (goal ? ` (My goal: ${goal})` : ""), biometrics: `Sleep: ${sleepScore}, Readiness: ${readiness}, HRV: ${hrv} ms, Stress: ${stressMin} min` }),
       });
@@ -48,7 +50,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const loadWorkout = (type: string) => {
     setWorkoutType(type);
     setAiLoading(true);
-    fetch(`http://localhost:8000/api/oura/workout?session_type=${type}`).then(r => r.json()).then(setAiWorkout).catch(() => setAiWorkout({ error: true })).finally(() => setAiLoading(false));
+    fetch(`${API}/api/oura/workout?session_type=${type}`).then(r => r.json()).then(setAiWorkout).catch(() => setAiWorkout({ error: true })).finally(() => setAiLoading(false));
   };
 
   const scanSources = [
@@ -62,8 +64,9 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const handlePlan = () => {
     if (phase !== "idle") return;
     setPhase("scanning"); setScanStep(0);
+    setGoal("Crush my week");
     let step = 0;
-    const iv = setInterval(() => { step++; setScanStep(step); if (step >= scanSources.length) { clearInterval(iv); setTimeout(() => setPhase("goal"), 600); } }, 500);
+    const iv = setInterval(() => { step++; setScanStep(step); if (step >= scanSources.length) { clearInterval(iv); setTimeout(() => setPhase("plan"), 600); } }, 500);
   };
 
   const goals = [
