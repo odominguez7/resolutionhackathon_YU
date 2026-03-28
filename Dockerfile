@@ -9,7 +9,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt caldav vobject httpx aiofiles
+RUN pip install --no-cache-dir -r requirements.txt caldav vobject httpx aiofiles google-genai
 
 COPY backend/ ./backend/
 COPY scripts/ ./scripts/
