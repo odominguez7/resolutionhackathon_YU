@@ -525,12 +525,18 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         {aiWorkout.warmup.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-300">{m}</p>)}
                       </div>}
                       {(aiWorkout.main_set || aiWorkout.workout) && (() => { const ms = aiWorkout.main_set || aiWorkout.workout; return <div className="rounded-xl p-3" style={{ background: "rgba(248,113,113,.04)", border: "1px solid rgba(248,113,113,.06)" }}>
-                        <p className="text-[9px] font-bold uppercase text-red-400/60 mb-1">{aiWorkout.format || ms.format || "Main"} {ms.rounds ? `· ${ms.rounds} rounds` : ""}</p>
-                        {ms.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-white font-medium">{m}</p>)}
+                        <p className="text-[9px] font-bold uppercase text-red-400/60 mb-1">{aiWorkout.format || ms.format || "Main"} {ms.rounds ? `· ${ms.rounds} rounds` : ""} {ms.time_cap ? `· ${ms.time_cap}` : ""}</p>
+                        {ms.description && <p className="text-sm text-white font-bold mb-2 leading-relaxed">{ms.description}</p>}
+                        {ms.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-200">{m}</p>)}
+                        {ms.notes && <p className="text-xs text-slate-500 mt-2 italic">{ms.notes}</p>}
                       </div>; })()}
                       {aiWorkout.cooldown && <div className="rounded-xl p-3" style={{ background: "rgba(74,222,128,.04)", border: "1px solid rgba(74,222,128,.06)" }}>
                         <p className="text-[9px] font-bold uppercase text-emerald-400/60 mb-1">Cooldown ({aiWorkout.cooldown.duration_min || 5} min)</p>
                         {aiWorkout.cooldown.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-300">{m}</p>)}
+                      </div>}
+                      {aiWorkout.mental_challenge && <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,.04)", border: "1px solid rgba(245,158,11,.06)" }}>
+                        <p className="text-[9px] font-bold uppercase text-amber-400/60 mb-1">The hard part</p>
+                        <p className="text-sm text-slate-300">{aiWorkout.mental_challenge}</p>
                       </div>}
                       <button onClick={() => { setWorkoutType(null); setAiWorkout(null); }} className="text-[10px] text-blue-400 cursor-pointer border-0 bg-transparent">Change workout type</button>
                     </div>

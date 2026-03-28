@@ -68,8 +68,10 @@ RESPONSE FORMAT (return valid JSON only, no markdown):
     "movements": ["movement 1 - reps/duration", "movement 2", ...]
   },
   "workout": {
-    "description": "The main workout written exactly as a coach would write it on a whiteboard. Include reps, weights, time caps, rounds. Be specific.",
-    "movements": ["movement 1", "movement 2", ...],
+    "description": "The main workout written exactly as a coach would write it on a whiteboard. Example: '5 Rounds For Time: 400m Run, 15 DB Devil Press (2x50lb), 12 Toes-to-Bar, 9 DB Hang Power Clean (2x50lb). Time cap: 25 min.'",
+    "movements": ["Full movement name with EXACT reps and weights. Example: '15 DB Devil Press (2x50lb)', '400m Treadmill Run', '12 Toes-to-Bar'. ALWAYS include reps, weight, distance. Never just the movement name alone."],
+    "rounds": "number of rounds if applicable",
+    "time_cap": "time cap if applicable",
     "notes": "Pacing strategy, scaling options, what to focus on"
   },
   "cooldown": {
