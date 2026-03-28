@@ -9,6 +9,7 @@ from backend.actions.routes import router as actions_router
 from backend.feedback.routes import router as feedback_router
 from backend.oura.routes import router as oura_router
 from backend.optimize.routes import router as optimize_router
+from backend.calendar.routes import router as calendar_router
 
 app = FastAPI(title="YU RestOS", version="2.0.0")
 
@@ -28,6 +29,7 @@ app.include_router(actions_router, prefix="/api/actions", tags=["actions"])
 app.include_router(feedback_router, prefix="/api/feedback", tags=["feedback"])
 app.include_router(oura_router, prefix="/api/oura", tags=["oura"])
 app.include_router(optimize_router, prefix="/api/optimize", tags=["optimize"])
+app.include_router(calendar_router, prefix="/api/calendar", tags=["calendar"])
 
 
 @app.get("/api/health")

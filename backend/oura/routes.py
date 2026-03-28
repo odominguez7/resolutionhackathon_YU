@@ -1,11 +1,12 @@
 """
 Oura Ring API — serves REAL biometric data from Omar's Oura Ring.
 All data loaded from scripts/oura_data/ JSON exports.
+Webhooks push real-time updates from Oura cloud.
 """
 
 import json
 import os
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 router = APIRouter()
 
@@ -45,6 +46,7 @@ for s in SLEEP_SESSIONS:
         _sleep_by_day[s["day"]] = s
 
 _score_by_day = {d["day"]: d.get("score", 0) for d in DAILY_SLEEP}
+_daily_sleep_by_day = {d["day"]: d for d in DAILY_SLEEP}
 _readiness_by_day = {d["day"]: d for d in DAILY_READINESS}
 _stress_by_day = {d["day"]: d for d in DAILY_STRESS}
 _activity_by_day = {d["day"]: d for d in DAILY_ACTIVITY}
@@ -124,6 +126,13 @@ def get_sleep_history():
             "vascularAge": cardio.get("vascular_age", None),
             "bedtimeStart": s.get("bedtime_start", ""),
             "bedtimeEnd": s.get("bedtime_end", ""),
+            # Contributors (from daily_sleep, daily_readiness, daily_activity)
+            "sleepContributors": _daily_sleep_by_day.get(day, {}).get("contributors"),
+            "readinessContributors": readiness.get("contributors"),
+            "activityContributors": activity.get("contributors"),
+            "resilienceContributors": resilience.get("contributors") if isinstance(resilience, dict) else None,
+            "breathingDisturbanceIndex": spo2.get("breathing_disturbance_index"),
+            "temperatureTrendDeviation": readiness.get("temperature_trend_deviation"),
         })
 
     return {"data": data, "totalDays": len(data)}
@@ -264,99 +273,332 @@ def get_heart_rate_detail():
     return {"data": data}
 
 
+# Manual override for today's scores when Oura cloud API lags behind the app
+_today_override: dict = {}
+
+
+@router.post("/today/override")
+async def override_today(request: Request):
+    """Set today's scores manually from what the Oura app shows.
+    Example: POST /api/oura/today/override {"sleepScore":88,"readinessScore":78,"stressMin":75}
+    """
+    global _today_override
+    body = await request.json()
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    body["day"] = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
+    _today_override = body
+    print(f"[Oura] Today override set: {body}")
+    return {"status": "ok", "override": body}
+
+
+@router.delete("/today/override")
+def clear_override():
+    """Clear manual override, go back to API data."""
+    global _today_override
+    _today_override = {}
+    return {"status": "ok", "message": "Override cleared"}
+
+
 @router.get("/today")
 async def get_today():
-    """Today's real-time scores + LIVE heart rate from Oura API."""
+    """
+    Freshest available scores — always tries the live Oura API first.
+
+    Data availability in the Oura ecosystem:
+    - Sleep score, HRV, avg HR  → computed from last night's session, tagged as yesterday's date.
+                                   These are "last night" metrics by nature.
+    - Readiness                 → available for today once ring syncs after waking.
+    - Stress                    → accumulates throughout the day, available for today.
+    - Activity (steps, cals)    → accumulates throughout the day, available for today.
+    - Heart rate                → real-time when ring is on and synced.
+    - SpO2                      → measured overnight, tagged as yesterday.
+    - Vascular age              → updated daily, may lag 1 day.
+
+    Strategy: fetch the last 2 days from the live API for each metric,
+    then pick the most recent available record. Return each metric with
+    its actual date so the frontend knows exactly what it's showing.
+    """
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
     from .live import has_live_token, fetch_oura
 
+    # If manual override is set, merge it on top of API data
+    # (override individual fields, not the whole response)
+    override = _today_override
+
     boston_tz = ZoneInfo("America/New_York")
-    today = datetime.now(boston_tz).strftime("%Y-%m-%d")
+    now = datetime.now(boston_tz)
+    today_str = now.strftime("%Y-%m-%d")
+    yesterday_str = (now - timedelta(days=1)).strftime("%Y-%m-%d")
+    tomorrow_str = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # Today's scores from cached data — fall back to most recent day if today has no data
-    today_sleep = _score_by_day.get(today, None)
-    today_readiness = _readiness_by_day.get(today, {})
-    today_stress = _stress_by_day.get(today, {})
-    today_activity = _activity_by_day.get(today, {})
-    today_sleep_session = _sleep_by_day.get(today, {})
-
-    if today_sleep is None and _score_by_day:
-        fallback_day = max(_score_by_day.keys())
-        today_sleep = _score_by_day.get(fallback_day)
-        today_readiness = _readiness_by_day.get(fallback_day, today_readiness)
-        today_stress = _stress_by_day.get(fallback_day, today_stress)
-        today_activity = _activity_by_day.get(fallback_day, today_activity)
-        today_sleep_session = _sleep_by_day.get(fallback_day, today_sleep_session)
-        today = fallback_day
-
-    # If today's sleep session has no HRV or avgHR, grab from most recent session that has them
-    hrv_value = today_sleep_session.get("average_hrv")
-    hrv_source = "today"
-    avg_hr_value = today_sleep_session.get("average_heart_rate")
-    if _sleep_by_day:
-        for day in sorted(_sleep_by_day.keys(), reverse=True):
-            session = _sleep_by_day[day]
-            if hrv_value is None and session.get("average_hrv"):
-                hrv_value = session["average_hrv"]
-                hrv_source = day
-            if avg_hr_value is None and session.get("average_heart_rate"):
-                avg_hr_value = session["average_heart_rate"]
-            if hrv_value is not None and avg_hr_value is not None:
-                break
-
-    # Fetch LIVE heart rate from Oura API (last 30 min)
-    latest_hr = None
-    latest_hr_time = None
-    latest_source = None
+    # ── Try live API first for the freshest 2 days ──
+    live_sleep_scores = {}
+    live_readiness = {}
+    live_stress = {}
+    live_activity = {}
+    live_sleep_sessions = {}
 
     if has_live_token():
         try:
-            now = datetime.now(boston_tz)
-            start_dt = (now - timedelta(hours=6)).isoformat()
+            params = {"start_date": yesterday_str, "end_date": tomorrow_str}
+
+            raw_daily_sleep = await fetch_oura("/v2/usercollection/daily_sleep", params)
+            for d in raw_daily_sleep:
+                live_sleep_scores[d["day"]] = d.get("score", 0)
+
+            raw_readiness = await fetch_oura("/v2/usercollection/daily_readiness", params)
+            for d in raw_readiness:
+                live_readiness[d["day"]] = d
+
+            raw_stress = await fetch_oura("/v2/usercollection/daily_stress", params)
+            for d in raw_stress:
+                live_stress[d["day"]] = d
+
+            raw_activity = await fetch_oura("/v2/usercollection/daily_activity", params)
+            for d in raw_activity:
+                live_activity[d["day"]] = d
+
+            raw_sleep = await fetch_oura("/v2/usercollection/sleep", params)
+            for s in raw_sleep:
+                if s.get("type") == "long_sleep" or s["day"] not in live_sleep_sessions:
+                    live_sleep_sessions[s["day"]] = s
+
+        except Exception as e:
+            print(f"[Oura Today] Live API fetch failed: {e}")
+
+    # ── Helper: pick freshest value, preferring live API, then in-memory cache ──
+    def pick(live_dict: dict, cache_dict: dict):
+        """Return (value, day) for today first, then yesterday, from live then cache."""
+        for day in [today_str, yesterday_str]:
+            if day in live_dict:
+                return live_dict[day], day
+        for day in [today_str, yesterday_str]:
+            if day in cache_dict:
+                return cache_dict[day], day
+        # Last resort: most recent in cache
+        if cache_dict:
+            best_day = max(cache_dict.keys())
+            return cache_dict[best_day], best_day
+        return None, None
+
+    # ── Sleep score (last night's sleep, tagged as yesterday) ──
+    sleep_score_val, sleep_day = pick(live_sleep_scores, _score_by_day)
+
+    # ── Readiness (available for today once ring syncs) ──
+    readiness_val, readiness_day = pick(live_readiness, _readiness_by_day)
+
+    # ── Stress (accumulates throughout today) ──
+    stress_val, stress_day = pick(live_stress, _stress_by_day)
+
+    # ── Activity (accumulates throughout today) ──
+    activity_val, activity_day = pick(live_activity, _activity_by_day)
+
+    # ── HRV + avg HR (always from most recent sleep session — "last night") ──
+    hrv_value = None
+    avg_hr_value = None
+    hrv_day = None
+    # Check live sleep sessions first
+    for day in [today_str, yesterday_str]:
+        session = live_sleep_sessions.get(day)
+        if session and session.get("average_hrv"):
+            hrv_value = session["average_hrv"]
+            avg_hr_value = session.get("average_heart_rate")
+            hrv_day = day
+            break
+    # Fallback to cached sessions
+    if hrv_value is None and _sleep_by_day:
+        for day in sorted(_sleep_by_day.keys(), reverse=True):
+            session = _sleep_by_day[day]
+            if session.get("average_hrv"):
+                hrv_value = session["average_hrv"]
+                avg_hr_value = session.get("average_heart_rate")
+                hrv_day = day
+                break
+
+    # ── Live heart rate ──
+    latest_hr = None
+    latest_hr_time = None
+    latest_hr_source = None
+
+    if has_live_token():
+        try:
+            start_dt = (now - timedelta(hours=12)).isoformat()
             end_dt = now.isoformat()
             live_hr = await fetch_oura(
                 "/v2/usercollection/heartrate",
                 {"start_datetime": start_dt, "end_datetime": end_dt}
             )
             if live_hr:
-                # Get the most recent reading
                 last_reading = live_hr[-1]
                 latest_hr = last_reading.get("bpm")
                 latest_hr_time = last_reading.get("timestamp")
-                latest_source = last_reading.get("source", "")
+                latest_hr_source = last_reading.get("source", "")
         except Exception as e:
             print(f"[Oura Today] Live HR fetch failed: {e}")
 
-    # Fallback to exported data if live fetch failed
     if latest_hr is None:
         for reading in reversed(HEARTRATE):
             if reading.get("bpm"):
                 latest_hr = reading["bpm"]
                 latest_hr_time = reading["timestamp"]
-                latest_source = reading.get("source", "")
+                latest_hr_source = reading.get("source", "")
                 break
 
-    return {
-        "day": today,
-        "sleepScore": today_sleep,
-        "readinessScore": today_readiness.get("score"),
-        "temperatureDeviation": today_readiness.get("temperature_deviation"),
-        "activityScore": today_activity.get("score"),
-        "steps": today_activity.get("steps", 0),
-        "activeCalories": today_activity.get("active_calories", 0),
-        "stressHigh": today_stress.get("stress_high"),
-        "stressMin": round((today_stress.get("stress_high", 0) or 0) / 60),
-        "stressSummary": today_stress.get("day_summary"),
+    # ── SpO2 (overnight measurement, usually tagged yesterday) ──
+    spo2_avg = None
+    spo2_day = None
+    for day in [today_str, yesterday_str]:
+        entry = _spo2_by_day.get(day, {})
+        sp = entry.get("spo2_percentage", {})
+        if isinstance(sp, dict) and sp.get("average"):
+            spo2_avg = sp["average"]
+            spo2_day = day
+            break
+
+    # ── Vascular age ──
+    vasc_age = None
+    for day in [today_str, yesterday_str]:
+        entry = _cardio_by_day.get(day, {})
+        if entry.get("vascular_age"):
+            vasc_age = entry["vascular_age"]
+            break
+    if vasc_age is None and _cardio_by_day:
+        best = max(_cardio_by_day.keys())
+        vasc_age = _cardio_by_day[best].get("vascular_age")
+
+    # ── Unpack readiness/stress/activity from their dicts ──
+    readiness_obj = readiness_val if isinstance(readiness_val, dict) else {}
+    stress_obj = stress_val if isinstance(stress_val, dict) else {}
+    activity_obj = activity_val if isinstance(activity_val, dict) else {}
+
+    result = {
+        # Each metric carries its own date so the frontend knows the source
+        "day": today_str,
+        "sleepScore": sleep_score_val if not isinstance(sleep_score_val, dict) else sleep_score_val.get("score"),
+        "sleepDay": sleep_day,
+        "readinessScore": readiness_obj.get("score"),
+        "readinessDay": readiness_day,
+        "temperatureDeviation": readiness_obj.get("temperature_deviation"),
+        "activityScore": activity_obj.get("score"),
+        "activityDay": activity_day,
+        "steps": activity_obj.get("steps", 0),
+        "activeCalories": activity_obj.get("active_calories", 0),
+        "stressHigh": stress_obj.get("stress_high"),
+        "stressMin": round((stress_obj.get("stress_high", 0) or 0) / 60),
+        "stressDay": stress_day,
+        "stressSummary": stress_obj.get("day_summary"),
         "hrv": hrv_value,
-        "hrvSource": hrv_source,
+        "hrvDay": hrv_day,
         "avgHeartRate": avg_hr_value,
         "latestHeartRate": latest_hr,
         "latestHeartRateTime": latest_hr_time,
-        "latestHRSource": latest_source,
-        "spo2Avg": _spo2_by_day.get(today, {}).get("spo2_percentage", {}).get("average") if isinstance(_spo2_by_day.get(today, {}).get("spo2_percentage"), dict) else None,
-        "vascularAge": _cardio_by_day.get(today, {}).get("vascular_age"),
+        "latestHRSource": latest_hr_source,
+        "spo2Avg": spo2_avg,
+        "vascularAge": vasc_age,
     }
+
+    # Apply manual override on top
+    if override:
+        for key in override:
+            if key in result:
+                result[key] = override[key]
+        result["day"] = override.get("day", today_str)
+        result["overridden"] = True
+
+    return result
+
+
+@router.get("/contributors")
+def get_contributors():
+    """
+    Latest sleep, readiness, and activity contributor breakdowns.
+    Returns the most recent day that has contributor data.
+    """
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    boston_tz = ZoneInfo("America/New_York")
+    today_str = datetime.now(boston_tz).strftime("%Y-%m-%d")
+
+    # Find most recent day with data
+    days_with_data = sorted(set(
+        list(_daily_sleep_by_day.keys()) +
+        list(_readiness_by_day.keys()) +
+        list(_activity_by_day.keys())
+    ), reverse=True)
+
+    result = {"day": None, "sleep": None, "readiness": None, "activity": None,
+              "resilience": None, "spo2": None, "sleepTime": None}
+
+    for day in days_with_data:
+        ds = _daily_sleep_by_day.get(day, {})
+        if ds.get("contributors"):
+            result["day"] = day
+            result["sleep"] = {
+                "score": ds.get("score"),
+                "contributors": ds["contributors"],
+            }
+            break
+
+    for day in days_with_data:
+        rd = _readiness_by_day.get(day, {})
+        if rd.get("contributors"):
+            if result["day"] is None:
+                result["day"] = day
+            result["readiness"] = {
+                "score": rd.get("score"),
+                "temperatureDeviation": rd.get("temperature_deviation"),
+                "temperatureTrendDeviation": rd.get("temperature_trend_deviation"),
+                "contributors": rd["contributors"],
+            }
+            break
+
+    for day in days_with_data:
+        act = _activity_by_day.get(day, {})
+        if act.get("contributors"):
+            result["activity"] = {
+                "score": act.get("score"),
+                "steps": act.get("steps", 0),
+                "activeCalories": act.get("active_calories", 0),
+                "totalCalories": act.get("total_calories", 0),
+                "contributors": act["contributors"],
+            }
+            break
+
+    # Resilience contributors
+    for day in days_with_data:
+        res = _resilience_by_day.get(day, {})
+        if isinstance(res, dict) and res.get("contributors"):
+            result["resilience"] = {
+                "level": res.get("level"),
+                "contributors": res["contributors"],
+            }
+            break
+
+    # SpO2 with breathing disturbance index
+    for day in days_with_data:
+        sp = _spo2_by_day.get(day, {})
+        spo2_pct = sp.get("spo2_percentage", {})
+        if isinstance(spo2_pct, dict) and spo2_pct.get("average"):
+            result["spo2"] = {
+                "average": spo2_pct["average"],
+                "breathingDisturbanceIndex": sp.get("breathing_disturbance_index"),
+            }
+            break
+
+    # Sleep time recommendation
+    sleep_times = _load("sleep_time.json")
+    if sleep_times:
+        latest = sorted(sleep_times, key=lambda x: x.get("day", ""))[-1]
+        result["sleepTime"] = {
+            "day": latest.get("day"),
+            "recommendation": latest.get("recommendation"),
+            "status": latest.get("status"),
+            "optimalBedtime": latest.get("optimal_bedtime"),
+        }
+
+    return result
 
 
 @router.get("/cardiovascular-age")
@@ -392,7 +634,7 @@ async def refresh_from_oura():
 
     global SLEEP_SESSIONS, DAILY_SLEEP, DAILY_READINESS, DAILY_STRESS, WORKOUTS
     global DAILY_ACTIVITY, DAILY_RESILIENCE, DAILY_SPO2, HEARTRATE, CARDIO_AGE
-    global _sleep_by_day, _score_by_day, _readiness_by_day, _stress_by_day
+    global _sleep_by_day, _score_by_day, _daily_sleep_by_day, _readiness_by_day, _stress_by_day
     global _activity_by_day, _resilience_by_day, _spo2_by_day, _cardio_by_day
 
     sleep = await fetch_sleep_live()
@@ -417,6 +659,8 @@ async def refresh_from_oura():
         DAILY_SLEEP = daily_sleep
         _score_by_day.clear()
         _score_by_day.update({d["day"]: d.get("score", 0) for d in daily_sleep})
+        _daily_sleep_by_day.clear()
+        _daily_sleep_by_day.update({d["day"]: d for d in daily_sleep})
 
     if daily_stress:
         DAILY_STRESS = daily_stress
@@ -470,6 +714,143 @@ async def refresh_from_oura():
         },
         "message": "All Oura data refreshed from live API",
     }
+
+
+# ── Oura Webhooks ──────────────────────────────────────────────────────
+
+WEBHOOK_VERIFICATION_TOKEN = "yu-restos-oura-2026"
+
+@router.post("/webhook")
+async def oura_webhook(request: Request):
+    """
+    Receive real-time push notifications from Oura when new data is available.
+    Oura sends: { event_type, data_type, object_id, ... }
+    On receiving a notification, we fetch the updated record from the live API
+    and update our in-memory stores immediately.
+    """
+    from .live import has_live_token, fetch_oura
+
+    body = await request.json()
+    event_type = body.get("event_type")  # create | update | delete
+    data_type = body.get("data_type")    # daily_sleep | daily_readiness | etc.
+
+    print(f"[Oura Webhook] {event_type} {data_type}")
+
+    if event_type in ("create", "update") and has_live_token():
+        # Fetch the last 2 days of the relevant data type to catch today
+        from datetime import datetime, timedelta
+        from zoneinfo import ZoneInfo
+        boston_tz = ZoneInfo("America/New_York")
+        now = datetime.now(boston_tz)
+        start = (now - timedelta(days=2)).strftime("%Y-%m-%d")
+        end = (now + timedelta(days=1)).strftime("%Y-%m-%d")
+        params = {"start_date": start, "end_date": end}
+
+        if data_type == "daily_sleep":
+            records = await fetch_oura("/v2/usercollection/daily_sleep", params)
+            for d in records:
+                _score_by_day[d["day"]] = d.get("score", 0)
+            print(f"[Oura Webhook] Updated sleep scores: {[d['day'] for d in records]}")
+
+        elif data_type == "daily_readiness":
+            records = await fetch_oura("/v2/usercollection/daily_readiness", params)
+            for d in records:
+                _readiness_by_day[d["day"]] = d
+            print(f"[Oura Webhook] Updated readiness: {[d['day'] for d in records]}")
+
+        elif data_type == "daily_stress":
+            records = await fetch_oura("/v2/usercollection/daily_stress", params)
+            for d in records:
+                _stress_by_day[d["day"]] = d
+            print(f"[Oura Webhook] Updated stress: {[d['day'] for d in records]}")
+
+        elif data_type == "daily_activity":
+            records = await fetch_oura("/v2/usercollection/daily_activity", params)
+            for d in records:
+                _activity_by_day[d["day"]] = d
+            print(f"[Oura Webhook] Updated activity: {[d['day'] for d in records]}")
+
+        elif data_type == "sleep":
+            records = await fetch_oura("/v2/usercollection/sleep", params)
+            for s in records:
+                if s.get("type") == "long_sleep" or s["day"] not in _sleep_by_day:
+                    _sleep_by_day[s["day"]] = s
+            print(f"[Oura Webhook] Updated sleep sessions: {[s['day'] for s in records]}")
+
+        elif data_type == "daily_spo2":
+            records = await fetch_oura("/v2/usercollection/daily_spo2", params)
+            for d in records:
+                _spo2_by_day[d["day"]] = d
+
+        elif data_type == "daily_cardiovascular_age":
+            records = await fetch_oura("/v2/usercollection/daily_cardiovascular_age", params)
+            for d in records:
+                _cardio_by_day[d["day"]] = d
+
+    return {"status": "ok"}
+
+
+@router.get("/webhook/subscribe")
+async def subscribe_webhooks():
+    """Subscribe to Oura webhooks for real-time data updates."""
+    from .live import has_live_token, TOKEN, BASE
+    import httpx
+
+    if not has_live_token():
+        return {"status": "error", "message": "No Oura token"}
+
+    # You need to expose this via ngrok or similar for Oura to reach it
+    # For local dev, set WEBHOOK_URL env var
+    callback_base = os.getenv("OURA_WEBHOOK_URL", "http://localhost:8000")
+    callback_url = f"{callback_base}/api/oura/webhook"
+
+    data_types = [
+        "daily_sleep", "daily_readiness", "daily_stress",
+        "daily_activity", "sleep", "daily_spo2", "daily_cardiovascular_age",
+    ]
+    event_types = ["create", "update"]
+
+    results = []
+    async with httpx.AsyncClient(timeout=15) as client:
+        for dt in data_types:
+            for et in event_types:
+                try:
+                    resp = await client.post(
+                        f"{BASE}/v2/webhook/subscription",
+                        headers={"Authorization": f"Bearer {TOKEN}"},
+                        json={
+                            "callback_url": callback_url,
+                            "verification_token": WEBHOOK_VERIFICATION_TOKEN,
+                            "event_type": et,
+                            "data_type": dt,
+                        }
+                    )
+                    results.append({
+                        "data_type": dt, "event_type": et,
+                        "status": resp.status_code,
+                        "response": resp.json() if resp.status_code < 300 else resp.text,
+                    })
+                except Exception as e:
+                    results.append({"data_type": dt, "event_type": et, "error": str(e)})
+
+    return {"subscriptions": results}
+
+
+@router.get("/webhook/list")
+async def list_webhooks():
+    """List active Oura webhook subscriptions."""
+    from .live import has_live_token, TOKEN, BASE
+    import httpx
+
+    if not has_live_token():
+        return {"status": "error", "message": "No Oura token"}
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        resp = await client.get(
+            f"{BASE}/v2/webhook/subscription",
+            headers={"Authorization": f"Bearer {TOKEN}"},
+        )
+        return resp.json()
 
 
 @router.get("/workout")

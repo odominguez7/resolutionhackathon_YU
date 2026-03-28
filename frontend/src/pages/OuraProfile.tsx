@@ -8,8 +8,9 @@ import {
 } from "recharts";
 import {
   Activity, Heart, Moon, Brain, Flame, Dumbbell, Clock, TrendingUp,
-  Zap, Wind, Droplets, Footprints, Gauge,
+  Zap, Wind, Droplets, Footprints, Gauge, Calendar, MapPin, Coffee, Bed, Sun, Sunrise,
 } from "lucide-react";
+import PlanOrbit from "@/components/PlanOrbit";
 
 /* ── inject keyframes ── */
 const styleId = "oura-v2-keyframes";
@@ -197,6 +198,8 @@ const OuraProfile = () => {
   const [stressData, setStressData] = useState<any[]>([]);
   const [cardioAge, setCardioAge] = useState<any[]>([]);
   const [todayData, setTodayData] = useState<any>(null);
+  const [contributors, setContributors] = useState<any>(null);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [range, setRange] = useState<Interval>("ALL");
@@ -213,14 +216,18 @@ const OuraProfile = () => {
         api.get("/api/oura/stress-detail"),
         api.get("/api/oura/cardiovascular-age"),
         api.get("/api/oura/today"),
+        api.get("/api/oura/contributors").catch(() => null),
+        api.get("/api/calendar/events?days=7").catch(() => ({ events: [] })),
       ])
-        .then(([sh, st, wo, sd, ca, td]) => {
+        .then(([sh, st, wo, sd, ca, td, ct, cal]) => {
           setSleepHistory(sh.data ?? []);
           setStats(st);
           setWorkouts(wo.data ?? []);
           setStressData(sd.data ?? []);
           setCardioAge(ca.data ?? []);
           setTodayData(td);
+          if (ct) setContributors(ct);
+          setCalendarEvents(cal?.events ?? []);
         })
         .catch((e) => setError(e.message))
         .finally(() => setLoading(false));
@@ -320,94 +327,128 @@ const OuraProfile = () => {
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0a0e27 0%,#111638 100%)" }}>
 
-      {/* ═══════ STICKY TODAY BAR ═══════ */}
-      {todayData && (
-        <div className="sticky top-16 z-40 border-b border-white/[0.06]"
-          style={{ background: "rgba(8,11,30,0.85)", backdropFilter: "blur(20px)" }}>
-          <div className="max-w-6xl mx-auto px-4 md:px-6 py-2.5 flex items-center justify-center gap-4 md:gap-6 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <Moon className="w-3.5 h-3.5 text-blue-400" />
-              <span className="text-[10px] text-slate-500 uppercase font-semibold">Sleep</span>
-              <span className="text-sm font-black" style={{ color: scoreClr(todayData.sleepScore ?? 0) }}>{todayData.sleepScore ?? "--"}</span>
-            </div>
-            <span className="text-slate-700">|</span>
-            <div className="flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[10px] text-slate-500 uppercase font-semibold">Readiness</span>
-              <span className="text-sm font-black" style={{ color: scoreClr(todayData.readinessScore ?? 0) }}>{todayData.readinessScore ?? "--"}</span>
-            </div>
-            <span className="text-slate-700">|</span>
-            <div className="flex items-center gap-1.5">
-              <Brain className="w-3.5 h-3.5 text-violet-400" />
-              <span className="text-[10px] text-slate-500 uppercase font-semibold">HRV{todayData.hrvSource && todayData.hrvSource !== "today" ? <span className="text-[8px] text-slate-600 normal-case ml-0.5">(last night)</span> : ""}</span>
-              <span className="text-sm font-black text-violet-400">{todayData.hrv ?? "--"} <span className="text-[9px] text-slate-500">ms</span></span>
-            </div>
-            <span className="text-slate-700">|</span>
-            <div className="flex items-center gap-1.5">
-              {(() => {
-                const hrTime = todayData.latestHeartRateTime ? new Date(todayData.latestHeartRateTime) : null;
-                const isStale = !hrTime || (Date.now() - hrTime.getTime()) > 6 * 60 * 60 * 1000;
-                return <>
-                  <Heart className={`w-3.5 h-3.5 text-red-400 ${isStale ? "" : "animate-pulse"}`} />
-                  <span className="text-[10px] text-slate-500 uppercase font-semibold">HR{isStale ? <span className="text-[8px] text-slate-600 normal-case ml-0.5">(last synced)</span> : ""}</span>
-                  <span className={`text-sm font-black ${isStale ? "text-red-400/60" : "text-red-400"}`}>{todayData.latestHeartRate ?? "--"} <span className="text-[9px] text-slate-500">bpm</span></span>
-                  {hrTime && (
-                    <span className="text-[9px] text-slate-600">
-                      {hrTime.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/New_York" })} ET
+      {/* Sticky bar removed — data lives in the orbit now */}
+      {false && todayData && (() => {
+        const hrTime = todayData.latestHeartRateTime ? new Date(todayData.latestHeartRateTime) : null;
+        const isHRLive = hrTime && (Date.now() - hrTime.getTime()) < 30 * 60 * 1000;
+        const isHRRecent = hrTime && (Date.now() - hrTime.getTime()) < 6 * 60 * 60 * 1000;
+        const todayStr = new Date().toISOString().slice(0, 10);
+
+        // Ring score component matching Oura app style
+        const RingScore = ({ value, color, size = 32 }: { value: number | null; color: string; size?: number }) => {
+          const r = (size - 4) / 2;
+          const circ = 2 * Math.PI * r;
+          const offset = value != null ? circ * (1 - value / 100) : circ;
+          return (
+            <svg width={size} height={size} className="transform -rotate-90">
+              <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={3} />
+              <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={3}
+                strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
+                style={{ transition: "stroke-dashoffset 1s ease-out" }} />
+              <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central"
+                fill="white" fontSize={size * 0.32} fontWeight="800"
+                className="transform rotate-90" style={{ transformOrigin: "center" }}>
+                {value ?? "--"}
+              </text>
+            </svg>
+          );
+        };
+
+        return (
+          <div className="sticky top-14 z-40 border-b border-white/[0.04]"
+            style={{ background: "rgba(8,11,30,0.92)", backdropFilter: "blur(24px)" }}>
+            <div className="max-w-6xl mx-auto px-4 md:px-6 py-2 flex items-center justify-center gap-5 md:gap-7 flex-wrap">
+
+              {/* Sleep */}
+              <div className="flex items-center gap-2">
+                <RingScore value={todayData.sleepScore} color="#60a5fa" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-slate-500 uppercase font-semibold leading-none">Sleep</span>
+                  <span className="text-[9px] text-slate-600 leading-none mt-0.5">
+                    {todayData.sleepDay === todayStr ? "Today" : "Last night"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-px h-8 bg-white/[0.06]" />
+
+              {/* Readiness */}
+              <div className="flex items-center gap-2">
+                <RingScore value={todayData.readinessScore} color="#4ade80" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-slate-500 uppercase font-semibold leading-none">Readiness</span>
+                  <span className="text-[9px] text-slate-600 leading-none mt-0.5">
+                    {todayData.readinessDay === todayStr ? "Today" : "Last night"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-px h-8 bg-white/[0.06]" />
+
+              {/* HRV */}
+              <div className="flex items-center gap-2">
+                <Brain className="w-4 h-4 text-violet-400" />
+                <div className="flex flex-col">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm font-black text-violet-400">{todayData.hrv ?? "--"}</span>
+                    <span className="text-[9px] text-slate-500">ms</span>
+                  </div>
+                  <span className="text-[9px] text-slate-600 leading-none">HRV (last night)</span>
+                </div>
+              </div>
+
+              <div className="w-px h-8 bg-white/[0.06]" />
+
+              {/* Heart Rate */}
+              <div className="flex items-center gap-2">
+                <Heart className={`w-4 h-4 text-red-400 ${isHRLive ? "animate-pulse" : ""}`} />
+                <div className="flex flex-col">
+                  <div className="flex items-baseline gap-1">
+                    <span className={`text-sm font-black ${isHRRecent ? "text-red-400" : "text-red-400/50"}`}>
+                      {todayData.latestHeartRate ?? "--"}
                     </span>
-                  )}
-                </>;
-              })()}
-            </div>
-            <span className="text-slate-700">|</span>
-            <div className="flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-[10px] text-slate-500 uppercase font-semibold">Stress</span>
-              <span className="text-sm font-black text-amber-400">{todayData.stressMin ?? "--"} <span className="text-[9px] text-slate-500">min</span></span>
+                    <span className="text-[9px] text-slate-500">bpm</span>
+                  </div>
+                  <span className="text-[9px] text-slate-600 leading-none">
+                    {isHRLive ? (
+                      <span className="text-emerald-500">Live</span>
+                    ) : hrTime ? (
+                      hrTime.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/New_York" })
+                    ) : "No data"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-px h-8 bg-white/[0.06]" />
+
+              {/* Stress */}
+              <div className="flex items-center gap-2">
+                <Flame className="w-4 h-4 text-amber-400" />
+                <div className="flex flex-col">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm font-black text-amber-400">{todayData.stressMin ?? "--"}</span>
+                    <span className="text-[9px] text-slate-500">min</span>
+                  </div>
+                  <span className="text-[9px] text-slate-600 leading-none">
+                    Stress {todayData.stressDay === todayStr ? "today" : "yesterday"}
+                  </span>
+                </div>
+              </div>
+
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 space-y-7">
 
-        {/* ═══════ 1. HEADER ═══════ */}
-        <Glass delay={0} className="text-center relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none" style={{
-            background: "radial-gradient(ellipse at 50% 20%, rgba(74,222,128,.06) 0%, transparent 70%)",
-          }} />
-          <div className="relative z-10 space-y-4">
-            <div className="flex justify-center">
-              <div className="rounded-full p-4" style={{ background: "rgba(74,222,128,.1)" }}>
-                <Activity className="w-10 h-10 text-emerald-400" />
-              </div>
-            </div>
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white">
-              OURA RING DATA
-            </h1>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest"
-                style={{ background: "rgba(74,222,128,.12)", color: "#4ADE80" }}>
-                <span className="w-2 h-2 rounded-full bg-emerald-400" style={{ animation: "oura-pulse-dot 1.5s ease-in-out infinite" }} />
-                Live Data
-              </span>
-              <span className="text-slate-500 text-xs">{stats?.totalDays ?? allChart.length} days total &middot; {dateRange} &middot; Showing {chart.length} days</span>
-            </div>
+        {/* ═══════ THE HERO: PLAN YOUR DAY ═══════ */}
+        <PlanOrbit todayData={todayData} calendarEvents={calendarEvents} stats={stats} sleepHistory={sleepHistory} stressData={stressData} />
 
-            {/* interval toggle */}
-            <div className="flex items-center justify-center gap-1 pt-2">
-              {(["7D", "14D", "30D", "ALL"] as Interval[]).map((iv) => (
-                <button key={iv}
-                  onClick={() => setRange(iv)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer border-0
-                    ${range === iv ? "bg-emerald-500/20 text-emerald-400 shadow-[0_0_12px_rgba(74,222,128,.15)]" : "text-slate-500 hover:text-slate-300 bg-transparent"}`}>
-                  {iv}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Glass>
 
+        {/* Everything below the orbit is hidden -- the orbit IS the product */}
+        {false && (
+        <div>
         {/* ═══════ WHAT YOUR BODY IS SAYING — instant, data-driven ═══════ */}
         {latest && (() => {
           const insights: { text: string; type: "good" | "warn" | "bad"; question?: string }[] = [];
@@ -475,9 +516,10 @@ const OuraProfile = () => {
 
           return (
             <Glass delay={120}>
-              <h3 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[.22em] mb-4 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-400" /> What your body is saying
+              <h3 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[.22em] mb-1 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-400" /> Your weekly check-in
               </h3>
+              <p className="text-xs text-slate-600 mb-4">No jargon. No charts to decode. Just what's going on with you right now and what to do about it.</p>
               <div className="space-y-3">
                 {insights.map((ins, i) => {
                   const c = colors[ins.type];
@@ -495,64 +537,57 @@ const OuraProfile = () => {
           );
         })()}
 
-        {/* ═══════ VITAL GRID (8 cards — computed from filtered chart range) ═══════ */}
+        {/* ═══════ VITAL GRID (4 key cards) ═══════ */}
         {chart.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard icon={Heart} label="Heart Rate"
-              subtitle="How hard your heart works at rest. Lower = fitter."
+            <StatCard icon={Heart} label="Resting HR"
+              subtitle="How chill your heart is at rest. Lower = fitter you."
               value={avgHR || "--"} unit="bpm"
               spark={sparkPoints(chart, "avgHeartRate")}
               change={pctChange(avgHR, overallAvgHR)}
               color="#F87171" daysLabel={daysLabel} delay={200} />
             <StatCard icon={Brain} label="HRV"
-              subtitle="Your nervous system's recharge speed. Higher = more resilient."
+              subtitle="Your stress battery. Higher = more capacity to handle the day."
               value={avgHRV || "--"} unit="ms"
               spark={sparkPoints(chart, "hrv")}
               change={pctChange(avgHRV, overallAvgHRV)}
               color="#8B5CF6" daysLabel={daysLabel} delay={250} />
-            <StatCard icon={Wind} label="Resp Rate"
-              subtitle="How fast you breathe during sleep. Stable = calm system."
-              value={avgResp || "--"} unit="br/min"
-              spark={sparkPoints(chart, "avgRespRate")}
-              change={pctChange(avgResp, overallAvgResp)}
-              color="#38BDF8" daysLabel={daysLabel} delay={300} />
-            <StatCard icon={Droplets} label="SpO2"
-              subtitle="Blood oxygen level. Should stay 95-100%."
-              value={avgSpO2 || "--"} unit="%"
-              spark={sparkPoints(chart, "spo2Avg")}
-              change={pctChange(avgSpO2, overallAvgSpO2)}
-              color="#A78BFA" daysLabel={daysLabel} delay={350} />
             <StatCard icon={Moon} label="Deep Sleep"
-              subtitle="When your body repairs muscle and releases growth hormone."
+              subtitle="The phase where your body actually rebuilds. More = better recovery."
               value={avgDeep || "--"} unit="min"
               spark={sparkPoints(chart, "deepSleepMin")}
               change={pctChange(avgDeep, overallAvgDeep)}
-              color="#3B82F6" daysLabel={daysLabel} delay={400} />
+              color="#38BDF8" daysLabel={daysLabel} delay={300} />
             <StatCard icon={TrendingUp} label="Readiness"
-              subtitle="Can your body handle a hard day? Above 70 = go for it."
+              subtitle="Should you go hard or take it easy today? This number tells you."
               value={avgReadiness || "--"} unit="/100"
               spark={sparkPoints(chart, "readinessScore")}
               change={pctChange(avgReadiness, overallAvgReadiness)}
-              color="#4ADE80" daysLabel={daysLabel} delay={450} />
-            <StatCard icon={Footprints} label="Steps"
-              subtitle="Daily movement. Even walking burns more than you think."
-              value={avgSteps ? avgSteps.toLocaleString() : "--"} unit="steps"
-              spark={sparkPoints(chart, "steps")}
-              change={pctChange(avgSteps, overallAvgSteps)}
-              color="#FB923C" daysLabel={daysLabel} delay={500} />
-            <StatCard icon={Gauge} label="Efficiency"
-              subtitle="% of time in bed you actually slept. Above 85% = solid."
-              value={avgEfficiency || "--"} unit="%"
-              spark={sparkPoints(chart, "efficiency")}
-              change={pctChange(avgEfficiency, overallAvgEfficiency)}
-              color="#2DD4BF" daysLabel={daysLabel} delay={550} />
+              color="#4ADE80" daysLabel={daysLabel} delay={350} />
           </div>
         )}
 
-        {/* ═══════ 4. SLEEP SCORE TREND ═══════ */}
+        {/* ═══════ WHY THIS PLAN ═══════ */}
+        <div className="pt-4">
+          <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-center mb-1" style={{ color: "rgba(139,92,246,0.5)" }}>Why this plan</p>
+          <h3 className="text-xl font-bold text-white text-center mb-2">The data behind your recommendations</h3>
+          <p className="text-xs text-slate-600 text-center max-w-md mx-auto mb-4">Every suggestion above comes from these trends. This is what your wearable has been tracking while you've been living your life.</p>
+          <div className="flex items-center justify-center gap-1 mb-4">
+            {(["7D", "14D", "30D", "ALL"] as Interval[]).map((iv) => (
+              <button key={iv}
+                onClick={() => setRange(iv)}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer border-0
+                  ${range === iv ? "bg-violet-500/20 text-violet-400 shadow-[0_0_12px_rgba(139,92,246,.15)]" : "text-slate-500 hover:text-slate-300 bg-transparent"}`}>
+                {iv}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ═══════ SLEEP SCORE TREND ═══════ */}
         <Glass delay={350}>
-          <SectionHeader icon={Moon} title="Sleep Score Trend"
-            description="Think of this as your sleep grade. Above 85 means you slept great. Below 65 means something went wrong. The trend matters more than any single night." />
+          <SectionHeader icon={Moon} title="How you've been sleeping"
+            description="Each dot is a night. Above 85 means you crushed it. Below 65 means something was off. Watch the trend, not the individual nights." />
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={chart} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
               <defs>
@@ -579,7 +614,8 @@ const OuraProfile = () => {
           </ResponsiveContainer>
         </Glass>
 
-        {/* ═══════ 5. SLEEP STAGES ═══════ */}
+        {/* Sleep Stages — hidden for demo flow */}
+        {false && (
         <Glass delay={420}>
           <SectionHeader icon={Moon} title="Sleep Stages"
             description="Your sleep has 4 phases. Deep sleep fixes your body. REM processes your emotions and memories. Light sleep is filler. Awake time is wasted. You want more blue and purple." />
@@ -617,11 +653,13 @@ const OuraProfile = () => {
           </div>
         </Glass>
 
-        {/* ═══════ 6. STRESS & RECOVERY ═══════ */}
+        )}
+
+        {/* ═══════ STRESS & RECOVERY ═══════ */}
         {stressChart.length > 0 && (
           <Glass delay={490}>
-            <SectionHeader icon={Zap} title="Stress & Recovery"
-              description="Red = your body was in fight-or-flight mode. Green = your body was actively recovering. You want green to outweigh red." />
+            <SectionHeader icon={Zap} title="Stress vs Recovery"
+              description="Red days = your body was running on fumes. Green days = it was actually recharging. If you see too much red, that's exactly when YU steps in with a plan." />
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={stressChart} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -668,8 +706,8 @@ const OuraProfile = () => {
 
         {/* ═══════ 7. READINESS + ACTIVITY ═══════ */}
         <Glass delay={560}>
-          <SectionHeader icon={TrendingUp} title="Readiness + Activity"
-            description="Green = how ready your body is. Blue = how active you were. If blue stays high but green drops, you're pushing too hard." />
+          <SectionHeader icon={TrendingUp} title="Are you overdoing it?"
+            description="Blue = how hard you pushed. Green = how recovered you were. When blue keeps climbing but green drops, you're running a deficit. That's when burnout hits." />
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={chart.filter((d: any) => d.activityScore > 0)} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
               <defs>
@@ -696,7 +734,14 @@ const OuraProfile = () => {
           </div>
         </Glass>
 
-        {/* ═══════ 8. HEART RATE & HRV DETAIL ═══════ */}
+        {/* ═══════ GO DEEPER ═══════ */}
+        <div className="pt-4">
+          <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-center mb-1" style={{ color: "rgba(16,185,129,0.6)" }}>Go deeper</p>
+          <h3 className="text-xl font-bold text-white text-center mb-2">Build out your plan</h3>
+          <p className="text-xs text-slate-600 text-center max-w-md mx-auto mb-6">Want more detail? Pick your workout type below and AI will program the full session based on exactly where your body is right now.</p>
+        </div>
+
+        {false && /* Deep-dive sections — available on /oura */  (<>
         <Glass delay={630}>
           <SectionHeader icon={Heart} title="Heart Rate & HRV"
             description="Two numbers that tell you how fit you are. Heart rate going down = your heart is getting stronger. HRV going up = your body handles stress better." />
@@ -807,91 +852,176 @@ const OuraProfile = () => {
           </Glass>
         )}
 
-        {/* ═══════ 11. SLEEP CONTRIBUTORS ═══════ */}
-        {latest && (
-          <Glass delay={840}>
-            <SectionHeader icon={Moon} title="Sleep Contributors"
-              description="These are the building blocks of your sleep score. The short bars are what's holding you back." />
-            <div className="space-y-3">
-              {[
-                { label: "Deep Sleep", key: "deepSleepMin", max: 120, color: "#3B82F6", suffix: "min" },
-                { label: "REM Sleep", key: "remSleepMin", max: 150, color: "#8B5CF6", suffix: "min" },
-                { label: "Efficiency", key: "efficiency", max: 100, color: "#2DD4BF", suffix: "%" },
-                { label: "Latency", key: "latency", max: 30, color: "#F59E0B", invert: true, suffix: "min" },
-                { label: "Total Sleep", key: "sleepHrs", max: 9, color: "#4ADE80", suffix: "hrs" },
-                { label: "Restfulness", key: "tnt", max: 30, color: "#818CF8", invert: true },
-              ].map((c) => {
-                const raw = latest[c.key] ?? 0;
-                const pct = (c as any).invert ? Math.max(0, 100 - (raw / c.max * 100)) : Math.min(100, (raw / c.max * 100));
-                return (
-                  <div key={c.key}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-slate-400 font-semibold">{c.label}</span>
-                      <span className="text-xs font-bold text-white">{typeof raw === "number" ? (Number.isInteger(raw) ? raw : raw.toFixed(1)) : raw}{(c as any).suffix ? ` ${(c as any).suffix}` : ""}</span>
-                    </div>
-                    <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: c.color }} />
-                    </div>
+        {/* ═══════ 11. SCORE CONTRIBUTORS (Oura-style) ═══════ */}
+        {contributors && (() => {
+          const ContributorBar = ({ label, value, color }: { label: string; value: number | null; color: string }) => {
+            const v = value ?? 0;
+            const barColor = v >= 80 ? color : v >= 60 ? "#F59E0B" : "#EF4444";
+            return (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-slate-400 font-medium">{label}</span>
+                  <span className="text-xs font-bold" style={{ color: barColor }}>{v}</span>
+                </div>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                  <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${v}%`, background: barColor }} />
+                </div>
+              </div>
+            );
+          };
+
+          const sc = contributors.sleep?.contributors;
+          const rc = contributors.readiness?.contributors;
+          const ac = contributors.activity?.contributors;
+          const res = contributors.resilience;
+          const spo2 = contributors.spo2;
+          const st = contributors.sleepTime;
+
+          return (
+            <>
+              {/* Sleep Contributors */}
+              {sc && (
+                <Glass delay={840}>
+                  <SectionHeader icon={Moon} title="Sleep Score Breakdown"
+                    description={`Score: ${contributors.sleep?.score ?? "--"}/100. The short bars are dragging your score down.`} />
+                  <div className="space-y-2.5">
+                    <ContributorBar label="Total Sleep" value={sc.total_sleep} color="#3B82F6" />
+                    <ContributorBar label="Deep Sleep" value={sc.deep_sleep} color="#3B82F6" />
+                    <ContributorBar label="REM Sleep" value={sc.rem_sleep} color="#8B5CF6" />
+                    <ContributorBar label="Efficiency" value={sc.efficiency} color="#2DD4BF" />
+                    <ContributorBar label="Restfulness" value={sc.restfulness} color="#818CF8" />
+                    <ContributorBar label="Latency" value={sc.latency} color="#F59E0B" />
+                    <ContributorBar label="Timing" value={sc.timing} color="#4ADE80" />
                   </div>
-                );
-              })}
-            </div>
-          </Glass>
-        )}
+                </Glass>
+              )}
 
-        {/* ═══════ 12. RECENT WORKOUTS ═══════ */}
-        {workouts.length > 0 && (
-          <Glass delay={910}>
-            <SectionHeader icon={Dumbbell} title="Recent Workouts"
-              description="Your recent training sessions. Hard workouts need good recovery. If intensity is high but sleep is low, you're digging a hole." />
-            <div className="overflow-x-auto -mx-1">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-[10px] text-slate-500 uppercase tracking-wider border-b border-white/[0.05]">
-                    <th className="text-left py-2.5 px-3 font-semibold">Date</th>
-                    <th className="text-left py-2.5 px-3 font-semibold">Activity</th>
-                    <th className="text-right py-2.5 px-3 font-semibold">Dur</th>
-                    <th className="text-right py-2.5 px-3 font-semibold">Cal</th>
-                    <th className="text-right py-2.5 px-3 font-semibold">Avg HR</th>
-                    <th className="text-right py-2.5 px-3 font-semibold">Intensity</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    const cutoff = new Date();
-                    cutoff.setDate(cutoff.getDate() - 8);
-                    const cutoffStr = cutoff.toLocaleDateString("en-CA", { timeZone: "America/New_York" });
-                    return workouts.filter((w: any) => w.day >= cutoffStr);
-                  })().map((w: any, i: number) => (
-                    <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                      <td className="py-2 px-3 text-slate-400 text-xs">{fmtDate(w.day)}</td>
-                      <td className="py-2 px-3 text-white font-semibold text-xs">
-                        {(w.activity || "").replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
-                      </td>
-                      <td className="py-2 px-3 text-right text-slate-300 text-xs">{w.duration ? `${Math.round(w.duration)}m` : "--"}</td>
-                      <td className="py-2 px-3 text-right text-amber-400 font-semibold text-xs">{w.calories ? Math.round(w.calories) : "--"}</td>
-                      <td className="py-2 px-3 text-right text-red-400 text-xs">{w.avgHeartRate ?? "--"}</td>
-                      <td className="py-2 px-3 text-right">
-                        <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
-                          style={{
-                            background: w.intensity === "high" ? "rgba(248,113,113,.15)" : w.intensity === "medium" ? "rgba(245,158,11,.15)" : "rgba(74,222,128,.12)",
-                            color: w.intensity === "high" ? "#F87171" : w.intensity === "medium" ? "#F59E0B" : "#4ADE80",
+              {/* Readiness Contributors */}
+              {rc && (
+                <Glass delay={880}>
+                  <SectionHeader icon={Zap} title="Readiness Score Breakdown"
+                    description={`Score: ${contributors.readiness?.score ?? "--"}/100. These factors determine how ready your body is today.`} />
+                  <div className="space-y-2.5">
+                    <ContributorBar label="Previous Night" value={rc.previous_night} color="#4ADE80" />
+                    <ContributorBar label="Sleep Balance" value={rc.sleep_balance} color="#3B82F6" />
+                    <ContributorBar label="Sleep Regularity" value={rc.sleep_regularity} color="#8B5CF6" />
+                    <ContributorBar label="HRV Balance" value={rc.hrv_balance} color="#A78BFA" />
+                    <ContributorBar label="Resting Heart Rate" value={rc.resting_heart_rate} color="#F87171" />
+                    <ContributorBar label="Recovery Index" value={rc.recovery_index} color="#2DD4BF" />
+                    <ContributorBar label="Body Temperature" value={rc.body_temperature} color="#FB923C" />
+                    <ContributorBar label="Activity Balance" value={rc.activity_balance} color="#FBBF24" />
+                    <ContributorBar label="Previous Day Activity" value={rc.previous_day_activity} color="#34D399" />
+                  </div>
+                  {contributors.readiness?.temperatureDeviation != null && (
+                    <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center gap-4">
+                      <div className="text-xs text-slate-500">Body Temp</div>
+                      <div className="text-sm font-bold" style={{
+                        color: Math.abs(contributors.readiness.temperatureDeviation) > 0.5 ? "#F87171" :
+                               Math.abs(contributors.readiness.temperatureDeviation) > 0.2 ? "#FBBF24" : "#4ADE80"
+                      }}>
+                        {contributors.readiness.temperatureDeviation > 0 ? "+" : ""}{contributors.readiness.temperatureDeviation.toFixed(2)}°C
+                      </div>
+                      {contributors.readiness.temperatureTrendDeviation != null && (
+                        <>
+                          <div className="text-xs text-slate-500">Trend</div>
+                          <div className="text-sm font-bold" style={{
+                            color: Math.abs(contributors.readiness.temperatureTrendDeviation) > 0.3 ? "#F87171" : "#4ADE80"
                           }}>
-                          {w.intensity || "low"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Glass>
-        )}
+                            {contributors.readiness.temperatureTrendDeviation > 0 ? "+" : ""}{contributors.readiness.temperatureTrendDeviation.toFixed(2)}°C
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </Glass>
+              )}
 
-        {/* ═══════ TOMORROW'S WORKOUT ═══════ */}
+              {/* Activity Contributors */}
+              {ac && (
+                <Glass delay={920}>
+                  <SectionHeader icon={Activity} title="Activity Score Breakdown"
+                    description={`Score: ${contributors.activity?.score ?? "--"}/100. ${contributors.activity?.steps?.toLocaleString() ?? 0} steps, ${contributors.activity?.activeCalories ?? 0} active cal.`} />
+                  <div className="space-y-2.5">
+                    <ContributorBar label="Stay Active" value={ac.stay_active} color="#FB923C" />
+                    <ContributorBar label="Move Every Hour" value={ac.move_every_hour} color="#FBBF24" />
+                    <ContributorBar label="Meet Daily Targets" value={ac.meet_daily_targets} color="#4ADE80" />
+                    <ContributorBar label="Training Frequency" value={ac.training_frequency} color="#3B82F6" />
+                    <ContributorBar label="Training Volume" value={ac.training_volume} color="#8B5CF6" />
+                    <ContributorBar label="Recovery Time" value={ac.recovery_time} color="#2DD4BF" />
+                  </div>
+                </Glass>
+              )}
+
+              {/* Resilience + SpO2 + Sleep Time row */}
+              <div className="grid md:grid-cols-2 gap-5">
+                {/* Resilience */}
+                {res && (
+                  <Glass delay={960}>
+                    <SectionHeader icon={TrendingUp} title="Resilience"
+                      description={`Level: ${(res.level || "").replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}`} />
+                    <div className="space-y-2.5">
+                      <ContributorBar label="Sleep Recovery" value={Math.round(res.contributors?.sleep_recovery ?? 0)} color="#3B82F6" />
+                      <ContributorBar label="Daytime Recovery" value={Math.round(res.contributors?.daytime_recovery ?? 0)} color="#4ADE80" />
+                      <ContributorBar label="Stress Management" value={Math.round(res.contributors?.stress ?? 0)} color="#F59E0B" />
+                    </div>
+                  </Glass>
+                )}
+
+                {/* SpO2 + Breathing + Sleep Time */}
+                <Glass delay={980}>
+                  {spo2 && (
+                    <div className="mb-5">
+                      <SectionHeader icon={Droplets} title="Blood Oxygen"
+                        description="Overnight SpO2 and breathing quality." />
+                      <div className="flex items-center gap-6 mt-2">
+                        <div>
+                          <div className="text-2xl font-black text-blue-400">{spo2.average?.toFixed(1) ?? "--"}%</div>
+                          <div className="text-[10px] text-slate-500 uppercase font-semibold">Avg SpO2</div>
+                        </div>
+                        {spo2.breathingDisturbanceIndex != null && (
+                          <div>
+                            <div className="text-2xl font-black" style={{
+                              color: spo2.breathingDisturbanceIndex <= 2 ? "#4ADE80" :
+                                     spo2.breathingDisturbanceIndex <= 5 ? "#FBBF24" : "#F87171"
+                            }}>
+                              {spo2.breathingDisturbanceIndex}
+                            </div>
+                            <div className="text-[10px] text-slate-500 uppercase font-semibold">Breathing Index</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {st && (
+                    <div>
+                      <SectionHeader icon={Clock} title="Bedtime Guidance" description="" />
+                      <div className="mt-2">
+                        <span className="inline-block px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider"
+                          style={{
+                            background: st.recommendation?.includes("earlier") ? "rgba(248,113,113,.12)" :
+                                        st.recommendation?.includes("later") ? "rgba(245,158,11,.12)" : "rgba(74,222,128,.12)",
+                            color: st.recommendation?.includes("earlier") ? "#F87171" :
+                                   st.recommendation?.includes("later") ? "#F59E0B" : "#4ADE80",
+                          }}>
+                          {(st.recommendation || "no data").replace(/_/g, " ")}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </Glass>
+              </div>
+            </>
+          );
+        })()}
+
+        </>)}
+
+        {/* Recent Workouts table — hidden for demo flow, available on /oura */}
+
+        {/* ═══════ WORKOUT BUILDER ═══════ */}
         <Glass delay={950}>
-          <SectionHeader icon={Dumbbell} title="Program My Workout"
-            description="AI reads your recovery state and programs the right session. Pick your type and let the data decide the intensity." />
+          <SectionHeader icon={Dumbbell} title="What should I do today?"
+            description="Pick what you're into. AI will program the exact session your body can handle right now, based on how you slept and how stressed you've been. No guessing." />
 
           {!workout ? (
             <div className="space-y-4">
@@ -1113,16 +1243,18 @@ const OuraProfile = () => {
         {/* ═══════ NEXT STEP: DRIFT DETECTION ═══════ */}
         <div className="flex flex-col items-center gap-3 pt-6 pb-12"
           style={{ animation: "oura-fade-up .7s ease-out 1000ms both" }}>
-          <p className="text-[10px] text-slate-600 uppercase tracking-wider font-semibold">Next: see what the data is warning you about</p>
+          <p className="text-[10px] text-slate-600 uppercase tracking-wider font-semibold">But what if something is wrong and you don't feel it yet?</p>
           <Link to="/drift">
             <button className="px-12 py-4 rounded-2xl text-base font-extrabold text-white cursor-pointer border-0 gap-2"
               style={{ background: "linear-gradient(135deg, #ef4444, #f59e0b)", boxShadow: "0 4px 24px rgba(239,68,68,.3)", transition: "transform .2s,box-shadow .2s" }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(239,68,68,.45)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(239,68,68,.3)"; }}>
-              Run Drift Detection &rarr;
+              Check for burnout signals &rarr;
             </button>
           </Link>
         </div>
+        </div>
+        )}
 
       </div>
     </div>

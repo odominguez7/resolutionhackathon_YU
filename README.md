@@ -1,338 +1,255 @@
 # YU RestOS
 
-<!-- ![YU RestOS Logo](assets/logo.png) -->
+**Structure for the unstructured. One tap. Your whole week, planned.**
 
-**AI-powered sleep recovery engine.** Detects burnout from wearable biometrics + behavioral data, then executes real-world recovery actions. Built with local AI, zero data leaves your device.
+YU is an AI-powered daily planner that reads your wearable data, your calendar, and your sleep environment to build a personalized plan you can actually follow. Built for people who push hard and forget to stop.
 
-[![Built for Resolution Hackathon at Harvard](https://img.shields.io/badge/Resolution%20Hackathon-Harvard%202026-crimson?style=for-the-badge)](https://github.com)
+[![Resolution Hackathon @ Harvard](https://img.shields.io/badge/Resolution%20Hackathon-Harvard%202026-crimson?style=for-the-badge)](https://github.com)
+[![Built at MIT Sloan](https://img.shields.io/badge/Built%20at-MIT%20Sloan-red?style=for-the-badge)](https://mitsloan.mit.edu)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
-[![AI: IBM Granite 3.3](https://img.shields.io/badge/AI-IBM%20Granite%203.3-purple?style=for-the-badge)](https://github.com)
 
 ---
 
-## Screenshots
+## The Problem
 
-| Dashboard | Drift Alert | Recovery Plan |
-|-----------|-------------|---------------|
-| ![Dashboard](assets/screenshots/dashboard.png) | ![Drift](assets/screenshots/drift.png) | ![Recovery](assets/screenshots/recovery.png) |
+Wearables collect thousands of data points every day. Sleep stages, heart rate variability, stress levels, readiness scores. But what do you actually **do** with all that data?
 
-| Action Execution | Morning Debrief | X-Ray Mode |
-|-----------------|-----------------|------------|
-| ![Actions](assets/screenshots/actions.png) | ![Debrief](assets/screenshots/debrief.png) | ![XRay](assets/screenshots/xray.png) |
+Most health apps show you charts. YU tells you what to do.
+
+**The accountability gap**: You know you should work out. You know you should sleep better. You know you're stressed. But knowing isn't doing. The gap between insight and action is where burnout lives.
+
+YU closes that gap.
 
 ---
 
-## What It Does
+## What YU Does
 
-Most health apps show you data. RestOS acts on it.
+**One tap. Your entire week is planned.**
 
-### 1. Real Oura Ring Integration
-Connects to Oura API via OAuth2 and pulls **166+ days** of real biometric data across all 11 API scopes: sleep, HRV, heart rate, stress, readiness, SpO2, cardiovascular age, workouts, activity, resilience, and ring configuration.
+YU connects to your data sources, analyzes everything with Gemini AI, and builds a personalized plan:
 
-### 2. GenZ-Optimized Health Dashboard
-Sticky today bar, 8 vital cards with sparklines, 12 interactive charts, time range toggles (7D / 14D / 30D / ALL), "23 Mar" date formatting, dark mode with glassmorphism.
+| Source | What it reads | What it does with it |
+|--------|--------------|---------------------|
+| **Oura Ring** | Sleep score, HRV, readiness, stress, heart rate, 170+ days of history | Determines your capacity and recovery state |
+| **iCloud Calendar** | All events, meetings, classes, appointments | Maps your obligations and finds gaps |
+| **Eight Sleep Pod 5 Ultra** | Temperature control, GentleRise alarm, snoring mitigation | Programs your bed for optimal recovery |
+| **Google Gemini 2.5 Pro** | All of the above, combined | Builds your plan, answers your questions, keeps you accountable |
 
-### 3. Dual-Signal Drift Detection
-Proprietary algorithm combining biometric data (sleep score, HRV) with behavioral self-reports (mood, energy, stress) to detect burnout patterns **before the user feels them**. When both signal sources degrade simultaneously over 3+ consecutive days, that is a drift event.
+---
 
-### 4. AI Recovery Action Engine
-When drift is detected, generates a personalized recovery plan with 5 executable actions:
+## How It Works
 
-| Action | Method |
-|--------|--------|
-| Eight Sleep temperature adjustment | Direct API call |
-| Thermal alarm scheduling | Direct API call |
-| Calendar blocking for recovery | Calendar API |
-| Concierge wellness booking (Duckbill-style) | Concierge dispatch |
-| Wayfair product recommendations | Product link engine |
+### 1. Connect
+Your Oura Ring, iCloud Calendar, and Eight Sleep Pod connect automatically. Zero setup.
 
-### 5. One-Tap Execution
-Actions fire sequentially with animated progress. API responses shown in real-time.
+### 2. Choose your vibe
+- **Crush my week** -- peak performance mode
+- **Stay balanced** -- productive but sustainable
+- **Recover hard** -- you're running on empty
 
-### 6. Privacy-First Local AI
-IBM Granite 3.3 (8B) runs **on-device** via llama.cpp container. X-Ray Mode shows the same prompt processed locally vs cloud side-by-side, so you can see exactly what stays on your machine.
+### 3. Get your plan
+YU builds your next 7 days:
+- **Movement** -- the right workout for your recovery state (CrossFit, yoga, or active rest), programmed by Gemini AI
+- **Schedule** -- your calendar with AI commentary on what to protect, what to skip, and where to fit recovery
+- **Sleep** -- Eight Sleep Pod temperature protocol sent directly to your bed (adaptive cooling, GentleRise alarm, snoring mitigation)
+- **Ask YU** -- interactive AI copilot that knows your calendar, biometrics, and goal. Ask it anything.
 
-### 7. Recovery Feedback Loop
-Morning debrief compares before/after metrics. User rates effectiveness. System learns.
+---
+
+## Key Features
+
+### Readiness Ring
+Your photo at the center, wrapped in a real-time readiness ring that fills based on your Oura data. Green = go hard. Amber = moderate. Red = rest day.
+
+### Scanning Animation
+Click "Plan my day" and watch YU connect to each data source in real-time. Oura Ring, iCloud Calendar, Eight Sleep Pod, workout history, and Gemini AI -- each one orbits around you and connects with a visual data flow.
+
+### Ask YU (AI Copilot)
+An interactive chat powered by Gemini 2.5 Pro that knows your schedule, your biometrics, and your goal. It will tell you what to cancel, when to work out, how to protect your sleep, and how to stay accountable. It references your actual events by name.
+
+### Eight Sleep Pod Integration
+One-tap activation sends your entire sleep protocol to the Pod 5 Ultra:
+- Adaptive temperature curve (68F > 64F > 62F > 68F > 78F)
+- GentleRise alarm with thermal warming + vibration + sunrise sound
+- Snoring mitigation with auto-elevation
+- Pre-cooling starts immediately
+
+### AI Workout Builder
+Gemini programs your exact workout based on recovery state:
+- **Home CrossFit** -- intensity matched to readiness
+- **Hot Yoga** -- classes at Down Under Yoga, Kendall Square, matched to your schedule
+- **Active Rest** -- strategic micro-interventions throughout the day
+
+### 7-Day Navigator
+Click through each day of the week. See events, get AI tips, and plan ahead. YU adapts its recommendations based on how packed each day is.
+
+### Real Oura Ring Data
+170+ days of real biometric data from a real Oura Ring via OAuth2. Sleep scores, HRV trends, stress/recovery charts, heart rate -- all real, all live. 28 API endpoints across 11 Oura scopes.
 
 ---
 
 ## Tech Stack
 
-| Layer | Tech |
-|-------|------|
-| **Frontend** | React 18, Vite, TypeScript, Tailwind CSS, Recharts, shadcn/ui |
-| **Backend** | FastAPI (Python), 7 API modules |
-| **AI Model** | IBM Granite 3.3 (8B) via llama.cpp / Podman container |
-| **Biometrics** | Real Oura Ring API (OAuth2) |
-| **Demo Data** | Mock Eight Sleep burnout arc |
-| **Container** | Podman |
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, Framer Motion, Recharts, shadcn/ui |
+| **Backend** | FastAPI (Python), 8 API modules, 30+ endpoints |
+| **AI** | Google Gemini 2.5 Pro (chat, workout generation, calendar analysis) |
+| **Biometrics** | Oura Ring API v2 (OAuth2, 11 scopes, 170+ days) |
+| **Calendar** | iCloud CalDAV (caldav library, real-time sync) |
+| **Sleep** | Eight Sleep Pod 5 Ultra (simulated API integration) |
+| **Animation** | Framer Motion (orbital scanning, spring physics, stagger animations) |
+| **Scroll** | Lenis (smooth scroll) |
 
 ---
 
 ## Quick Start
 
 ### Prerequisites
-
 - Python 3.11+
 - Node.js 18+
-- Podman (for local AI model)
-- Oura developer account (for real biometric data)
+- Oura developer account
+- Apple ID (for iCloud Calendar)
+- Gemini API key
 
 ### Backend
-
 ```bash
-cd restos
+cd YU-RestOS
 python3 -m venv venv
 source venv/bin/activate
 pip install -r backend/requirements.txt
-cd backend
-uvicorn main:app --reload --port 8000
+uvicorn backend.main:app --reload --port 8000
 ```
 
 ### Frontend
-
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Frontend runs on `http://localhost:5173`, backend on `http://localhost:8000`.
-
-### Oura OAuth Setup
-
-1. Create an app at [cloud.ouraring.com/console](https://cloud.ouraring.com/console)
-2. Set redirect URI to `http://localhost:8000/api/oura/callback`
-3. Add your credentials:
-
-```bash
-export OURA_CLIENT_ID=your_client_id
-export OURA_CLIENT_SECRET=your_client_secret
+### Environment (.env)
+```
+OURA_ACCESS_TOKEN=your_oura_token
+OURA_REFRESH_TOKEN=your_refresh_token
+GEMINI_API_KEY=your_gemini_key
+APPLE_ID=your@email.com
+APPLE_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
 ```
 
-4. Run the OAuth export script:
+Frontend: `http://localhost:8080` | Backend: `http://localhost:8000`
 
-```bash
-cd scripts
-python oura_export.py
-```
+---
 
-### Local AI (Granite 3.3)
+## API Reference
 
-```bash
-podman run -p 8080:8080 granite-3.3-8b
-```
+**30+ endpoints** across 8 modules:
+
+### Oura (`/api/oura`)
+| Endpoint | Description |
+|----------|-------------|
+| `GET /sleep-history` | Full sleep history with all metrics |
+| `GET /stats` | Aggregate stats across 170+ days |
+| `GET /today` | Today's live scores (with live API + override) |
+| `GET /contributors` | Sleep, readiness, activity contributor breakdowns |
+| `GET /stress-detail` | Daily stress/recovery analysis |
+| `GET /heart-rate-detail` | Heart rate trends |
+| `GET /cardiovascular-age` | Vascular age history |
+| `GET /workout` | AI-generated workout based on biometrics |
+| `GET /insights` | Gemini-powered biometric analysis |
+| `GET /refresh` | Live refresh from Oura API |
+| `POST /today/override` | Manual score override |
+| `POST /webhook` | Oura webhook receiver |
+
+### Calendar (`/api/calendar`)
+| Endpoint | Description |
+|----------|-------------|
+| `GET /events` | Events for next N days from iCloud |
+| `GET /today` | Today's events |
+| `GET /week` | This week's events |
+| `GET /analyze` | Gemini-powered week analysis |
+| `POST /chat` | Interactive AI chat about schedule |
+| `GET /calendars` | List available calendars |
+| `GET /status` | Connection status |
+
+### Additional modules
+- **Sleep** (`/api/sleep`) -- Eight Sleep mock data
+- **Check-In** (`/api/checkin`) -- Behavioral self-reports
+- **Drift** (`/api/drift`) -- Burnout detection algorithm
+- **Coaching** (`/api/coaching`) -- AI coaching
+- **Actions** (`/api/actions`) -- Recovery plan execution
+- **Feedback** (`/api/feedback`) -- Recovery effectiveness tracking
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     React Frontend                       │
-│  Landing  Dashboard  CheckIn  Drift  Recovery  Debrief  │
-│                    XRay  OuraProfile                     │
-└──────────────────────┬──────────────────────────────────┘
-                       │ HTTP/REST
-┌──────────────────────▼──────────────────────────────────┐
-│                   FastAPI Backend                         │
-│                                                          │
-│  ┌─────────┐ ┌────────┐ ┌───────┐ ┌──────────┐         │
-│  │  Sleep   │ │CheckIn │ │ Drift │ │ Coaching │         │
-│  └─────────┘ └────────┘ └───────┘ └──────────┘         │
-│  ┌─────────┐ ┌────────┐ ┌───────┐                       │
-│  │ Actions │ │Feedback│ │ Oura  │                       │
-│  └────┬────┘ └────────┘ └───┬───┘                       │
-│       │                     │                            │
-│  ┌────▼────┐          ┌─────▼─────┐                     │
-│  │Concierge│          │ Oura API  │                     │
-│  │Tools    │          │ (OAuth2)  │                     │
-│  │Products │          │ 11 Scopes │                     │
-│  └─────────┘          └───────────┘                     │
-└──────────────────────┬──────────────────────────────────┘
-                       │
-              ┌────────▼────────┐
-              │  Granite 3.3    │
-              │  (8B, local)    │
-              │  llama.cpp      │
-              │  Podman         │
-              └─────────────────┘
+                    ┌─────────────────────┐
+                    │      YOU            │
+                    │   (Center of        │
+                    │    everything)      │
+                    └──────┬──────────────┘
+                           │
+         ┌─────────────────┼─────────────────┐
+         │                 │                 │
+    ┌────▼────┐     ┌──────▼──────┐   ┌─────▼─────┐
+    │  Oura   │     │   iCloud    │   │   Eight   │
+    │  Ring   │     │  Calendar   │   │   Sleep   │
+    │  API    │     │   CalDAV    │   │  Pod 5    │
+    └────┬────┘     └──────┬──────┘   └─────┬─────┘
+         │                 │                 │
+         └────────┬────────┴────────┬────────┘
+                  │                 │
+           ┌──────▼──────┐  ┌──────▼──────┐
+           │   FastAPI   │  │   Gemini    │
+           │   Backend   │  │   2.5 Pro   │
+           └──────┬──────┘  └──────┬──────┘
+                  │                │
+                  └───────┬────────┘
+                          │
+                   ┌──────▼──────┐
+                   │    React    │
+                   │  Frontend   │
+                   │  (Your Plan)│
+                   └─────────────┘
 ```
 
 ---
 
-## API Reference
+## Resolution Hackathon @ Harvard
 
-**28 endpoints** across 7 modules + health check.
+**March 28, 2026 | Sever Hall 213 | $1,500 Prize**
 
-### Health
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/health` | Service status |
-
-### Sleep (`/api/sleep`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/sleep/latest` | Latest sleep session |
-| GET | `/api/sleep/trends` | Sleep trend data |
-| GET | `/api/sleep/history` | Full sleep history |
-| GET | `/api/sleep/summary` | Dashboard summary stats |
-| GET | `/api/sleep/current` | Current night live data |
-
-### Check-In (`/api/checkin`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/checkin/submit` | Submit daily check-in |
-| GET | `/api/checkin/history` | Check-in history |
-| GET | `/api/checkin/latest` | Latest check-in |
-
-### Drift (`/api/drift`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/drift/analyze` | Run drift detection |
-| GET | `/api/drift/timeline` | Drift signals for charts |
-
-### Coaching (`/api/coaching`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/coaching/generate` | Generate AI coaching (local) |
-| GET | `/api/coaching/xray` | Local vs cloud comparison |
-
-### Actions (`/api/actions`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/actions/plan/generate` | Generate recovery plan |
-| GET | `/api/actions/plan/{id}` | Get existing plan |
-| POST | `/api/actions/plan/{id}/execute/{action_id}` | Execute single action |
-| POST | `/api/actions/plan/{id}/execute-all` | Execute all actions |
-| GET | `/api/actions/task/{id}` | Check concierge task status |
-| POST | `/api/actions/task/{id}/advance` | Advance task (demo) |
-| GET | `/api/actions/products/{goal}` | Product recommendations |
-
-### Feedback (`/api/feedback`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/feedback/submit` | Submit recovery feedback |
-| GET | `/api/feedback/{plan_id}` | Get feedback |
-| GET | `/api/feedback/{plan_id}/effectiveness` | Effectiveness report |
-
-### Oura (`/api/oura`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/oura/sleep` | Real sleep sessions |
-| GET | `/api/oura/daily_sleep` | Daily sleep scores |
-| GET | `/api/oura/readiness` | Readiness scores |
-| GET | `/api/oura/heartrate` | Heart rate data |
-| GET | `/api/oura/hrv` | HRV measurements |
-| GET | `/api/oura/stress` | Stress data |
-| GET | `/api/oura/spo2` | Blood oxygen data |
-| GET | `/api/oura/workouts` | Workout sessions |
-| GET | `/api/oura/activity` | Daily activity |
-| GET | `/api/oura/resilience` | Resilience scores |
-| GET | `/api/oura/profile` | User profile + ring config |
+Built in partnership with:
+- **Eight Sleep** -- Sleep technology sponsor
+- **swsh** -- Community partner
+- **Duckbill** -- Concierge services
+- **Fragile** -- Wellness partner
+- **Clair** -- Financial wellness
+- **Wayfair** -- Home & recovery products
 
 ---
 
-## Oura Integration
+## Builder
 
-RestOS connects to all **11 Oura API scopes** via OAuth2:
+**Omar Dominguez** | MIT Sloan MBA 2027
 
-| Scope | Data Points |
-|-------|-------------|
-| Email | User email |
-| Personal | Profile info |
-| Daily | Sleep, readiness, activity scores |
-| Heartrate | 5-min interval HR data |
-| Tag | User tags |
-| Workout | Exercise sessions |
-| Session | Guided sessions |
-| SpO2 | Blood oxygen levels |
-| Ring Configuration | Device settings |
-| Stress | Stress measurements |
-| Heart Health | Cardiovascular age |
+Builder, not a talker. Lost 80 lbs starting with 7 minutes a day. Boston Marathon finisher. Ironman 70.3. Building YU to solve the problem he lived: having all the data in the world and still burning out.
 
-**166+ days** of real biometric data from a real Oura Ring. Not synthetic. Not mocked. Real.
+[GitHub](https://github.com/odominguez7) | MIT Sloan
 
 ---
 
-## Demo Flow
+## Why YU Wins
 
-A 3.5-minute walkthrough of the full recovery loop:
+1. **Real data, not mockups.** 170+ days of actual Oura Ring biometrics via OAuth2. Live iCloud Calendar sync. Real Eight Sleep Pod integration.
 
-1. **Dashboard** -- Show real Oura biometric data, sparklines, time range toggles
-2. **Check-In** -- Submit today's mood, energy, stress ratings
-3. **Drift Alert** -- System detects dual-signal drift (biometric + behavioral)
-4. **Recovery Plan** -- AI generates 5 personalized, executable actions
-5. **Execute** -- One-tap fires all actions with live progress
-6. **Morning Debrief** -- Before/after comparison, user rates recovery
-7. **X-Ray Mode** -- Same prompt, local vs cloud, side-by-side
+2. **AI that acts, not just displays.** Gemini 2.5 Pro doesn't just summarize your data. It tells you what to cancel, when to work out, and programs your bed for recovery.
 
----
+3. **Closes the accountability gap.** Wearables are data collectors. YU is an action planner. One tap and your whole week is structured around what your body actually needs.
 
-## Privacy & Security
-
-- **Zero cloud dependency.** Granite 3.3 runs entirely on-device via llama.cpp.
-- **No data exfiltration.** Biometric data stays local. X-Ray Mode proves it.
-- **OAuth2 only.** Oura tokens are scoped and revocable.
-- **No tracking.** No analytics, no telemetry, no third-party scripts.
-
-Your health data is yours. Period.
-
----
-
-## Project Structure
-
-```
-restos/
-├── backend/
-│   ├── main.py              # FastAPI app, router registration
-│   ├── eight_sleep/         # Sleep data module (mock burnout arc)
-│   ├── checkin/             # Behavioral self-report check-ins
-│   ├── drift/               # Dual-signal burnout detection engine
-│   ├── coaching/            # Local AI (Granite 3.3) + cloud comparison
-│   ├── actions/             # Recovery plan generator + action engine
-│   ├── feedback/            # Recovery effectiveness tracking
-│   └── oura/                # Real Oura Ring API integration
-├── frontend/
-│   └── src/
-│       ├── App.tsx          # Router + providers
-│       ├── pages/           # 9 pages (Landing through OuraProfile)
-│       ├── components/      # UI components, NavBar, charts
-│       └── contexts/        # PlanContext for recovery state
-├── scripts/
-│   ├── oura_export.py       # OAuth flow + data export
-│   └── oura_data/           # 166+ days of real biometric JSON
-└── README.md
-```
-
----
-
-## Pages
-
-| Route | Page | Purpose |
-|-------|------|---------|
-| `/` | Landing | Product intro |
-| `/dashboard` | Dashboard | 8 vital cards, 12 charts, sparklines |
-| `/checkin` | Check-In | Daily mood/energy/stress self-report |
-| `/drift` | Drift Alert | Dual-signal burnout detection |
-| `/recovery` | Recovery Plan | AI-generated executable actions |
-| `/action-status` | Action Status | Live execution progress |
-| `/debrief` | Morning Debrief | Before/after recovery comparison |
-| `/xray` | X-Ray Mode | Local vs cloud AI transparency |
-| `/oura` | Oura Profile | Real biometric data explorer |
-
----
-
-## Team
-
-**Omar Dominguez** -- Founder of [YU](https://github.com), MIT background. Builder. Lost 80 lbs starting with 7 minutes a day. Boston Marathon finisher. Ironman 70.3.
-
----
-
-## Resolution Hackathon at Harvard -- March 28, 2026
-
-$1,500 Prize | Sever Hall 213
+4. **Built for the unstructured.** For people with ADHD, for founders, for anyone who pushes hard and forgets to stop. YU says "I got you" and means it.
 
 ---
 
