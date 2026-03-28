@@ -108,14 +108,14 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
               <div className="relative cursor-pointer mb-4" onClick={handlePlan}>
                 <div className="absolute -inset-10 rounded-full pointer-events-none" style={{ background: `radial-gradient(circle, ${rColor}08 0%, transparent 70%)`, animation: "ring-glow 3s ease-in-out infinite" }} />
                 {[0, 0.8].map(d => <motion.div key={d} className="absolute -inset-3 rounded-full border pointer-events-none" style={{ borderColor: `${rColor}06` }} animate={{ scale: [1, 1.25], opacity: [0.3, 0] }} transition={{ duration: 3, repeat: Infinity, delay: d }} />)}
-                <svg width="270" height="270" viewBox="0 0 270 270" className="absolute -inset-[3px]" style={{ animation: "ring-glow 3s ease-in-out infinite", transform: "rotate(-90deg)" }}>
+                <svg viewBox="0 0 270 270" className="absolute -inset-[3px] w-full h-full" style={{ animation: "ring-glow 3s ease-in-out infinite", transform: "rotate(-90deg)" }}>
                   <circle cx={135} cy={135} r={128} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={6} />
                   <motion.circle cx={135} cy={135} r={128} fill="none" stroke={rColor} strokeWidth={6} strokeLinecap="round" strokeDasharray={ringCirc}
                     initial={{ strokeDashoffset: ringCirc }} animate={{ strokeDashoffset: ringCirc * (1 - readiness / 100) }} transition={{ duration: 2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }} />
                   <motion.circle cx={135} cy={135} r={128} fill="none" stroke={rColor} strokeWidth={3} strokeLinecap="round" strokeOpacity={0.4} strokeDasharray={ringCirc}
                     initial={{ strokeDashoffset: ringCirc }} animate={{ strokeDashoffset: ringCirc * (1 - readiness / 100) }} transition={{ duration: 2, delay: 0.5 }} style={{ filter: "blur(6px)" }} />
                 </svg>
-                <motion.div className="w-[264px] h-[264px] rounded-full overflow-hidden relative" style={{ border: `3px solid ${rColor}20`, boxShadow: `0 0 50px rgba(0,0,0,0.4), 0 0 30px ${rColor}08` }}
+                <motion.div className="w-[200px] h-[200px] md:w-[264px] md:h-[264px] rounded-full overflow-hidden relative" style={{ border: `3px solid ${rColor}20`, boxShadow: `0 0 50px rgba(0,0,0,0.4), 0 0 30px ${rColor}08` }}
                   whileHover={{ scale: 1.03, borderColor: `${rColor}40` }} whileTap={{ scale: 0.97 }}>
                   <img src="/me.png" alt="You" className="w-full h-full object-cover" style={{ filter: "brightness(0.85) contrast(1.1)" }} />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4) 100%)" }} />
@@ -132,9 +132,12 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                   animate={{ boxShadow: ["0 0 15px rgba(59,130,246,0.05)", "0 0 35px rgba(59,130,246,0.1)", "0 0 15px rgba(59,130,246,0.05)"] }} transition={{ boxShadow: { duration: 3, repeat: Infinity } }}>
                   <span className="text-xl font-black text-white">Plan my day</span>
                 </motion.button>
-                <div className="flex items-center justify-center gap-4 mt-4">
+                <div className="flex items-center justify-center gap-3 md:gap-4 mt-4 flex-wrap">
                   {[{ icon: Brain, l: "Oura Ring", c: "#A78BFA" }, { icon: Calendar, l: "Calendar", c: "#3B82F6" }, { icon: Bed, l: "Eight Sleep", c: "#818CF8" }, { icon: Sparkles, l: "Gemini AI", c: "#4ADE80" }].map(s => (
-                    <div key={s.l} className="flex items-center gap-1.5"><s.icon className="w-3.5 h-3.5" style={{ color: s.c, opacity: 0.5 }} /><span className="text-[10px] font-medium" style={{ color: "rgba(255,255,255,0.25)" }}>{s.l}</span></div>
+                    <div key={s.l} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: `${s.c}06`, border: `1px solid ${s.c}08` }}>
+                      <s.icon className="w-3 h-3" style={{ color: s.c, opacity: 0.6 }} />
+                      <span className="text-[9px] md:text-[10px] font-semibold" style={{ color: `${s.c}60` }}>{s.l}</span>
+                    </div>
                   ))}
                 </div>
               </motion.div>
@@ -372,7 +375,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
               </div>
 
               {/* Biometric bar */}
-              <div className="grid grid-cols-4 gap-2.5 mb-5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-5">
                 {[
                   { icon: Moon, label: "Sleep", value: sleepScore, color: "#818CF8", sub: "last night" },
                   { icon: Heart, label: "Readiness", value: readiness, color: "#4ADE80", sub: readiness >= 75 ? "go hard" : readiness >= 60 ? "moderate" : "rest day" },
