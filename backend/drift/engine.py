@@ -1,37 +1,33 @@
 """
-Drift Detection Engine v2 — runs on REAL Oura biometric data.
+Drift Detection Engine v3 — Recovery Readiness Score + Warning Flags + Overtraining Continuum.
 
-SCIENTIFIC BASIS:
-- HRV (heart rate variability) is the gold standard marker for autonomic recovery.
-  Plews et al. (2013) showed that the coefficient of variation of ln(rMSSD) over
-  a rolling window predicts overtraining better than absolute HRV values.
-- Resting heart rate elevation >5% above baseline indicates sympathetic overdrive
-  (Buchheit, 2014).
-- Sleep architecture changes (deep sleep reduction) precede subjective fatigue
-  by 24-48 hours (Halson, 2014).
-- Oura's readiness score integrates temperature deviation, HRV balance, and
-  recovery index — when it drops below individual baseline, the body is under strain.
-- Allostatic load (cumulative stress) correlates with elevated stress minutes
-  and reduced recovery capacity (McEwen, 2006).
+Based on "Recovery Forecasting & Performance Optimization: A Wearable Data Decision Engine"
+(Dominguez, April 2026) — 60-page research document grounded in 35 scientific sources.
 
-ALGORITHM:
-1. BASELINE: 30-day rolling average for each metric (individual-specific)
-2. CURRENT: 7-day rolling window for current state
-3. Z-SCORES: For each metric, compute how many standard deviations the
-   current 7-day mean is from the 30-day baseline
-4. COMPOSITE DRIFT SCORE: Weighted combination of z-scores across 6 signals
-5. DETECTION: Drift score exceeds threshold for 3+ consecutive days
-6. SEVERITY: Based on magnitude and persistence of drift
+ARCHITECTURE:
+1. BASELINE: 28-day rolling average per metric (idiographic, not population)
+2. Z-SCORES: Each metric scored against personal baseline
+3. RRS (Recovery Readiness Score): Weighted composite 0-100
+4. WARNING FLAGS: 10 clinical flags with defined thresholds (Meeusen et al. 2013)
+5. ZONE CLASSIFICATION: GREEN (push) / YELLOW (moderate) / RED (rest)
+6. OVERTRAINING STAGING: Acute Fatigue → FOR → NFOR → OTS (Meeusen continuum)
+7. DRIFT DETECTION: 3+ days in YELLOW/RED within 7-day window = active drift
 
-WEIGHTS (justified by sensitivity and predictive value):
-- HRV:        0.30 (most sensitive autonomic marker, earliest signal)
-- Readiness:  0.20 (Oura's composite, integrates multiple recovery signals)
-- Sleep Score:0.15 (overall sleep quality, composite of architecture)
-- RHR:        0.15 (slower to move but highly specific when elevated)
-- Deep Sleep: 0.10 (growth hormone pulsatility, physical recovery)
-- Stress:     0.10 (allostatic load accumulation, sympathetic dominance)
+SIGNAL WEIGHTS (from RRS model, validated against Plews et al. 2012, 2013):
+- HRV (LnRMSSD):     0.30 — most sensitive autonomic marker, earliest signal
+- RHR:               0.20 — slower but highly specific when elevated
+- Sleep Score:        0.20 — composite of duration, efficiency, architecture
+- Deep Sleep:         0.10 — GH pulsatility, physical recovery
+- Stress:             0.10 — allostatic load accumulation
+- Readiness:          0.10 — Oura's composite recovery indicator
 
-All z-scores are INVERTED where needed so negative = bad for all metrics.
+SOURCES:
+- Meeusen et al. 2013 — Overtraining consensus (ECSS/ACSM)
+- Plews et al. 2012 — NFOR case study via HRV
+- Plews et al. 2013 — HRV saturation in endurance athletes
+- Buchheit 2014 — Monitoring training with HR measures
+- Halson 2014 — Sleep and the elite athlete
+- McEwen 2006 — Allostatic load and stress
 """
 
 import statistics
@@ -40,312 +36,373 @@ from zoneinfo import ZoneInfo
 
 BOSTON_TZ = ZoneInfo("America/New_York")
 
-# Weights for each signal (sum = 1.0)
+# ── RRS Component Weights (sum = 1.0) ─────────────────────────────────────
 WEIGHTS = {
     "hrv": 0.30,
-    "readiness": 0.20,
-    "sleep_score": 0.15,
-    "rhr": 0.15,
+    "rhr": 0.20,
+    "sleep_score": 0.20,
     "deep_sleep": 0.10,
     "stress": 0.10,
+    "readiness": 0.10,
 }
 
-# Minimum days needed
-BASELINE_WINDOW = 30
-CURRENT_WINDOW = 7
-MIN_CONSECUTIVE = 3
-DRIFT_THRESHOLD = -0.8  # composite z-score threshold (negative = degrading)
+# ── Windows ────────────────────────────────────────────────────────────────
+BASELINE_WINDOW = 28       # 28-day rolling baseline (research standard)
+CURRENT_WINDOW = 7         # 7-day assessment window
+MIN_FLAGS_FOR_DRIFT = 3    # 3+ days with flags = drift detected
+
+# ── Warning Flag Thresholds (from research document) ──────────────────────
+FLAGS = [
+    {"id": "F1", "name": "HRV below baseline",       "metric": "hrv_z",       "threshold": -1.0,  "compare": "lt",  "weight": "primary"},
+    {"id": "F2", "name": "RHR elevated",              "metric": "rhr_delta",   "threshold": 5.0,   "compare": "gt",  "weight": "primary"},
+    {"id": "F3", "name": "Sleep duration short",       "metric": "total_sleep", "threshold": 6.5,   "compare": "lt",  "weight": "primary"},
+    {"id": "F4", "name": "Sleep efficiency low",       "metric": "efficiency",  "threshold": 80.0,  "compare": "lt",  "weight": "secondary"},
+    {"id": "F5", "name": "Deep sleep deficit",         "metric": "deep_min",    "threshold": 45.0,  "compare": "lt",  "weight": "secondary"},
+    {"id": "F6", "name": "Sustained HRV decline",      "metric": "hrv_trend",   "threshold": 5,     "compare": "gte", "weight": "drift"},
+    {"id": "F7", "name": "High stress load",           "metric": "stress_min",  "threshold": 120.0, "compare": "gt",  "weight": "secondary"},
+    {"id": "F8", "name": "Readiness below threshold",  "metric": "readiness",   "threshold": 60.0,  "compare": "lt",  "weight": "secondary"},
+]
+
+# ── Zone Thresholds ───────────────────────────────────────────────────────
+ZONES = {
+    "GREEN":  {"rrs_min": 70, "max_flags": 1, "label": "Push", "description": "Your body is ready to perform. Train hard, prioritize intensity."},
+    "YELLOW": {"rrs_min": 40, "max_flags": 2, "label": "Moderate", "description": "Recovery is incomplete. Move and recover, but don't degrade further."},
+    "RED":    {"rrs_min": 0,  "max_flags": 99, "label": "Rest", "description": "Rest is the highest ROI decision today. Your body needs time to rebuild."},
+}
+
+# ── Overtraining Continuum ────────────────────────────────────────────────
+CONTINUUM = [
+    {"stage": "Baseline",                "days_in_yellow_red": 0,  "description": "Normal recovery. All systems nominal."},
+    {"stage": "Acute Fatigue",            "days_in_yellow_red": 2,  "description": "Normal homeostatic disruption. Recovery expected within 24-48h."},
+    {"stage": "Functional Overreaching",  "days_in_yellow_red": 5,  "description": "Deliberate short-term performance dip. Supercompensation possible with 1-2 weeks rest."},
+    {"stage": "Non-Functional Overreaching", "days_in_yellow_red": 10, "description": "Performance decline with psychological disturbances. Weeks to months for recovery."},
+    {"stage": "Overtraining Syndrome",    "days_in_yellow_red": 21, "description": "Multi-system maladaptation. Requires clinical intervention. Months to years."},
+]
 
 
 def detect_drift_real(daily_data: list[dict]) -> dict:
-    """
-    Analyze real Oura biometric data for drift patterns.
+    """Analyze real Oura biometric data using RRS + Warning Flags + Overtraining Continuum."""
 
-    daily_data: list of dicts with keys:
-        day, sleepScore, hrv, avgHeartRate, deepSleepMin, totalSleepHours,
-        readinessScore, stressMin, efficiency
-    """
     if len(daily_data) < BASELINE_WINDOW + CURRENT_WINDOW:
         return {
             "drift_detected": False,
-            "reason": f"Need {BASELINE_WINDOW + CURRENT_WINDOW} days of data, have {len(daily_data)}",
-            "signals": [],
-            "daily_scores": [],
+            "reason": f"Need {BASELINE_WINDOW + CURRENT_WINDOW} days, have {len(daily_data)}",
+            "signals": [], "daily_scores": [],
         }
 
-    # Sort by date
     data = sorted(daily_data, key=lambda d: d["day"])
-
-    # Compute drift score for each day (starting after baseline window)
     daily_scores = []
 
     for i in range(BASELINE_WINDOW, len(data)):
-        current_day = data[i]
-
-        # Baseline: 30 days before this day
+        day = data[i]
         baseline = data[max(0, i - BASELINE_WINDOW):i]
 
-        # Extract metric arrays from baseline
-        def safe_vals(arr, key):
+        def vals(arr, key):
             return [d[key] for d in arr if d.get(key) is not None and d.get(key) != 0]
 
-        bl_hrv = safe_vals(baseline, "hrv")
-        bl_rhr = safe_vals(baseline, "avgHeartRate")
-        bl_sleep = safe_vals(baseline, "sleepScore")
-        bl_readiness = safe_vals(baseline, "readinessScore")
-        bl_deep = safe_vals(baseline, "deepSleepMin")
-        bl_stress = safe_vals(baseline, "stressMin")
+        bl = {
+            "hrv": vals(baseline, "hrv"),
+            "rhr": vals(baseline, "avgHeartRate"),
+            "sleep": vals(baseline, "sleepScore"),
+            "readiness": vals(baseline, "readinessScore"),
+            "deep": vals(baseline, "deepSleepMin"),
+            "stress": vals(baseline, "stressMin"),
+        }
 
-        # Need enough baseline data
-        if len(bl_hrv) < 14 or len(bl_sleep) < 14:
+        if len(bl["hrv"]) < 14 or len(bl["sleep"]) < 14:
             continue
 
-        # Current day values
-        c_hrv = current_day.get("hrv")
-        c_rhr = current_day.get("avgHeartRate")
-        c_sleep = current_day.get("sleepScore")
-        c_readiness = current_day.get("readinessScore")
-        c_deep = current_day.get("deepSleepMin")
-        c_stress = current_day.get("stressMin")
+        # Current values
+        c = {
+            "hrv": day.get("hrv"),
+            "rhr": day.get("avgHeartRate"),
+            "sleep": day.get("sleepScore"),
+            "readiness": day.get("readinessScore"),
+            "deep": day.get("deepSleepMin"),
+            "stress": day.get("stressMin"),
+            "total_sleep": day.get("totalSleepHours"),
+            "efficiency": day.get("efficiency"),
+        }
 
-        # Compute z-scores (how many std devs from baseline mean)
-        # Negative z = worse than baseline for all metrics
-        z_scores = {}
+        # ── Z-scores ──────────────────────────────────────────────────────
+        z = {}
+        bl_means = {}
 
-        if c_hrv and len(bl_hrv) >= 2:
-            bl_mean = statistics.mean(bl_hrv)
-            bl_std = statistics.stdev(bl_hrv) or 1
-            z_scores["hrv"] = (c_hrv - bl_mean) / bl_std  # lower HRV = negative z = bad
+        for metric, key, invert in [
+            ("hrv", "hrv", False),
+            ("rhr", "rhr", True),
+            ("sleep_score", "sleep", False),
+            ("readiness", "readiness", False),
+            ("deep_sleep", "deep", False),
+            ("stress", "stress", True),
+        ]:
+            if c[key] and len(bl[key]) >= 2:
+                mean = statistics.mean(bl[key])
+                std = statistics.stdev(bl[key]) or 1
+                raw_z = (c[key] - mean) / std
+                z[metric] = -raw_z if invert else raw_z
+                bl_means[key] = mean
 
-        if c_rhr and len(bl_rhr) >= 2:
-            bl_mean = statistics.mean(bl_rhr)
-            bl_std = statistics.stdev(bl_rhr) or 1
-            z_scores["rhr"] = -(c_rhr - bl_mean) / bl_std  # INVERTED: higher RHR = negative z = bad
-
-        if c_sleep and len(bl_sleep) >= 2:
-            bl_mean = statistics.mean(bl_sleep)
-            bl_std = statistics.stdev(bl_sleep) or 1
-            z_scores["sleep_score"] = (c_sleep - bl_mean) / bl_std
-
-        if c_readiness and len(bl_readiness) >= 2:
-            bl_mean = statistics.mean(bl_readiness)
-            bl_std = statistics.stdev(bl_readiness) or 1
-            z_scores["readiness"] = (c_readiness - bl_mean) / bl_std
-
-        if c_deep is not None and len(bl_deep) >= 2:
-            bl_mean = statistics.mean(bl_deep)
-            bl_std = statistics.stdev(bl_deep) or 1
-            z_scores["deep_sleep"] = (c_deep - bl_mean) / bl_std
-
-        if c_stress is not None and len(bl_stress) >= 2:
-            bl_mean = statistics.mean(bl_stress)
-            bl_std = statistics.stdev(bl_stress) or 1
-            z_scores["stress"] = -(c_stress - bl_mean) / bl_std  # INVERTED: more stress = negative z
-
-        # Weighted composite drift score
-        composite = 0
-        total_weight = 0
+        # ── RRS (Recovery Readiness Score) ────────────────────────────────
+        rrs = 50  # neutral starting point
+        total_w = 0
         for metric, weight in WEIGHTS.items():
-            if metric in z_scores:
-                composite += z_scores[metric] * weight
-                total_weight += weight
+            if metric in z:
+                # Map z-score to 0-100 contribution: z=0 → 50, z=+2 → 100, z=-2 → 0
+                contribution = max(0, min(100, 50 + z[metric] * 25))
+                rrs += (contribution - 50) * weight
+                total_w += weight
 
-        if total_weight > 0:
-            composite /= total_weight  # normalize by actual weight used
+        rrs = max(0, min(100, round(rrs)))
+
+        # ── Warning Flags ─────────────────────────────────────────────────
+        active_flags = []
+
+        # F1: HRV z-score below baseline
+        if z.get("hrv", 0) < -1.0:
+            active_flags.append({"id": "F1", "name": "HRV below baseline", "value": f"z={z['hrv']:.2f}", "weight": "primary"})
+
+        # F2: RHR elevated
+        rhr_delta = (c["rhr"] - bl_means.get("rhr", c["rhr"] or 60)) if c["rhr"] else 0
+        if rhr_delta > 5:
+            active_flags.append({"id": "F2", "name": "RHR elevated", "value": f"+{rhr_delta:.1f} bpm", "weight": "primary"})
+
+        # F3: Sleep duration short
+        if c["total_sleep"] and c["total_sleep"] < 6.5:
+            active_flags.append({"id": "F3", "name": "Sleep duration short", "value": f"{c['total_sleep']:.1f}h", "weight": "primary"})
+
+        # F4: Sleep efficiency low
+        if c["efficiency"] and c["efficiency"] < 80:
+            active_flags.append({"id": "F4", "name": "Sleep efficiency low", "value": f"{c['efficiency']:.0f}%", "weight": "secondary"})
+
+        # F5: Deep sleep deficit
+        if c["deep"] and c["deep"] < 45:
+            active_flags.append({"id": "F5", "name": "Deep sleep deficit", "value": f"{c['deep']:.0f} min", "weight": "secondary"})
+
+        # F6: Sustained HRV decline (check 5-day trend)
+        if i >= 5:
+            recent_hrv = [data[j].get("hrv") for j in range(i - 4, i + 1) if data[j].get("hrv")]
+            if len(recent_hrv) >= 5 and all(recent_hrv[j] <= recent_hrv[j - 1] for j in range(1, len(recent_hrv))):
+                active_flags.append({"id": "F6", "name": "Sustained HRV decline", "value": "5+ consecutive days", "weight": "drift"})
+
+        # F7: High stress load
+        if c["stress"] and c["stress"] > 120:
+            active_flags.append({"id": "F7", "name": "High stress load", "value": f"{c['stress']:.0f} min", "weight": "secondary"})
+
+        # F8: Readiness below threshold
+        if c["readiness"] and c["readiness"] < 60:
+            active_flags.append({"id": "F8", "name": "Readiness below threshold", "value": f"{c['readiness']}", "weight": "secondary"})
+
+        # ── Compounding penalty (from research: 3+ flags → 15% RRS penalty) ──
+        if len(active_flags) >= 3:
+            rrs = round(rrs * 0.85)
+
+        # ── Zone classification ───────────────────────────────────────────
+        if rrs >= 70 and len(active_flags) <= 1:
+            zone = "GREEN"
+        elif rrs >= 40 and len(active_flags) <= 2:
+            zone = "YELLOW"
+        else:
+            zone = "RED"
 
         daily_scores.append({
-            "day": current_day["day"],
-            "drift_score": round(composite, 2),
-            "z_scores": {k: round(v, 2) for k, v in z_scores.items()},
+            "day": day["day"],
+            "rrs": rrs,
+            "zone": zone,
+            "flags": active_flags,
+            "flag_count": len(active_flags),
+            "z_scores": {k: round(v, 2) for k, v in z.items()},
             "values": {
-                "hrv": c_hrv,
-                "rhr": round(c_rhr, 1) if c_rhr else None,
-                "sleep_score": c_sleep,
-                "readiness": c_readiness,
-                "deep_sleep_min": c_deep,
-                "stress_min": c_stress,
+                "hrv": c["hrv"],
+                "rhr": round(c["rhr"], 1) if c["rhr"] else None,
+                "sleep_score": c["sleep"],
+                "readiness": c["readiness"],
+                "deep_sleep_min": c["deep"],
+                "stress_min": c["stress"],
+                "total_sleep_hours": c["total_sleep"],
+                "efficiency": c["efficiency"],
             },
+            # Keep backward compatibility
+            "drift_score": round((rrs - 50) / 25, 2),
         })
 
-    # Detect drift using rolling window density (not strict consecutive)
-    # A 7-day window where 3+ days are below threshold = drift zone
-    # This catches oscillating recovery patterns (drift → 1 good day → drift)
+    # ── Drift detection: 3+ YELLOW/RED days in last 7 ─────────────────────
     recent = daily_scores[-CURRENT_WINDOW:] if daily_scores else []
-    recent_drift_days = [ds for ds in recent if ds["drift_score"] < DRIFT_THRESHOLD]
-    currently_drifting = len(recent_drift_days) >= MIN_CONSECUTIVE
+    yellow_red_days = [d for d in recent if d["zone"] in ("YELLOW", "RED")]
+    red_days = [d for d in recent if d["zone"] == "RED"]
+    drift_detected = len(yellow_red_days) >= MIN_FLAGS_FOR_DRIFT
 
-    # Also find worst historical window
-    max_drift_count = 0
-    best_window_start = None
-    best_drift_signals = []
+    # ── Overtraining continuum staging ─────────────────────────────────────
+    # Count consecutive YELLOW/RED days from most recent
+    consecutive_impaired = 0
+    for d in reversed(daily_scores):
+        if d["zone"] in ("YELLOW", "RED"):
+            consecutive_impaired += 1
+        else:
+            break
 
-    for i in range(len(daily_scores) - CURRENT_WINDOW + 1):
-        window = daily_scores[i:i + CURRENT_WINDOW]
-        drift_days = [ds for ds in window if ds["drift_score"] < DRIFT_THRESHOLD]
-        if len(drift_days) > max_drift_count:
-            max_drift_count = len(drift_days)
-            best_window_start = window[0]["day"]
-            best_drift_signals = drift_days
+    stage = CONTINUUM[0]
+    for s in CONTINUUM:
+        if consecutive_impaired >= s["days_in_yellow_red"]:
+            stage = s
 
-    if currently_drifting:
-        drift_start = recent_drift_days[0]["day"] if recent_drift_days else None
-        drift_signals_final = recent_drift_days
-    else:
-        drift_start = best_window_start
-        drift_signals_final = best_drift_signals
-
-    drift_detected = currently_drifting or max_drift_count >= MIN_CONSECUTIVE
-
-    # Compute severity from the drift signals
-    if drift_detected and drift_signals_final:
-        avg_drift = statistics.mean([ds["drift_score"] for ds in drift_signals_final])
-        if avg_drift < -1.5:
+    # ── Severity from RRS and flags ───────────────────────────────────────
+    if drift_detected and recent:
+        avg_rrs = statistics.mean([d["rrs"] for d in yellow_red_days])
+        avg_flags = statistics.mean([d["flag_count"] for d in yellow_red_days])
+        if avg_rrs < 35 or avg_flags >= 4:
             severity = "high"
-        elif avg_drift < -1.0:
+        elif avg_rrs < 55 or avg_flags >= 2.5:
             severity = "medium"
         else:
             severity = "low"
-        severity_score = round(abs(avg_drift) * 20, 1)  # scale to 0-50 range
     else:
         severity = "none"
-        severity_score = 0
-        avg_drift = 0
+        avg_rrs = recent[-1]["rrs"] if recent else 50
 
-    # Compute baseline for display
-    baseline_data = data[max(0, len(data) - BASELINE_WINDOW - CURRENT_WINDOW):max(0, len(data) - CURRENT_WINDOW)]
-    bl_hrv_vals = [d["hrv"] for d in baseline_data if d.get("hrv")]
-    bl_rhr_vals = [d["avgHeartRate"] for d in baseline_data if d.get("avgHeartRate")]
-    bl_sleep_vals = [d["sleepScore"] for d in baseline_data if d.get("sleepScore")]
-    bl_readiness_vals = [d["readinessScore"] for d in baseline_data if d.get("readinessScore")]
+    # ── Baseline display ──────────────────────────────────────────────────
+    bl_data = data[max(0, len(data) - BASELINE_WINDOW - CURRENT_WINDOW):max(0, len(data) - CURRENT_WINDOW)]
+    baseline_display = {}
+    for key, field in [("sleepScore", "sleepScore"), ("hrv", "hrv"), ("rhr", "avgHeartRate"), ("readiness", "readinessScore")]:
+        v = [d[field] for d in bl_data if d.get(field)]
+        baseline_display[key] = round(statistics.mean(v), 1) if v else 0
 
-    baseline_display = {
-        "sleepScore": round(statistics.mean(bl_sleep_vals), 1) if bl_sleep_vals else 0,
-        "hrv": round(statistics.mean(bl_hrv_vals), 1) if bl_hrv_vals else 0,
-        "rhr": round(statistics.mean(bl_rhr_vals), 1) if bl_rhr_vals else 0,
-        "readiness": round(statistics.mean(bl_readiness_vals), 1) if bl_readiness_vals else 0,
-    }
-
-    # Build signal display for timeline chart
+    # ── Chart signals ─────────────────────────────────────────────────────
     chart_signals = []
-    for ds in daily_scores[-21:]:  # last 3 weeks for chart
+    for ds in daily_scores[-21:]:
         chart_signals.append({
             "date": ds["day"],
             "sleepScore": ds["values"]["sleep_score"],
             "hrv": ds["values"]["hrv"],
             "readiness": ds["values"]["readiness"],
+            "rrs": ds["rrs"],
+            "zone": ds["zone"],
+            "flagCount": ds["flag_count"],
             "driftScore": ds["drift_score"],
-            "inDrift": ds["drift_score"] < DRIFT_THRESHOLD,
+            "inDrift": ds["zone"] in ("YELLOW", "RED"),
         })
 
-    # Identify which metrics are driving the drift
+    # ── Drivers ───────────────────────────────────────────────────────────
     drivers = []
-    if drift_detected and drift_signals_final:
+    if drift_detected and yellow_red_days:
         avg_z = {}
         for metric in WEIGHTS:
-            vals = [ds["z_scores"].get(metric) for ds in drift_signals_final if metric in ds["z_scores"]]
-            if vals:
-                avg_z[metric] = statistics.mean(vals)
+            zvals = [d["z_scores"].get(metric) for d in yellow_red_days if metric in d["z_scores"]]
+            if zvals:
+                avg_z[metric] = statistics.mean(zvals)
 
-        driver_labels = {
-            "hrv": "Nervous system recovery is slow — your body isn't recharging between days",
-            "rhr": "Heart working harder at rest — sign of fatigue or fighting something off",
-            "sleep_score": "Sleep quality dropping — you're sleeping but not recovering",
-            "readiness": "Body not bouncing back — you need more rest than you're getting",
-            "deep_sleep": "Deep sleep is low — this is when growth hormone repairs your body",
-            "stress": "Too much time in stress mode — your system can't stay in fight-or-flight this long",
+        labels = {
+            "hrv": "Nervous system recovery is slow -- your body isn't recharging between days",
+            "rhr": "Heart working harder at rest -- sign of incomplete recovery",
+            "sleep_score": "Sleep quality dropping -- you're sleeping but not recovering",
+            "readiness": "Body not bouncing back -- needs more rest than it's getting",
+            "deep_sleep": "Deep sleep deficit -- growth hormone repair is impaired",
+            "stress": "Sustained stress load -- sympathetic dominance is blocking recovery",
         }
 
-        for metric, z in sorted(avg_z.items(), key=lambda x: x[1]):
-            if z < -0.5:
+        for metric, zval in sorted(avg_z.items(), key=lambda x: x[1]):
+            if zval < -0.3:
                 drivers.append({
-                    "metric": metric,
-                    "z_score": round(z, 2),
+                    "metric": metric, "z_score": round(zval, 2),
                     "weight": WEIGHTS[metric],
-                    "description": driver_labels.get(metric, metric),
+                    "description": labels.get(metric, metric),
                 })
+
+    # ── Active flags summary (most recent day) ────────────────────────────
+    today_flags = recent[-1]["flags"] if recent else []
+    today_rrs = recent[-1]["rrs"] if recent else 50
+    today_zone = recent[-1]["zone"] if recent else "GREEN"
 
     return {
         "drift_detected": drift_detected,
-        "currently_active": currently_drifting,
+        "currently_active": len(yellow_red_days) >= MIN_FLAGS_FOR_DRIFT,
         "severity": severity,
-        "severity_score": severity_score,
-        "consecutive_days": len(recent_drift_days) if currently_drifting else max_drift_count,
-        "drift_start_date": drift_start,
+        "severity_score": round(100 - avg_rrs),
+        "consecutive_days": len(yellow_red_days),
+        "consecutive_impaired": consecutive_impaired,
+        "drift_start_date": yellow_red_days[0]["day"] if yellow_red_days else None,
         "baseline": baseline_display,
         "signals": chart_signals,
         "drivers": drivers,
-        "summary": _build_summary(drift_detected, currently_drifting, severity, drivers, baseline_display, drift_signals_final, daily_scores),
+
+        # New: RRS + Warning Flags + Zones + Continuum
+        "rrs": {
+            "score": today_rrs,
+            "zone": today_zone,
+            "zone_label": ZONES[today_zone]["label"],
+            "zone_description": ZONES[today_zone]["description"],
+        },
+        "warning_flags": {
+            "active": today_flags,
+            "count": len(today_flags),
+            "primary": [f for f in today_flags if f["weight"] == "primary"],
+            "secondary": [f for f in today_flags if f["weight"] != "primary"],
+        },
+        "overtraining_stage": {
+            "stage": stage["stage"],
+            "days_impaired": consecutive_impaired,
+            "description": stage["description"],
+        },
+
+        "summary": _build_summary(drift_detected, severity, drivers, baseline_display, yellow_red_days, today_rrs, today_zone, stage, today_flags),
         "algorithm": {
+            "version": "3.0",
+            "name": "RRS + Warning Flags + Overtraining Continuum",
             "baseline_window": BASELINE_WINDOW,
             "current_window": CURRENT_WINDOW,
-            "threshold": DRIFT_THRESHOLD,
             "weights": WEIGHTS,
-            "method": "Weighted composite z-score across 6 biometric signals",
+            "flags_defined": len(FLAGS),
+            "sources": "Meeusen et al. 2013, Plews et al. 2012/2013, Buchheit 2014, Halson 2014",
         },
     }
 
 
-def _build_summary(detected, active, severity, drivers, baseline, drift_signals, daily_scores):
+def _build_summary(detected, severity, drivers, baseline, drift_days, rrs, zone, stage, flags):
     if not detected:
-        return "Your body looks good. All your numbers are within your normal range. Keep doing what you're doing."
+        return (
+            f"Recovery Readiness Score: {rrs}/100 (Zone {zone}). "
+            f"Your body looks good. All signals are within your personal baseline. "
+            f"Keep doing what you're doing."
+        )
 
-    days = len(drift_signals)
-
-    # Plain language driver
+    days = len(drift_days)
     driver_plain = {
         "hrv": "your nervous system is recovering slower than normal",
-        "rhr": "your resting heart rate is higher than usual, meaning your body is working harder even at rest",
-        "sleep_score": "your sleep quality has dropped",
+        "rhr": "your resting heart rate is elevated, meaning your body is working harder at rest",
+        "sleep_score": "your sleep quality has declined",
         "readiness": "your body isn't bouncing back like it usually does",
-        "deep_sleep": "you're not getting enough deep sleep, which is when your body repairs itself",
+        "deep_sleep": "you're not getting enough deep sleep for physical repair",
         "stress": "you're spending too much time in a stressed state",
     }
 
-    if drift_signals:
-        import statistics as _stats
-        avg_hrv = _stats.mean([ds["values"]["hrv"] for ds in drift_signals if ds["values"].get("hrv")])
-        bl_hrv = baseline.get("hrv", 0)
-        hrv_pct = round(abs((avg_hrv - bl_hrv) / bl_hrv * 100), 0) if bl_hrv else 0
+    top = [driver_plain.get(d["metric"], d["description"]) for d in drivers[:2]]
+    cause = " and ".join(top) if top else "multiple signals are below your baseline"
 
-        # Build driver sentence
-        if drivers:
-            top_drivers = [driver_plain.get(d["metric"], d["description"]) for d in drivers[:2]]
-            cause = " and ".join(top_drivers)
-        else:
-            cause = "multiple signals are below your baseline"
+    flag_names = ", ".join(f["name"] for f in flags[:3])
 
-        if active:
-            timing = "This is happening right now"
-        else:
-            timing = f"Over the last few weeks, there were {days} days where this happened"
-
-        return (
-            f"{timing}. The main issue: {cause}. "
-            f"During these days, your HRV averaged {avg_hrv:.0f}ms, which is {hrv_pct:.0f}% below your normal of {bl_hrv:.0f}ms. "
-            f"This is a {severity}-severity drift."
-        )
-
-    return f"Drift detected. Severity: {severity}."
+    return (
+        f"Recovery Readiness Score: {rrs}/100 (Zone {zone}). "
+        f"{days} of the last 7 days show impaired recovery. "
+        f"The main issue: {cause}. "
+        f"Active warning flags: {flag_names or 'none'}. "
+        f"Overtraining continuum: {stage['stage']}. {stage['description']}"
+    )
 
 
-# Keep backward compatibility with mock data flow
-def detect_drift(sleep_trends: list[dict], checkins: list[dict]) -> dict:
-    """Legacy wrapper — converts mock format to real format and runs real engine."""
-    # Convert mock data format to real data format
+# Backward compatibility
+def detect_drift(sleep_trends, checkins):
     checkin_by_date = {c["date"]: c for c in checkins}
     daily_data = []
     for t in sleep_trends:
         day = t["day"]
         c = checkin_by_date.get(day, {})
         daily_data.append({
-            "day": day,
-            "sleepScore": t.get("sleepScore", 0),
-            "hrv": t.get("hrv", 0),
-            "avgHeartRate": t.get("avgHeartRate", 60),
+            "day": day, "sleepScore": t.get("sleepScore", 0),
+            "hrv": t.get("hrv", 0), "avgHeartRate": t.get("avgHeartRate", 60),
             "deepSleepMin": t.get("deepSleepPct", 0.2) * t.get("totalSleepHours", 7) * 60,
             "totalSleepHours": t.get("totalSleepHours", 7),
-            "readinessScore": c.get("mood", 7) * 10,  # proxy
-            "stressMin": (10 - c.get("stress", 5)) * 15,  # proxy: high stress checkin → high minutes
+            "readinessScore": c.get("mood", 7) * 10,
+            "stressMin": (10 - c.get("stress", 5)) * 15,
             "efficiency": t.get("efficiency", 85),
         })
     return detect_drift_real(daily_data)

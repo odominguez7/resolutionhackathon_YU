@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
-from backend.eight_sleep.routes import router as sleep_router
 from backend.checkin.routes import router as checkin_router
 from backend.drift.routes import router as drift_router
 from backend.coaching.routes import router as coaching_router
@@ -14,8 +13,40 @@ from backend.feedback.routes import router as feedback_router
 from backend.oura.routes import router as oura_router
 from backend.optimize.routes import router as optimize_router
 from backend.calendar.routes import router as calendar_router
+from backend.agent.routes import router as agent_router
 
 app = FastAPI(title="YU RestOS", version="2.0.0")
+
+
+@app.on_event("startup")
+async def startup_refresh():
+    """Auto-refresh Oura data and start 24h agent scheduler."""
+    # Refresh Oura data
+    try:
+        from backend.oura.live import has_live_token
+        if has_live_token():
+            from backend.oura.routes import refresh_from_oura
+            result = await refresh_from_oura()
+            print(f"[YU Cortex] Startup refresh: {result.get('message', 'done')}")
+        else:
+            print("[YU Cortex] No Oura token -- using static data files")
+    except Exception as e:
+        print(f"[YU Cortex] Startup refresh failed: {e}")
+
+    # Start 24h autonomous agent loop
+    import asyncio
+    async def _auto_loop():
+        while True:
+            await asyncio.sleep(86400)  # 24 hours
+            try:
+                from backend.agent.loop import agent_tick
+                result = await agent_tick()
+                print(f"[YU Cortex] Auto-tick #{result.get('tick_number', '?')} completed in {result.get('duration_ms', '?')}ms")
+            except Exception as e:
+                print(f"[YU Cortex] Auto-tick failed: {e}")
+
+    asyncio.create_task(_auto_loop())
+    print("[YU Cortex] 24h autonomous loop scheduled")
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,7 +56,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(sleep_router, prefix="/api/sleep", tags=["sleep"])
 app.include_router(checkin_router, prefix="/api/checkin", tags=["checkin"])
 app.include_router(drift_router, prefix="/api/drift", tags=["drift"])
 app.include_router(coaching_router, prefix="/api/coaching", tags=["coaching"])
@@ -34,6 +64,7 @@ app.include_router(feedback_router, prefix="/api/feedback", tags=["feedback"])
 app.include_router(oura_router, prefix="/api/oura", tags=["oura"])
 app.include_router(optimize_router, prefix="/api/optimize", tags=["optimize"])
 app.include_router(calendar_router, prefix="/api/calendar", tags=["calendar"])
+app.include_router(agent_router, prefix="/api/agent", tags=["agent"])
 
 DIST = Path(__file__).parent / "frontend" / "dist"
 

@@ -9,10 +9,12 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt caldav vobject httpx aiofiles google-genai
+RUN pip install --no-cache-dir -r requirements.txt caldav vobject httpx aiofiles google-genai google-cloud-firestore langgraph langchain-core
 
 COPY backend/ ./backend/
 COPY scripts/ ./scripts/
+COPY ["Drift logic/", "Drift logic/"]
+COPY .env* ./
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
 COPY main_cloud.py ./main_cloud.py

@@ -1,5 +1,11 @@
-from fastapi import APIRouter, HTTPException
+import os
+import httpx
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 from .engine import generate_schedule, compute_kpis, get_hero
 from .workout import generate_workout
 from .energy import compute_energy_curve, audit_calendar, find_focus_blocks, find_peak_windows, find_dip_windows
@@ -8,6 +14,49 @@ from .recovery import compute_recovery_items
 from .calendar_client import get_today_events, has_google_token, get_auth_url, exchange_code
 
 router = APIRouter()
+
+
+def _get_today_workout_status() -> dict:
+    """Check if the user already worked out today based on Oura data."""
+    try:
+        from backend.oura.routes import WORKOUTS, DAILY_ACTIVITY, _activity_by_day
+    except ImportError:
+        from oura.routes import WORKOUTS, DAILY_ACTIVITY, _activity_by_day
+    boston_tz = ZoneInfo("America/New_York")
+    today_str = datetime.now(boston_tz).strftime("%Y-%m-%d")
+
+    # Check workouts
+    today_workouts = [w for w in WORKOUTS if w.get("day") == today_str]
+    if today_workouts:
+        w = today_workouts[0]
+        return {
+            "worked_out": True,
+            "activity": w.get("activity", "workout"),
+            "calories": w.get("calories", 0),
+            "duration_min": round(w.get("duration", 0) / 60) if w.get("duration") else 0,
+        }
+
+    # Check activity score — if steps are high, movement happened
+    activity = _activity_by_day.get(today_str, {})
+    steps = activity.get("steps", 0)
+    active_cal = activity.get("active_calories", 0)
+    if steps > 8000 or active_cal > 300:
+        return {
+            "worked_out": True,
+            "activity": "active_day",
+            "calories": active_cal,
+            "duration_min": 0,
+            "steps": steps,
+        }
+
+    return {"worked_out": False}
+
+
+def _current_hour() -> float:
+    """Current hour as decimal in Boston time."""
+    boston_tz = ZoneInfo("America/New_York")
+    now = datetime.now(boston_tz)
+    return now.hour + now.minute / 60
 
 
 @router.get("/full-day")
@@ -185,6 +234,82 @@ def get_full_day(mood: str = "balanced"):
             "options": ["Deep work", "Active recovery", "Let RestOS decide"],
         })
 
+    # 10. Current context
+    now_hour = _current_hour()
+    workout_status = _get_today_workout_status()
+
+    # Mark timeline items as done/current/upcoming
+    for item in timeline:
+        item_h = int(item["time"].split(":")[0]) + int(item["time"].split(":")[1]) / 60
+        if item_h < 5:
+            item_h += 24
+        end_h = item_h
+        if item.get("end_time"):
+            end_h = int(item["end_time"].split(":")[0]) + int(item["end_time"].split(":")[1]) / 60
+            if end_h < 5:
+                end_h += 24
+
+        if item["type"] == "workout" and workout_status["worked_out"]:
+            item["status"] = "done"
+            item["done_detail"] = f"{workout_status.get('activity', 'workout')} - {workout_status.get('duration_min', 0)}min, {workout_status.get('calories', 0)} cal"
+        elif item["type"] == "wake":
+            item["status"] = "done" if now_hour > item_h + 0.5 else "current"
+        elif now_hour >= end_h:
+            item["status"] = "done"
+        elif now_hour >= item_h:
+            item["status"] = "current"
+        else:
+            item["status"] = "upcoming"
+
+    # Sleep experiments based on KPI data
+    sleep_experiments = []
+    sleep_kpi = kpi_map.get("sleep_score", {})
+    deep_kpi = kpi_map.get("deep_sleep", {})
+    eff_kpi = kpi_map.get("efficiency", {})
+    consistency_kpi = kpi_map.get("consistency", {})
+    hrv_kpi = kpi_map.get("hrv", {})
+
+    if deep_kpi.get("status") != "green":
+        sleep_experiments.append({
+            "id": "cool_room",
+            "title": "Cool your room to 65F tonight",
+            "why": f"Deep sleep at {deep_kpi.get('current', 0)}% (target 20%). Cooler temps increase deep sleep.",
+            "duration": "1 week",
+            "metric": "deep_sleep",
+        })
+    if eff_kpi.get("status") != "green":
+        sleep_experiments.append({
+            "id": "no_screens",
+            "title": "No screens 45min before bed",
+            "why": f"Efficiency at {eff_kpi.get('current', 0)}% (target 85%). Blue light delays sleep onset.",
+            "duration": "5 days",
+            "metric": "efficiency",
+        })
+    if consistency_kpi.get("status") != "green":
+        sleep_experiments.append({
+            "id": "fixed_bedtime",
+            "title": f"Fixed bedtime within 30min window",
+            "why": f"Bedtime varies by {consistency_kpi.get('current', 0)}min. Consistency trains your circadian rhythm.",
+            "duration": "2 weeks",
+            "metric": "consistency",
+        })
+    if hrv_kpi.get("status") != "green":
+        sleep_experiments.append({
+            "id": "breathwork",
+            "title": "5min breathwork before bed",
+            "why": f"HRV at {hrv_kpi.get('current', 0)}ms (baseline {hrv_kpi.get('baseline', 0)}ms). Breathwork activates parasympathetic recovery.",
+            "duration": "1 week",
+            "metric": "hrv",
+        })
+    if not sleep_experiments:
+        sleep_experiments.append({
+            "id": "maintain",
+            "title": "Keep doing what you're doing",
+            "why": "All sleep metrics are green. Your current routine is working.",
+            "duration": "ongoing",
+            "metric": "all",
+        })
+
     return {
         "based_on_day": schedule.get("based_on_day"),
         "mood": mood,
@@ -201,6 +326,9 @@ def get_full_day(mood: str = "balanced"):
         "workout": workout,
         "kpis": kpis.get("kpis", []),
         "recovery": recovery,
+        "now_hour": round(now_hour, 2),
+        "workout_status": workout_status,
+        "sleep_experiments": sleep_experiments,
         "interactive": {
             "greeting": f"{hero['headline']} {hero['emoji']}",
             "questions": questions,
@@ -250,13 +378,63 @@ def execute_action(item_index: int):
         "status": "executed", "parameters": {k: v for k, v in action.items() if k != "tool_id"},
         "result": f"{item['title']} executed successfully.",
     }
-    if tool_id == "adjust_temperature":
-        result["api_call"] = "PUT /v1/users/{id}/temperature"
-        result["sponsor"] = "Eight Sleep"
-    elif tool_id == "block_calendar":
+    if tool_id == "block_calendar":
         result["api_call"] = "POST /calendar/v3/calendars/primary/events"
         result["sponsor"] = "Google Calendar"
     return result
+
+
+# ─── Share to Sage (OpenClaw) ───
+
+class ShareWorkoutRequest(BaseModel):
+    workout_text: str
+    format: str = ""
+    duration_min: int = 0
+    note: str = ""
+
+@router.post("/share-workout")
+async def share_workout(req: ShareWorkoutRequest):
+    """Share workout to Sage via OpenClaw Gateway Tools Invoke API."""
+    gateway_url = os.getenv("OPENCLAW_GATEWAY_URL", "http://127.0.0.1:18789")
+    gateway_token = os.getenv("OPENCLAW_GATEWAY_TOKEN", "")
+
+    # Build the message
+    message = f"**Tomorrow's Workout Plan**\n\n"
+    if req.format:
+        message += f"Format: {req.format}"
+    if req.duration_min:
+        message += f" | {req.duration_min} min"
+    message += f"\n\n{req.workout_text}"
+    if req.note:
+        message += f"\n\n_{req.note}_"
+
+    # If Gateway token is configured, send via Tools Invoke API
+    if gateway_token:
+        try:
+            invoke_url = f"{gateway_url.rstrip('/')}/tools/invoke"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {gateway_token}",
+            }
+            payload = {
+                "tool": "message.send",
+                "input": {
+                    "text": message,
+                    "metadata": {
+                        "source": "yu-restos",
+                        "type": "workout_share",
+                        "timestamp": datetime.now(ZoneInfo("America/New_York")).isoformat(),
+                    },
+                },
+            }
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.post(invoke_url, json=payload, headers=headers)
+                return {"status": "sent", "gateway_status": resp.status_code}
+        except Exception as e:
+            return {"status": "error", "detail": str(e), "message": message}
+
+    # If not configured, return the formatted message so user can copy
+    return {"status": "not_configured", "message": message, "hint": "Set OPENCLAW_GATEWAY_TOKEN env var to enable auto-send to Sage"}
 
 
 # ─── Google Calendar OAuth ───

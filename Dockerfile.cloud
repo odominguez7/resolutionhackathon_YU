@@ -23,64 +23,8 @@ COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 # Install a simple static file server middleware
 RUN pip install --no-cache-dir aiofiles
 
-# Create main entry that serves both API and static files
-RUN cat > main_cloud.py << 'PYEOF'
-import os
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-
-from backend.eight_sleep.routes import router as sleep_router
-from backend.checkin.routes import router as checkin_router
-from backend.drift.routes import router as drift_router
-from backend.coaching.routes import router as coaching_router
-from backend.actions.routes import router as actions_router
-from backend.feedback.routes import router as feedback_router
-from backend.oura.routes import router as oura_router
-from backend.optimize.routes import router as optimize_router
-from backend.calendar.routes import router as calendar_router
-
-app = FastAPI(title="YU RestOS", version="2.0.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(sleep_router, prefix="/api/sleep", tags=["sleep"])
-app.include_router(checkin_router, prefix="/api/checkin", tags=["checkin"])
-app.include_router(drift_router, prefix="/api/drift", tags=["drift"])
-app.include_router(coaching_router, prefix="/api/coaching", tags=["coaching"])
-app.include_router(actions_router, prefix="/api/actions", tags=["actions"])
-app.include_router(feedback_router, prefix="/api/feedback", tags=["feedback"])
-app.include_router(oura_router, prefix="/api/oura", tags=["oura"])
-app.include_router(optimize_router, prefix="/api/optimize", tags=["optimize"])
-app.include_router(calendar_router, prefix="/api/calendar", tags=["calendar"])
-
-@app.get("/api/health")
-def health():
-    return {"status": "ok", "product": "YU RestOS", "version": "2.0", "ai": "gemini"}
-
-# Serve frontend static files
-app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
-
-# Serve static files from public (images, etc)
-for f in os.listdir("frontend/dist"):
-    fpath = os.path.join("frontend/dist", f)
-    if os.path.isfile(fpath) and f != "index.html":
-        @app.get(f"/{f}")
-        def serve_file(filename=f):
-            return FileResponse(f"frontend/dist/{filename}")
-
-# SPA fallback - serve index.html for all non-API routes
-@app.get("/{path:path}")
-async def spa_fallback(path: str):
-    return FileResponse("frontend/dist/index.html")
-PYEOF
+# Copy the main_cloud entry point
+COPY main_cloud.py ./
 
 EXPOSE 8080
 

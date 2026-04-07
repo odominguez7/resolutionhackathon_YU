@@ -999,3 +999,106 @@ def oura_status():
         "total_workouts": len(WORKOUTS),
         "source": "live" if has_live_token() else "exported",
     }
+
+
+# ── Oura OAuth2 ─────────────────────────────────────────────────────
+
+OURA_CLIENT_ID = os.getenv("OURA_CLIENT_ID", "")
+OURA_CLIENT_SECRET = os.getenv("OURA_CLIENT_SECRET", "")
+
+@router.get("/oauth/authorize")
+def oura_oauth_start(request: Request):
+    """Redirect to Oura authorization page."""
+    if not OURA_CLIENT_ID:
+        return {"error": "OURA_CLIENT_ID not configured"}
+    # Build redirect URI — force https (Cloud Run is behind a proxy that reports http)
+    base = str(request.base_url).rstrip("/").replace("http://", "https://")
+    redirect_uri = os.getenv("OURA_REDIRECT_URI", f"{base}/api/oura/oauth/callback")
+    from urllib.parse import quote
+    scope = "email personal daily heartrate workout tag session spo2 ring_configuration stress heart_health"
+    auth_url = (
+        f"https://cloud.ouraring.com/oauth/authorize"
+        f"?client_id={OURA_CLIENT_ID}"
+        f"&redirect_uri={quote(redirect_uri, safe='')}"
+        f"&response_type=code"
+        f"&scope={quote(scope)}"
+        f"&state=yu-restos"
+    )
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url=auth_url)
+
+
+@router.get("/oauth/callback")
+async def oura_oauth_callback(request: Request, code: str = "", state: str = "", error: str = ""):
+    """Exchange auth code for access token, store it, and refresh data."""
+    import httpx as _httpx
+    if error:
+        return {"error": f"Oura denied access: {error}"}
+    if not code:
+        return {"error": "No authorization code received"}
+    if not OURA_CLIENT_ID or not OURA_CLIENT_SECRET:
+        return {"error": "Oura OAuth credentials not configured"}
+
+    base = str(request.base_url).rstrip("/").replace("http://", "https://")
+    redirect_uri = os.getenv("OURA_REDIRECT_URI", f"{base}/api/oura/oauth/callback")
+
+    async with _httpx.AsyncClient(timeout=15) as client:
+        resp = await client.post("https://api.ouraring.com/oauth/token", data={
+            "grant_type": "authorization_code",
+            "code": code,
+            "client_id": OURA_CLIENT_ID,
+            "client_secret": OURA_CLIENT_SECRET,
+            "redirect_uri": redirect_uri,
+        })
+
+    if resp.status_code != 200:
+        return {"error": f"Token exchange failed: {resp.status_code}", "detail": resp.text}
+
+    token_data = resp.json()
+    access_token = token_data.get("access_token", "")
+    refresh_token = token_data.get("refresh_token", "")
+
+    if not access_token:
+        return {"error": "No access token in response", "data": token_data}
+
+    # Update live.py's token in memory
+    from . import live
+    live.TOKEN = access_token
+    live.HEADERS = {"Authorization": f"Bearer {access_token}"}
+
+    # Save refresh token in memory
+    if refresh_token:
+        live.REFRESH_TOKEN = refresh_token
+
+    # Auto-refresh all data with the new token
+    result = await refresh_from_oura()
+
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(f"""
+    <html><body style="background:#050816;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column">
+    <h1 style="color:#4ADE80">Oura Connected</h1>
+    <p>Access token received. Data refreshed: {result.get('refreshed', {}).get('sleep_sessions', 0)} sleep sessions, {result.get('refreshed', {}).get('daily_scores', 0)} daily scores.</p>
+    <p style="color:#94A3B8;font-size:12px;margin-top:20px">To persist across deploys, run:</p>
+    <code style="background:rgba(255,255,255,0.05);padding:8px 16px;border-radius:8px;font-size:11px;color:#60A5FA;word-break:break-all;max-width:90%">gcloud run services update yu-restos --region us-east1 --update-env-vars "OURA_REFRESH_TOKEN={refresh_token}"</code>
+    <a href="/" style="color:#60A5FA;margin-top:20px">Go to app</a>
+    </body></html>
+    """)
+
+
+@router.get("/data-status")
+def data_status():
+    """Returns status of loaded Oura data for live indicators."""
+    days = sorted(_sleep_by_day.keys())
+    return {
+        "source": "Oura Ring API",
+        "live": True,
+        "sleep_sessions": len(SLEEP_SESSIONS),
+        "daily_scores": len(DAILY_SLEEP),
+        "workouts": len(WORKOUTS),
+        "heart_rate_readings": len(HEARTRATE),
+        "date_range": {
+            "first": days[0] if days else None,
+            "last": days[-1] if days else None,
+        },
+        "total_days": len(days),
+    }

@@ -57,7 +57,7 @@ def simulate_task_progress(task_id: str) -> dict:
         },
         "in_progress": {
             "next": "booked",
-            "message": "Found a yoga class at CorePower -- tomorrow 8:30 AM. Booking confirmed.",
+            "message": "Found a yoga session nearby -- tomorrow 8:30 AM. Booking confirmed.",
         },
         "booked": {
             "next": "completed",

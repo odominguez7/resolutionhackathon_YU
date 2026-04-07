@@ -49,52 +49,47 @@ def generate_recovery_plan(drift_analysis: dict, latest_sleep: dict, latest_chec
     readiness = latest_sleep.get("readinessScore", 0)
     baseline = drift_analysis.get("baseline", {})
 
-    # ACTION 1: Eight Sleep — Cool bed (always for drift)
+    # ACTION 1: Sleep hygiene protocol (always for drift)
     actions.append(Action(
         id=str(uuid.uuid4())[:8],
-        title="Cool your bed tonight",
+        title="Optimize your sleep environment tonight",
         description=(
             f"Your HRV is {hrv}ms (normally it's around {baseline.get('hrv', 0):.0f}ms). "
-            f"When you sleep cooler, your body spends more time in deep sleep — "
+            f"When you sleep cooler (65-68F), your body spends more time in deep sleep -- "
             f"that's the phase where your muscles repair and your brain cleans out waste. "
-            f"We're setting your Eight Sleep to -2 tonight."
+            f"Tonight: drop the thermostat, use lighter bedding, and keep the room dark."
         ),
-        action_type=ActionType.SLEEP_ENVIRONMENT,
-        execution_method=ExecutionMethod.API_CALL,
+        action_type=ActionType.WELLNESS,
+        execution_method=ExecutionMethod.IN_APP,
         priority=1,
         estimated_impact="High",
-        impact_reason=f"Cooler bed → more deep sleep → faster HRV recovery. Your HRV is {hrv}ms vs your normal {baseline.get('hrv', 0):.0f}ms.",
-        sponsor="Eight Sleep",
+        impact_reason=f"Cooler room + darkness → more deep sleep → faster HRV recovery. Your HRV is {hrv}ms vs your normal {baseline.get('hrv', 0):.0f}ms.",
+        sponsor=None,
         parameters={
-            "tool_id": "adjust_temperature",
-            "heatingLevel": -2,
-            "stage": "initialSleepLevel",
-            "api_endpoint": "PUT /v1/users/{id}/temperature",
+            "tool_id": "sleep_protocol",
+            "focus": "temperature",
         },
     ))
 
-    # ACTION 2: Eight Sleep — Thermal alarm
+    # ACTION 2: Consistent wake time
     actions.append(Action(
         id=str(uuid.uuid4())[:8],
         title="Wake up the same time every day",
         description=(
             f"Your sleep score is {sleep_score} (normally {baseline.get('sleepScore', 0):.0f}). "
             f"Your brain has an internal clock. When you wake up at different times, that clock gets confused "
-            f"and your sleep quality drops. A thermal alarm slowly warms your bed before 6:30 AM "
-            f"so you wake up naturally instead of being jolted awake."
+            f"and your sleep quality drops. Set a consistent alarm for 6:30 AM every day this week, "
+            f"even on weekends. Consistency beats extra sleep."
         ),
-        action_type=ActionType.SLEEP_ENVIRONMENT,
-        execution_method=ExecutionMethod.API_CALL,
+        action_type=ActionType.WELLNESS,
+        execution_method=ExecutionMethod.IN_APP,
         priority=2,
         estimated_impact="High",
         impact_reason=f"Consistent wake time resets your circadian rhythm. Sleep score {sleep_score} vs normal {baseline.get('sleepScore', 0):.0f}.",
-        sponsor="Eight Sleep",
+        sponsor=None,
         parameters={
-            "tool_id": "set_alarm",
-            "time": "06:30",
-            "vibration": True,
-            "thermal": True,
-            "api_endpoint": "PUT /v1/users/{id}/alarms",
+            "tool_id": "sleep_protocol",
+            "focus": "timing",
         },
     ))
 
@@ -140,7 +135,7 @@ def generate_recovery_plan(drift_analysis: dict, latest_sleep: dict, latest_chec
             priority=4,
             estimated_impact="Medium",
             impact_reason=f"{stress_min} min of high stress. Active recovery lowers cortisol and restores parasympathetic tone.",
-            sponsor="Duckbill",
+            sponsor=None,
             parameters={
                 "activity": "yoga or guided breathwork",
                 "preferred_time": "morning",
@@ -165,7 +160,7 @@ def generate_recovery_plan(drift_analysis: dict, latest_sleep: dict, latest_chec
             priority=5,
             estimated_impact="Medium",
             impact_reason=f"Deep sleep at {deep_min} min vs 90+ target. Environment changes can boost deep sleep 15-25%.",
-            sponsor="Wayfair",
+            sponsor=None,
             parameters={
                 "goal": "deep_sleep",
                 "products": [

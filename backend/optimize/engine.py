@@ -8,11 +8,18 @@ import math
 
 def _get_oura_data():
     """Import pre-loaded Oura dictionaries."""
-    from oura.routes import (
-        _sleep_by_day, _score_by_day, _readiness_by_day,
-        _stress_by_day, _activity_by_day, _spo2_by_day,
-        _resilience_by_day, _cardio_by_day,
-    )
+    try:
+        from backend.oura.routes import (
+            _sleep_by_day, _score_by_day, _readiness_by_day,
+            _stress_by_day, _activity_by_day, _spo2_by_day,
+            _resilience_by_day, _cardio_by_day,
+        )
+    except ImportError:
+        from oura.routes import (
+            _sleep_by_day, _score_by_day, _readiness_by_day,
+            _stress_by_day, _activity_by_day, _spo2_by_day,
+            _resilience_by_day, _cardio_by_day,
+        )
     return {
         "sleep": _sleep_by_day,
         "score": _score_by_day,
@@ -353,30 +360,26 @@ def generate_schedule(mood: str = "balanced") -> dict:
         },
     })
 
-    # 7. Eight Sleep Bed Temp
+    # 7. Room Cooling
     if avg_deep_pct_7 < 0.15:
-        temp = -30
-        temp_reason = f"Deep sleep {round(avg_deep_pct_7 * 100, 1)}% (target 20%). Aggressive cooling."
+        room_temp = "62-65F"
+        temp_reason = f"Deep sleep {round(avg_deep_pct_7 * 100, 1)}% (target 20%). Drop room temp aggressively."
     elif avg_deep_pct_7 < 0.20:
-        temp = -25
-        temp_reason = f"Deep sleep {round(avg_deep_pct_7 * 100, 1)}% (target 20%). Moderate cooling."
+        room_temp = "65-67F"
+        temp_reason = f"Deep sleep {round(avg_deep_pct_7 * 100, 1)}% (target 20%). Cool room helps."
     else:
-        temp = -15
+        room_temp = "65-68F"
         temp_reason = f"Deep sleep {round(avg_deep_pct_7 * 100, 1)}%. Maintaining good levels."
 
     schedule.append({
         "time": _hour_to_time(target_bedtime - 0.5),
         "end_time": None,
-        "type": "bed_temp",
-        "title": f"Bed Cooling to {temp}",
+        "type": "room_temp",
+        "title": f"Cool room to {room_temp}",
         "description": temp_reason,
         "icon": "thermometer",
         "color": "blue",
-        "action": {
-            "tool_id": "adjust_temperature",
-            "heatingLevel": temp,
-            "stage": "initialSleepLevel",
-        },
+        "action": None,
     })
 
     # 8. Target Bedtime
@@ -520,7 +523,7 @@ def compute_kpis() -> dict:
         "current": current_deep, "baseline": baseline_deep, "target": 20, "unit": "%",
         "trend": trend_label, "trend_pct": trend_pct, "status": status,
         "sparkline": sparkline,
-        "action": "Deep sleep on target." if status == "green" else "Cool your bed temp. Avoid alcohol 3h before bed.",
+        "action": "Deep sleep on target." if status == "green" else "Cool your room to 65-68F. Avoid alcohol 3h before bed.",
     })
 
     # 4. Readiness

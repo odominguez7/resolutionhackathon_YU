@@ -327,6 +327,17 @@ const OuraProfile = () => {
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0a0e27 0%,#111638 100%)" }}>
 
+      {/* Live data indicator */}
+      <div className="flex items-center justify-center pt-4 pb-1 gap-3 flex-wrap">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+          style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.1)" }}>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#22c55e" }} />
+          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "#4ade80" }}>
+            Live from Oura Ring {dateRange && `-- ${dateRange}`}
+          </span>
+        </div>
+      </div>
+
       {/* Sticky bar removed — data lives in the orbit now */}
       {false && todayData && (() => {
         const hrTime = todayData.latestHeartRateTime ? new Date(todayData.latestHeartRateTime) : null;
@@ -1200,12 +1211,91 @@ const OuraProfile = () => {
 
               {/* Main workout */}
               {workout.workout && (
-                <div className="rounded-xl p-5" style={{ background: "rgba(239,68,68,.04)", border: "1px solid rgba(239,68,68,.15)" }}>
-                  <p className="text-[10px] text-red-400 uppercase tracking-wider font-bold mb-3">Workout</p>
-                  <pre className="text-sm text-white font-mono whitespace-pre-wrap leading-relaxed">{workout.workout.description}</pre>
-                  {workout.workout.notes && (
-                    <p className="text-xs text-slate-400 mt-3 pt-3 border-t border-white/[0.06] italic">{workout.workout.notes}</p>
-                  )}
+                <div>
+                  {(() => {
+                    const movements: string[] = workout.workout.movements || [];
+                    const notes: string = workout.workout.notes || "";
+                    const timeCap: string = workout.workout.time_cap || "";
+                    const desc: string = workout.workout.description || "";
+                    const fmt: string = workout.format || "";
+
+                    // Detect multi-part (Strength + Metcon)
+                    const isMultiPart = /strength\s*\+\s*metcon|Part\s+[AB]/i.test(fmt) || /Part\s+[AB]/i.test(desc);
+
+                    if (isMultiPart) {
+                      const metconStart = desc.toLowerCase().search(/part\s*b|metcon/i);
+                      const strengthDesc = metconStart > 0 ? desc.slice(0, metconStart) : desc;
+                      const metconDesc = metconStart > 0 ? desc.slice(metconStart) : "";
+
+                      let splitIdx = 0;
+                      for (let i = 0; i < movements.length; i++) {
+                        const words = movements[i].toLowerCase().replace(/\(.*?\)/g, "").replace(/^\d+\s*/, "").trim();
+                        if (strengthDesc.toLowerCase().includes(words.slice(0, 12))) splitIdx = i + 1;
+                      }
+                      if (splitIdx === 0 || splitIdx >= movements.length) splitIdx = Math.min(2, movements.length);
+
+                      const sFmt = strengthDesc.match(/(?:E\d+MOM|Every\s+\d+\s+min\S*|EMOM)[^:]*(?:x\s*\d+|\(\d+\s*sets?\)|\d+\s*sets?)?/i);
+                      const mFmt = metconDesc.match(/(\d+\s+Rounds?\s+For\s+Time|AMRAP\s+\d+|For\s+Time)/i);
+                      const mTC = metconDesc.match(/(?:Time\s*Cap|TC)[:\s]*(\d+\s*min\S*)/i);
+
+                      return (
+                        <div className="space-y-5">
+                          <div>
+                            <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold mb-1">Strength</p>
+                            {sFmt && <p className="text-xs text-slate-500 mb-2">{sFmt[0].trim()}</p>}
+                            <div className="space-y-1">
+                              {movements.slice(0, splitIdx).map((m: string, i: number) => (
+                                <p key={i} className="text-sm text-slate-400">{m}</p>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-red-400 uppercase tracking-wider font-bold mb-1">
+                              Metcon{mFmt ? ` -- ${mFmt[1] || mFmt[0]}` : ""}
+                            </p>
+                            {(mTC || timeCap) && <p className="text-xs text-slate-500 mb-2">Time Cap: {mTC ? mTC[1] : timeCap}</p>}
+                            <div className="space-y-1">
+                              {movements.slice(splitIdx).map((m: string, i: number) => (
+                                <p key={i} className="text-sm text-slate-400">{m}</p>
+                              ))}
+                            </div>
+                          </div>
+                          {notes && (
+                            <div>
+                              <p className="text-[10px] text-amber-400 uppercase tracking-wider font-bold mb-1">Coach Notes</p>
+                              <p className="text-sm text-slate-500 leading-relaxed">{notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Single-part workout
+                    const fmtMatch = desc.match(/(AMRAP\s+\d+\s*(?:min\S*)?|\d+\s+Rounds?\s+For\s+Time|For\s+Time|E\d+MOM\s*x?\s*\d*|EMOM\s+\d+\s*(?:min\S*)?)/i);
+                    const tcMatch = desc.match(/(?:Time\s*Cap|TC)[:\s]*(\d+\s*min\S*)/i);
+
+                    return (
+                      <div className="space-y-5">
+                        <div>
+                          <p className="text-[10px] text-red-400 uppercase tracking-wider font-bold mb-1">
+                            {fmtMatch ? fmtMatch[1] : (fmt || "WOD")}
+                          </p>
+                          {(tcMatch || timeCap) && <p className="text-xs text-slate-500 mb-2">Time Cap: {tcMatch ? tcMatch[1] : timeCap}</p>}
+                          <div className="space-y-1">
+                            {movements.map((m: string, i: number) => (
+                              <p key={i} className="text-sm text-slate-400">{m}</p>
+                            ))}
+                          </div>
+                        </div>
+                        {notes && (
+                          <div>
+                            <p className="text-[10px] text-amber-400 uppercase tracking-wider font-bold mb-1">Coach Notes</p>
+                            <p className="text-sm text-slate-500 leading-relaxed">{notes}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 

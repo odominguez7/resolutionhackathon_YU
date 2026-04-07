@@ -416,11 +416,18 @@ const Recovery = () => {
                   )}
                 </span>
               </button>
-              <Link to="/oura" className="block">
-                <button className="w-full py-3 text-sm text-slate-500 hover:text-slate-300 font-medium transition-colors duration-200">
-                  Skip — back to my data
-                </button>
-              </Link>
+              <div className="flex items-center gap-2 mt-2">
+                <Link to="/ask" className="flex-1">
+                  <button className="w-full py-3 text-sm text-purple-400/60 hover:text-purple-300 font-medium transition-colors duration-200">
+                    Ask YU a question
+                  </button>
+                </Link>
+                <Link to="/oura" className="flex-1">
+                  <button className="w-full py-3 text-sm text-slate-500 hover:text-slate-300 font-medium transition-colors duration-200">
+                    Back to my data
+                  </button>
+                </Link>
+              </div>
             </>
           )}
         </div>

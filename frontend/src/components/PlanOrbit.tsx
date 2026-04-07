@@ -1,9 +1,20 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef } from "react";
-import { Calendar, Moon, Heart, Dumbbell, Brain, Zap, MapPin, Coffee, Flame, Sparkles, ChevronRight, Bed, Activity, Send, MessageCircle, Target, ArrowRight } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Calendar, Moon, Heart, Dumbbell, Brain, Zap, MapPin, Coffee, Flame, Sparkles, ChevronRight, Activity, Send, MessageCircle, Target, ArrowRight, Check, Clock, Beaker } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const API = typeof window !== "undefined" && window.location.hostname !== "localhost" ? "" : "http://localhost:8000";
+
+const ICON_MAP: Record<string, any> = {
+  sunrise: Zap, dumbbell: Dumbbell, shield: Heart, coffee: Coffee, moon: Moon,
+  wind: Moon, thermometer: Flame, bed: Moon, utensils: Coffee, heart: Heart,
+  target: Target, calendar: Calendar, "alert-triangle": Flame, circle: Sparkles,
+  clock: Clock, activity: Activity,
+};
+const COLOR_MAP: Record<string, string> = {
+  amber: "#FBBF24", blue: "#3B82F6", green: "#4ADE80", purple: "#8B5CF6",
+  red: "#F87171", gray: "#94A3B8", indigo: "#818CF8",
+};
 
 type Props = { todayData: any; calendarEvents: any[]; stats: any; sleepHistory?: any[]; stressData?: any[] };
 
@@ -11,7 +22,6 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const [phase, setPhase] = useState<"idle" | "scanning" | "goal" | "plan">("idle");
   const [scanStep, setScanStep] = useState(0);
   const [goal, setGoal] = useState("");
-  const [podSent, setPodSent] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0); // 0 = today, 1 = tomorrow, etc.
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [workoutType, setWorkoutType] = useState<string | null>(null);
@@ -21,6 +31,21 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const [chatInput, setChatInput] = useState("");
   const [chatSending, setChatSending] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [fullDay, setFullDay] = useState<any>(null);
+  const [fullDayLoading, setFullDayLoading] = useState(false);
+  const [experimentsDone, setExperimentsDone] = useState<Record<string, boolean | null>>({});
+  const [shareStatus, setShareStatus] = useState<"idle" | "sending" | "sent" | "copied">("idle");
+
+  // Fetch full-day plan when entering plan phase
+  useEffect(() => {
+    if (phase === "plan" && !fullDay && !fullDayLoading) {
+      setFullDayLoading(true);
+      fetch(`${API}/api/optimize/full-day?mood=balanced`)
+        .then(r => r.json())
+        .then(d => { setFullDay(d); setFullDayLoading(false); })
+        .catch(() => setFullDayLoading(false));
+    }
+  }, [phase]);
 
   const readiness = todayData?.readinessScore ?? 70;
   const sleepScore = todayData?.sleepScore ?? 70;
@@ -38,7 +63,10 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
     try {
       const resp = await fetch(`${API}/api/calendar/chat`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text + (goal ? ` (My goal: ${goal})` : ""), biometrics: `Sleep: ${sleepScore}, Readiness: ${readiness}, HRV: ${hrv} ms, Stress: ${stressMin} min` }),
+        body: JSON.stringify({
+          message: text + (goal ? ` (My goal: ${goal})` : "") + (aiWorkout ? ` (Current planned workout: ${aiWorkout.title || aiWorkout.session_name || workoutType}, ${aiWorkout.duration_min || 30}min. Movements: ${JSON.stringify(aiWorkout.main_set?.movements || aiWorkout.workout?.movements || []).slice(0, 300)})` : ""),
+          biometrics: `Sleep: ${sleepScore}, Readiness: ${readiness}, HRV: ${hrv} ms, Stress: ${stressMin} min`,
+        }),
       });
       const data = await resp.json();
       setChatMessages(prev => [...prev, { role: "yu", text: data.reply || "Could not respond." }]);
@@ -56,7 +84,6 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const scanSources = [
     { label: "Oura Ring", detail: `Sleep ${sleepScore} · HRV ${hrv}ms · Readiness ${readiness}`, icon: Brain, color: "#A78BFA" },
     { label: "iCloud Calendar", detail: `${calendarEvents.length} events this week`, icon: Calendar, color: "#3B82F6" },
-    { label: "Eight Sleep Pod 5 Ultra", detail: "Temperature · GentleRise · Snoring", icon: Bed, color: "#818CF8" },
     { label: "Workout history", detail: "Recovery-aware programming", icon: Dumbbell, color: "#F87171" },
     { label: "Gemini 2.5 Pro", detail: "Building your personalized plan", icon: Sparkles, color: "#4ADE80" },
   ];
@@ -115,7 +142,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                   <motion.circle cx={135} cy={135} r={128} fill="none" stroke={rColor} strokeWidth={3} strokeLinecap="round" strokeOpacity={0.4} strokeDasharray={ringCirc}
                     initial={{ strokeDashoffset: ringCirc }} animate={{ strokeDashoffset: ringCirc * (1 - readiness / 100) }} transition={{ duration: 2, delay: 0.5 }} style={{ filter: "blur(6px)" }} />
                 </svg>
-                <motion.div className="w-[200px] h-[200px] md:w-[264px] md:h-[264px] rounded-full overflow-hidden relative" style={{ border: `3px solid ${rColor}20`, boxShadow: `0 0 50px rgba(0,0,0,0.4), 0 0 30px ${rColor}08` }}
+                <motion.div className="w-[180px] h-[180px] md:w-[264px] md:h-[264px] rounded-full overflow-hidden relative" style={{ border: `3px solid ${rColor}20`, boxShadow: `0 0 50px rgba(0,0,0,0.4), 0 0 30px ${rColor}08` }}
                   whileHover={{ scale: 1.03, borderColor: `${rColor}40` }} whileTap={{ scale: 0.97 }}>
                   <img src="/me.png" alt="You" className="w-full h-full object-cover" style={{ filter: "brightness(0.85) contrast(1.1)" }} />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4) 100%)" }} />
@@ -127,13 +154,13 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                 </motion.div>
               </div>
               <motion.div className="text-center mt-2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                <motion.button className="px-14 py-5 rounded-2xl cursor-pointer border-0" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.08))", border: "1.5px solid rgba(59,130,246,0.15)" }}
+                <motion.button className="px-10 py-4 md:px-14 md:py-5 rounded-2xl cursor-pointer border-0" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.08))", border: "1.5px solid rgba(59,130,246,0.15)" }}
                   whileHover={{ scale: 1.04, boxShadow: "0 0 50px rgba(59,130,246,0.15)" }} whileTap={{ scale: 0.97 }} onClick={handlePlan}
                   animate={{ boxShadow: ["0 0 15px rgba(59,130,246,0.05)", "0 0 35px rgba(59,130,246,0.1)", "0 0 15px rgba(59,130,246,0.05)"] }} transition={{ boxShadow: { duration: 3, repeat: Infinity } }}>
-                  <span className="text-xl font-black text-white">Plan my day</span>
+                  <span className="text-lg md:text-xl font-black text-white">Plan my day</span>
                 </motion.button>
                 <div className="flex items-center justify-center gap-3 md:gap-4 mt-4 flex-wrap">
-                  {[{ icon: Brain, l: "Oura Ring", c: "#A78BFA" }, { icon: Calendar, l: "Calendar", c: "#3B82F6" }, { icon: Bed, l: "Eight Sleep", c: "#818CF8" }, { icon: Sparkles, l: "Gemini AI", c: "#4ADE80" }].map(s => (
+                  {[{ icon: Brain, l: "Oura Ring", c: "#A78BFA" }, { icon: Calendar, l: "Calendar", c: "#3B82F6" }, { icon: Sparkles, l: "Gemini AI", c: "#4ADE80" }].map(s => (
                     <div key={s.l} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: `${s.c}06`, border: `1px solid ${s.c}08` }}>
                       <s.icon className="w-3 h-3" style={{ color: s.c, opacity: 0.6 }} />
                       <span className="text-[9px] md:text-[10px] font-semibold" style={{ color: `${s.c}60` }}>{s.l}</span>
@@ -283,192 +310,146 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
 
           {/* ═══ PLAN ═══ */}
           {phase === "plan" && (() => {
-            const selDate = new Date(Date.now() + selectedDay * 86400000);
-            const selStr = selDate.toISOString().slice(0, 10);
-            const selLabel = selectedDay === 0 ? "Today" : selectedDay === 1 ? "Tomorrow" : selDate.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
-            const dayEvts = calendarEvents.filter((e: any) => e.start?.slice(0, 10) === selStr);
+            const timeline = fullDay?.timeline || [];
+            const heroData = fullDay?.hero || {};
+            const sleepExperiments = fullDay?.sleep_experiments || [];
+            const workoutStatus = fullDay?.workout_status || {};
+            const kpis = fullDay?.kpis || [];
 
-            // Build step-by-step actions for the selected day
-            const steps: { time: string; action: string; detail: string; icon: any; color: string; type: string }[] = [];
+            // Only calendar events
+            const calendarItems = timeline.filter((t: any) => t.source === "calendar");
 
-            // Morning
-            steps.push({
-              time: "Morning", icon: Dumbbell, color: readiness >= 75 ? "#F87171" : readiness >= 60 ? "#FBBF24" : "#4ADE80", type: "move",
-              action: readiness >= 75 ? "30-min high-intensity workout" : readiness >= 60 ? "20-min moderate movement" : "15-min stretching + breathwork",
-              detail: `Readiness ${readiness}. ${readiness >= 75 ? "You're charged. Push it." : readiness >= 60 ? "Move smart, save the intensity." : "Recovery day. Light movement only."}`,
-            });
-
-            // Calendar events
-            for (const e of dayEvts) {
-              let time = ""; let title = e.title;
-              if (!e.allDay && e.start?.includes("T")) time = new Date(e.start).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/New_York" });
-              const emb = title.match(/^(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})\s+(.+)$/);
-              if (emb) { time = emb[1] + " - " + emb[2]; title = emb[3]; }
-              steps.push({ time: time || "All day", icon: Calendar, color: "#3B82F6", type: "calendar", action: title, detail: e.location || "" });
-            }
-
-            // Afternoon break if stressed
-            if (stressMin > 60) {
-              steps.push({ time: "Afternoon", icon: Coffee, color: "#8B5CF6", type: "yu", action: "Take a recovery break", detail: `${stressMin} min of stress. 10-min walk or breathwork will reset your nervous system.` });
-            }
-
-            // Evening
-            steps.push({
-              time: "Tonight", icon: Moon, color: "#818CF8", type: "sleep",
-              action: sleepScore < 85 ? "Wind down by 10 PM" : "Maintain your routine",
-              detail: sleepScore < 85 ? "No screens after 9:30. Cool room. Eight Sleep Pod will handle the rest." : "You're sleeping well. Pod is set to optimize tonight.",
-            });
-
-            // Sort: morning first, then by time, then evening last
-            const timeOrder = (t: string) => { if (t === "Morning") return "A"; if (t === "Tonight") return "Z"; if (t === "Afternoon") return "M"; return t; };
-            steps.sort((a, b) => timeOrder(a.time).localeCompare(timeOrder(b.time)));
+            // Helper to format 24h time to readable
+            const fmt = (t: string) => {
+              if (!t) return "";
+              const [h, m] = t.split(":").map(Number);
+              const ampm = h >= 12 ? "PM" : "AM";
+              return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${ampm}`;
+            };
 
             return (
             <motion.div key="plan" className="w-full" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
 
+              {fullDayLoading ? (
+                <div className="flex flex-col items-center py-20 gap-3">
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}><Sparkles className="w-8 h-8 text-emerald-400" /></motion.div>
+                  <p className="text-sm text-slate-400">Building your day from Oura + Calendar data...</p>
+                </div>
+              ) : (
+              <>
               {/* Header */}
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 rounded-full overflow-hidden relative flex-shrink-0" style={{ border: `2.5px solid ${rColor}30` }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-5">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden relative flex-shrink-0" style={{ border: `2.5px solid ${rColor}30` }}>
                   <img src="/me.png" alt="" className="w-full h-full object-cover" style={{ filter: "brightness(0.85)" }} />
                   <svg className="absolute inset-0" viewBox="0 0 48 48" style={{ transform: "rotate(-90deg)" }}>
                     <circle cx={24} cy={24} r={21} fill="none" stroke={rColor} strokeWidth={2.5} strokeLinecap="round"
                       strokeDasharray={2 * Math.PI * 21} strokeDashoffset={2 * Math.PI * 21 * (1 - readiness / 100)} />
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-black text-white">Your week, planned</h2>
-                  <p className="text-xs text-slate-500">{goal} · {calendarEvents.length} events · Oura + Eight Sleep + Gemini</p>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg md:text-xl font-black text-white truncate">{heroData.headline || "Your day"}</h2>
+                  <p className="text-[10px] md:text-xs text-slate-500">{new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</p>
                 </div>
-                <button onClick={() => { setPhase("idle"); setPodSent(false); setActiveSection(null); setWorkoutType(null); setAiWorkout(null); setSelectedDay(0); }}
-                  className="text-xs text-slate-600 cursor-pointer border-0 bg-transparent hover:text-slate-400 px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.02)" }}>Reset</button>
-              </div>
-
-              {/* Day selector */}
-              <div className="flex gap-2 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                {Array.from({ length: 7 }, (_, i) => {
-                  const d = new Date(Date.now() + i * 86400000);
-                  const dayStr = d.toISOString().slice(0, 10);
-                  const dayEvents = calendarEvents.filter((e: any) => e.start?.slice(0, 10) === dayStr);
-                  const label = i === 0 ? "Today" : i === 1 ? "Tmrw" : d.toLocaleDateString("en-US", { weekday: "short" });
-                  const dateNum = d.getDate();
-                  const isSelected = selectedDay === i;
-                  return (
-                    <motion.button key={i} onClick={() => setSelectedDay(i)}
-                      className="flex flex-col items-center px-4 py-2.5 rounded-xl cursor-pointer border-0 flex-shrink-0 min-w-[60px]"
-                      style={{
-                        background: isSelected ? `${rColor}12` : "rgba(255,255,255,0.015)",
-                        border: `1.5px solid ${isSelected ? `${rColor}30` : "rgba(255,255,255,0.03)"}`,
-                      }}
-                      whileHover={{ scale: 1.05, borderColor: `${rColor}20` }} whileTap={{ scale: 0.95 }}>
-                      <span className="text-[10px] font-bold uppercase" style={{ color: isSelected ? rColor : "rgba(255,255,255,0.3)" }}>{label}</span>
-                      <span className="text-xl font-black" style={{ color: isSelected ? "white" : "rgba(255,255,255,0.4)" }}>{dateNum}</span>
-                      {dayEvents.length > 0 && (
-                        <div className="flex gap-0.5 mt-0.5">
-                          {dayEvents.slice(0, 4).map((_: any, j: number) => (
-                            <div key={j} className="w-1.5 h-1.5 rounded-full" style={{ background: isSelected ? rColor : "rgba(255,255,255,0.15)" }} />
-                          ))}
-                        </div>
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {/* Biometric bar */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-5">
-                {[
-                  { icon: Moon, label: "Sleep", value: sleepScore, color: "#818CF8", sub: "last night" },
-                  { icon: Heart, label: "Readiness", value: readiness, color: "#4ADE80", sub: readiness >= 75 ? "go hard" : readiness >= 60 ? "moderate" : "rest day" },
-                  { icon: Brain, label: "HRV", value: hrv, color: "#A78BFA", sub: "ms" },
-                  { icon: Flame, label: "Stress", value: stressMin, color: "#FBBF24", sub: "min today" },
-                ].map(m => (
-                  <div key={m.label} className="rounded-xl p-3.5 text-center" style={{ background: `${m.color}06`, border: `1px solid ${m.color}10` }}>
-                    <m.icon className="w-4 h-4 mx-auto mb-1.5" style={{ color: m.color }} />
-                    <p className="text-3xl font-black text-white leading-none">{m.value}</p>
-                    <p className="text-[9px] font-bold uppercase tracking-wider mt-1" style={{ color: `${m.color}70` }}>{m.label}</p>
-                    <p className="text-[9px] text-slate-500">{m.sub}</p>
-                  </div>
-                ))}
+                <button onClick={() => { setPhase("idle"); setActiveSection(null); setWorkoutType(null); setAiWorkout(null); setSelectedDay(0); setFullDay(null); setExperimentsDone({}); }}
+                  className="text-[10px] md:text-xs text-slate-600 cursor-pointer border-0 bg-transparent hover:text-slate-400 px-2 py-1 md:px-3 md:py-1.5 rounded-lg flex-shrink-0" style={{ background: "rgba(255,255,255,0.02)" }}>Reset</button>
               </div>
 
               {/* TWO COLUMN LAYOUT */}
               <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4">
 
-                {/* LEFT: Step-by-step day plan */}
+                {/* LEFT */}
                 <div className="space-y-3">
 
-                  {/* STEP BY STEP: Here's what to do */}
-                  <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                    <h3 className="text-lg font-black text-white mb-1">Here's what to do {selLabel.toLowerCase()}</h3>
-                    <p className="text-xs text-slate-500 mb-4">{dayEvts.length} event{dayEvts.length !== 1 ? "s" : ""} + YU recommendations based on your body</p>
+                  {/* Biometric bar - compact */}
+                  <div className="grid grid-cols-4 gap-1.5 md:gap-2">
+                    {[
+                      { icon: Moon, label: "Sleep", value: sleepScore, color: "#818CF8" },
+                      { icon: Heart, label: "Ready", value: readiness, color: "#4ADE80" },
+                      { icon: Brain, label: "HRV", value: hrv, color: "#A78BFA" },
+                      { icon: Flame, label: "Stress", value: stressMin, color: "#FBBF24" },
+                    ].map(m => (
+                      <div key={m.label} className="rounded-xl p-2 md:p-2.5 text-center" style={{ background: `${m.color}06`, border: `1px solid ${m.color}10` }}>
+                        <p className="text-xl md:text-2xl font-black text-white leading-none">{m.value}</p>
+                        <p className="text-[7px] md:text-[8px] font-bold uppercase mt-0.5" style={{ color: `${m.color}70` }}>{m.label}</p>
+                      </div>
+                    ))}
+                  </div>
 
-                    <div className="space-y-0">
-                      {steps.map((step, i) => {
-                        const typeLabel = step.type === "calendar" ? "Calendar" : step.type === "move" ? "Movement" : step.type === "sleep" ? "Eight Sleep" : "YU";
-                        const typeBg = step.type === "calendar" ? "rgba(59,130,246,.08)" : step.type === "move" ? "rgba(248,113,113,.08)" : step.type === "sleep" ? "rgba(129,140,248,.08)" : "rgba(16,185,129,.08)";
-                        const typeColor = step.type === "calendar" ? "#60A5FA" : step.type === "move" ? "#F87171" : step.type === "sleep" ? "#A78BFA" : "#4ADE80";
-                        return (
-                          <motion.div key={i} className="flex gap-3" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}>
-                            <div className="flex flex-col items-center">
-                              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${step.color}10`, border: `1px solid ${step.color}15` }}>
-                                <step.icon className="w-4 h-4" style={{ color: step.color }} />
-                              </div>
-                              {i < steps.length - 1 && <div className="w-px flex-1 min-h-[12px]" style={{ background: "rgba(255,255,255,0.03)" }} />}
-                            </div>
-                            <div className="pb-3 flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <span className="text-xs font-bold" style={{ color: step.color }}>{step.time}</span>
-                                <span className="text-[7px] px-1.5 py-0.5 rounded font-bold uppercase" style={{ background: typeBg, color: typeColor }}>{typeLabel}</span>
-                              </div>
-                              <p className="text-base font-semibold text-white leading-snug">{step.action}</p>
-                              {step.detail && <p className="text-xs text-slate-500 mt-0.5">{step.detail}</p>}
-                              {step.type === "sleep" && (
-                                <motion.button className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer border-0 text-left"
-                                  style={{ background: podSent ? "rgba(74,222,128,0.06)" : "rgba(129,140,248,0.06)", border: `1px solid ${podSent ? "rgba(74,222,128,0.12)" : "rgba(129,140,248,0.12)"}` }}
-                                  whileHover={!podSent ? { scale: 1.01 } : {}} whileTap={!podSent ? { scale: 0.99 } : {}}
-                                  onClick={() => !podSent && setPodSent(true)}>
-                                  {podSent ? <Zap className="w-3.5 h-3.5 text-emerald-400" /> : <img src="/eightsleep-logo.png" alt="" className="h-3 object-contain" />}
-                                  <span className="text-[11px] font-bold" style={{ color: podSent ? "#4ADE80" : "#A78BFA" }}>{podSent ? "Sent to Pod 5 Ultra" : "Send to Pod"}</span>
-                                </motion.button>
-                              )}
-                            </div>
-                          </motion.div>
-                        );
-                      })}
+                  {/* TODAY'S MOVEMENT — Summary */}
+                  {workoutStatus.worked_out && (
+                    <motion.div className="rounded-2xl p-4" style={{ background: "rgba(74,222,128,0.04)", border: "1px solid rgba(74,222,128,0.1)" }}
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-5 h-5 text-emerald-400" />
+                        <h3 className="text-base font-black text-white">Today's workout</h3>
+                        <span className="text-[8px] px-2 py-0.5 rounded-full font-bold uppercase ml-auto" style={{ background: "rgba(74,222,128,.1)", color: "#4ADE80" }}>Done</span>
+                      </div>
+                      <p className="text-sm text-slate-400 mt-1">
+                        {(workoutStatus.activity || "").replace(/([A-Z])/g, " $1").trim()}
+                        {workoutStatus.duration_min > 0 && ` · ${workoutStatus.duration_min}min`}
+                        {workoutStatus.calories > 0 && ` · ${Math.round(workoutStatus.calories)} cal`}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {/* TOMORROW'S WORKOUT — The Hero Feature */}
+                  <motion.div className="rounded-2xl p-5 relative overflow-hidden" style={{ background: "rgba(248,113,113,0.04)", border: "1.5px solid rgba(248,113,113,0.12)" }}
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Dumbbell className="w-5 h-5 text-red-400" />
+                      <h3 className="text-lg font-black text-white">Tomorrow's workout</h3>
                     </div>
-                  </div>
+                    <p className="text-[11px] md:text-xs text-slate-500 mb-4">Pick your type and get a full session built from your body data. Use Ask YU to refine it.</p>
 
-                  {/* Movement card below step-by-step */}
-                {/* MOVEMENT CARD */}
-                <motion.div className="rounded-2xl p-5 relative overflow-hidden" style={{ background: "rgba(248,113,113,0.04)", border: "1px solid rgba(248,113,113,0.1)" }}
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Dumbbell className="w-5 h-5 text-red-400" />
-                    <h3 className="text-lg font-black text-white">Today's movement</h3>
-                    <span className="text-[8px] px-2 py-0.5 rounded-full font-bold uppercase ml-auto" style={{ background: readiness >= 75 ? "rgba(248,113,113,.1)" : readiness >= 60 ? "rgba(245,158,11,.1)" : "rgba(74,222,128,.1)", color: readiness >= 75 ? "#F87171" : readiness >= 60 ? "#FBBF24" : "#4ADE80" }}>
-                      {readiness >= 75 ? "Go hard" : readiness >= 60 ? "Moderate" : "Rest day"}
-                    </span>
-                  </div>
+                  {(() => {
+                  const recType = readiness >= 75 ? "crossfit" : readiness >= 60 ? "yoga" : "rest";
+                  const recWhy = readiness >= 75
+                    ? `Readiness ${readiness}, HRV ${hrv}ms. Body is primed for intensity tomorrow.`
+                    : readiness >= 60
+                    ? `Readiness ${readiness}. Moderate recovery. Yoga or lighter session is smart.`
+                    : `Readiness ${readiness}, HRV ${hrv}ms. Recovery day. Don't push it.`;
+
+                  return <>
+                  {/* YU Recommendation */}
+                  {!workoutType && (
+                    <div className="rounded-xl p-3.5 mb-4" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.1)" }}>
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-emerald-400 font-bold mb-0.5">YU recommends: {recType === "crossfit" ? "Home Workout" : recType === "yoga" ? "Hot Yoga" : "Active Rest"}</p>
+                          <p className="text-[11px] text-slate-400 leading-relaxed">{recWhy}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {!workoutType ? (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="space-y-2">
                       {[
-                        { type: "crossfit", label: "Home Workout", icon: Dumbbell, color: "#F87171" },
-                        { type: "yoga", label: "Hot Yoga", icon: Activity, color: "#A78BFA" },
-                        { type: "rest", label: "Active Rest", icon: Heart, color: "#4ADE80" },
+                        { type: "crossfit", label: "Home Workout", desc: "Full session built from your biometrics by Gemini", icon: Dumbbell, color: "#F87171" },
+                        { type: "yoga", label: "Hot Yoga", desc: "Down Under Yoga classes matched to your recovery", icon: Activity, color: "#A78BFA" },
+                        { type: "rest", label: "Active Rest", desc: "Walk, stretch, mobility", icon: Heart, color: "#4ADE80" },
                       ].map(opt => (
-                        <motion.button key={opt.type} className="p-3 rounded-xl cursor-pointer border-0 text-center"
-                          style={{ background: `${opt.color}08`, border: `1px solid ${opt.color}15` }}
-                          whileHover={{ scale: 1.03, borderColor: `${opt.color}30` }} whileTap={{ scale: 0.97 }}
+                        <motion.button key={opt.type} className="w-full flex items-center gap-3 p-3.5 rounded-xl cursor-pointer border-0 text-left"
+                          style={{ background: opt.type === recType ? `${opt.color}08` : "rgba(255,255,255,0.015)", border: `1.5px solid ${opt.type === recType ? `${opt.color}20` : "rgba(255,255,255,0.04)"}` }}
+                          whileHover={{ scale: 1.01, borderColor: `${opt.color}30` }} whileTap={{ scale: 0.98 }}
                           onClick={() => { if (opt.type === "yoga") { setWorkoutType("yoga"); } else { loadWorkout(opt.type); } }}>
-                          <opt.icon className="w-7 h-7 mx-auto mb-2" style={{ color: opt.color }} />
-                          <p className="text-sm font-bold text-white">{opt.label}</p>
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${opt.color}10` }}>
+                            <opt.icon className="w-5 h-5" style={{ color: opt.color }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold text-white">{opt.label}</p>
+                              {opt.type === recType && <span className="text-[7px] px-1.5 py-0.5 rounded-full font-bold uppercase" style={{ background: "rgba(16,185,129,.08)", color: "#4ADE80" }}>Recommended</span>}
+                            </div>
+                            <p className="text-[10px] text-slate-500">{opt.desc}</p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-600 flex-shrink-0" />
                         </motion.button>
                       ))}
                     </div>
 
                   ) : workoutType === "yoga" ? (
-                    /* YOGA: Down Under Yoga booking */
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 mb-1">
                         <Activity className="w-5 h-5 text-violet-400" />
@@ -477,12 +458,12 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                           <p className="text-[10px] text-slate-500">Kendall Square, Cambridge</p>
                         </div>
                       </div>
-                      <p className="text-xs text-slate-400 mb-2">Classes that fit your schedule + recovery state:</p>
+                      <p className="text-xs text-slate-400 mb-2">Tomorrow's classes ranked by recovery state:</p>
                       {[
-                        { time: "12:00 PM", name: "Power Vinyasa", dur: "60 min", temp: "95F", instructor: "Sarah M.", best: readiness >= 75 },
-                        { time: "4:30 PM", name: "Hot Flow", dur: "75 min", temp: "100F", instructor: "James K.", best: false },
-                        { time: "6:15 PM", name: "Yin Restore", dur: "60 min", temp: "85F", instructor: "Ana L.", best: readiness < 75 },
-                        { time: "7:30 PM", name: "Hot 26", dur: "90 min", temp: "105F", instructor: "David R.", best: false },
+                        { time: "12:00 PM", name: "Power Vinyasa", dur: "60 min", temp: "95F", instructor: "Sarah M.", best: readiness >= 75, why: "High readiness = handle the heat" },
+                        { time: "4:30 PM", name: "Hot Flow", dur: "75 min", temp: "100F", instructor: "James K.", best: false, why: "Good afternoon energy window" },
+                        { time: "6:15 PM", name: "Yin Restore", dur: "60 min", temp: "85F", instructor: "Ana L.", best: readiness < 75, why: "Lower temp, restorative. Best for recovery" },
+                        { time: "7:30 PM", name: "Hot 26", dur: "90 min", temp: "105F", instructor: "David R.", best: false, why: "Intense 90min. Only if readiness 80+" },
                       ].map((cls, i) => (
                         <a key={i} href="https://www.downunderyoga.com/schedule" target="_blank" rel="noopener noreferrer" className="block no-underline">
                           <motion.div className="flex items-center gap-3 p-2.5 rounded-xl cursor-pointer"
@@ -498,7 +479,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                                 <span className="text-[8px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(248,113,113,.06)", color: "#F87171" }}>{cls.temp}</span>
                                 {cls.best && <span className="text-[7px] px-1.5 py-0.5 rounded-full font-bold uppercase" style={{ background: "rgba(16,185,129,.08)", color: "#4ADE80" }}>Best for you</span>}
                               </div>
-                              <p className="text-[10px] text-slate-500">w/ {cls.instructor}</p>
+                              <p className="text-[10px] text-slate-500">{cls.why}</p>
                             </div>
                             <ChevronRight className="w-4 h-4 text-violet-400/40 flex-shrink-0" />
                           </motion.div>
@@ -513,8 +494,8 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                   ) : aiLoading ? (
                     <div className="flex flex-col items-center py-8 gap-2">
                       <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}><Sparkles className="w-7 h-7 text-red-400" /></motion.div>
-                      <p className="text-sm text-slate-400">Gemini is building your {workoutType} session...</p>
-                      <p className="text-[10px] text-slate-600">Based on Readiness {readiness} + HRV {hrv} + Sleep {sleepScore}</p>
+                      <p className="text-sm text-slate-400">Gemini is building your session...</p>
+                      <p className="text-[10px] text-slate-600">Readiness {readiness} + HRV {hrv}ms + Sleep {sleepScore}</p>
                     </div>
                   ) : aiWorkout && !aiWorkout.error ? (
                     <div className="space-y-3">
@@ -522,7 +503,11 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         <p className="text-xl font-black text-white">{aiWorkout.title || aiWorkout.session_name || "Your Session"}</p>
                         <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase" style={{ background: "rgba(248,113,113,.08)", color: "#F87171" }}>{aiWorkout.duration_min || 30} min</span>
                       </div>
-                      {aiWorkout.why_this_workout && <p className="text-xs text-slate-400 mb-2">{aiWorkout.why_this_workout}</p>}
+                      {aiWorkout.why_this_workout && (
+                        <div className="rounded-xl p-3" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.06)" }}>
+                          <p className="text-xs text-slate-300 leading-relaxed">{aiWorkout.why_this_workout}</p>
+                        </div>
+                      )}
                       {aiWorkout.warmup && <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,.04)", border: "1px solid rgba(245,158,11,.06)" }}>
                         <p className="text-[9px] font-bold uppercase text-amber-400/60 mb-1">Warmup ({aiWorkout.warmup.duration_min || 5} min)</p>
                         {aiWorkout.warmup.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-300">{m}</p>)}
@@ -541,173 +526,168 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         <p className="text-[9px] font-bold uppercase text-amber-400/60 mb-1">The hard part</p>
                         <p className="text-sm text-slate-300">{aiWorkout.mental_challenge}</p>
                       </div>}
-                      <button onClick={() => { setWorkoutType(null); setAiWorkout(null); }} className="text-[10px] text-blue-400 cursor-pointer border-0 bg-transparent">Change workout type</button>
+                      <div className="flex items-center gap-2 mt-3 flex-wrap">
+                        <button onClick={() => { setWorkoutType(null); setAiWorkout(null); setShareStatus("idle"); }} className="text-[10px] text-blue-400 cursor-pointer border-0 bg-transparent">Change type</button>
+                        <div className="w-px h-3" style={{ background: "rgba(255,255,255,0.06)" }} />
+                        <motion.button
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer border-0 text-[10px] font-bold"
+                          style={{
+                            background: shareStatus === "sent" || shareStatus === "copied" ? "rgba(74,222,128,0.08)" : "rgba(139,92,246,0.08)",
+                            color: shareStatus === "sent" || shareStatus === "copied" ? "#4ADE80" : "#A78BFA",
+                            border: `1px solid ${shareStatus === "sent" || shareStatus === "copied" ? "rgba(74,222,128,0.15)" : "rgba(139,92,246,0.15)"}`,
+                          }}
+                          whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                          disabled={shareStatus === "sending"}
+                          onClick={async () => {
+                            setShareStatus("sending");
+                            const workoutText = [
+                              aiWorkout.title || aiWorkout.session_name || "Workout",
+                              "",
+                              ...(aiWorkout.warmup?.movements || []).map((m: string) => `Warmup: ${m}`),
+                              "",
+                              aiWorkout.workout?.description || aiWorkout.main_set?.description || "",
+                              ...(aiWorkout.workout?.movements || aiWorkout.main_set?.movements || []),
+                              "",
+                              ...(aiWorkout.cooldown?.movements || []).map((m: string) => `Cooldown: ${m}`),
+                              "",
+                              aiWorkout.why_this_workout || "",
+                              aiWorkout.mental_challenge ? `Mental challenge: ${aiWorkout.mental_challenge}` : "",
+                            ].filter(Boolean).join("\n");
+                            try {
+                              const resp = await fetch(`${API}/api/optimize/share-workout`, {
+                                method: "POST", headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  workout_text: workoutText,
+                                  format: aiWorkout.format || "",
+                                  duration_min: aiWorkout.duration_min || 0,
+                                  note: `Readiness ${readiness}, HRV ${hrv}ms, Sleep ${sleepScore}`,
+                                }),
+                              });
+                              const data = await resp.json();
+                              if (data.status === "sent") {
+                                setShareStatus("sent");
+                              } else {
+                                const textToCopy = data.message || workoutText;
+                                try { await navigator.clipboard.writeText(textToCopy); } catch { /* mobile fallback */ const ta = document.createElement("textarea"); ta.value = textToCopy; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
+                                setShareStatus("copied");
+                              }
+                            } catch {
+                              try { await navigator.clipboard.writeText(workoutText); } catch { const ta = document.createElement("textarea"); ta.value = workoutText; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
+                              setShareStatus("copied");
+                            }
+                            setTimeout(() => setShareStatus("idle"), 4000);
+                          }}>
+                          {shareStatus === "sending" ? (
+                            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><Sparkles className="w-3 h-3" /></motion.div>
+                          ) : shareStatus === "sent" ? (
+                            <Check className="w-3 h-3" />
+                          ) : shareStatus === "copied" ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            <Send className="w-3 h-3" />
+                          )}
+                          {shareStatus === "sent" ? "Sent to Sage" : shareStatus === "copied" ? "Copied!" : shareStatus === "sending" ? "Copying..." : "Copy for Sage"}
+                        </motion.button>
+                      </div>
                     </div>
                   ) : <p className="text-sm text-red-400 py-4">Failed to generate. <button onClick={() => loadWorkout(workoutType!)} className="text-blue-400 cursor-pointer border-0 bg-transparent underline">Try again</button></p>}
-                  <p className="text-[7px] text-slate-700 mt-2">Powered by Google Gemini + Oura Ring data</p>
-                </motion.div>
+                  </>;
+                  })()}
+                  </motion.div>
 
-                {/* CALENDAR CARD -- selected day */}
+                {/* CALENDAR — Swipeable Week View */}
                 {(() => {
-                  const selDate = new Date(Date.now() + selectedDay * 86400000);
-                  const selStr = selDate.toISOString().slice(0, 10);
-                  const selLabel = selectedDay === 0 ? "Today" : selectedDay === 1 ? "Tomorrow" : selDate.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
-                  const dayEvents2 = calendarEvents.filter((e: any) => e.start?.slice(0, 10) === selStr);
+                  const days = Array.from({ length: 7 }, (_, i) => {
+                    const d = new Date(Date.now() + i * 86400000);
+                    const str = d.toISOString().slice(0, 10);
+                    const evts = calendarEvents.filter((e: any) => e.start?.slice(0, 10) === str);
+                    return {
+                      date: d,
+                      str,
+                      label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString("en-US", { weekday: "short" }),
+                      dayNum: d.getDate(),
+                      monthLabel: d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" }),
+                      events: evts,
+                    };
+                  });
+                  const sel = days[selectedDay];
 
                   return (
-                    <motion.div className="rounded-2xl p-5" style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)" }}
-                      key={selectedDay} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Calendar className="w-5 h-5 text-blue-400" />
-                        <h3 className="text-lg font-black text-white">{selLabel}</h3>
-                        <span className="text-xs text-slate-500 ml-auto">{dayEvents2.length} event{dayEvents2.length !== 1 ? "s" : ""}</span>
-                      </div>
-                      {dayEvents2.length === 0 ? (
-                        <div className="py-6 text-center">
-                          <p className="text-base text-slate-400 font-semibold">Nothing scheduled</p>
-                          <p className="text-sm text-emerald-400/60 mt-1">{readiness >= 70 ? "Great day to push a workout or tackle deep work." : "Perfect for recovery. Protect this free time."}</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {dayEvents2.map((e: any, i: number) => {
-                            let time = ""; let title = e.title;
-                            if (!e.allDay && e.start?.includes("T")) time = new Date(e.start).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/New_York" });
-                            const emb = title.match(/^(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})\s+(.+)$/);
-                            if (emb) { time = emb[1] + " - " + emb[2]; title = emb[3]; }
-                            return (
-                              <div key={i} className="flex items-start gap-3 py-2.5 px-3 rounded-xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.03)" }}>
-                                <span className="text-sm text-blue-400 w-[80px] text-right flex-shrink-0 tabular-nums font-semibold">{time || "all day"}</span>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-base text-white font-semibold leading-snug">{title}</p>
-                                  {e.location && <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{e.location}</p>}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                    <motion.div className="rounded-2xl overflow-hidden" style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)" }}
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
 
-                      {/* YU tip for the day */}
-                      <div className="mt-4 rounded-xl p-4" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.08)" }}>
-                        <div className="flex items-start gap-2">
-                          <Sparkles className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                          <p className="text-sm text-slate-300 leading-relaxed">
-                            {dayEvents2.length >= 4 ? `Packed day. ${dayEvents2.length} things on the plate. Don't try to squeeze a hard workout in. A 15-min walk between events is enough.`
-                              : dayEvents2.length >= 2 ? `Balanced day. You've got gaps. Use them for movement or deep work, not scrolling.`
-                              : dayEvents2.length === 1 ? `Light day. One commitment. Use the rest of the time intentionally. ${readiness >= 70 ? "Great for a solid workout." : "Great for recovery."}`
-                              : `Free day. No excuses. ${readiness >= 70 ? "Push a hard session and knock out deep work." : "Full recovery day. Walk, stretch, sleep early."}`}
-                          </p>
-                        </div>
+                      {/* Day pills — horizontal scroll */}
+                      <div className="flex gap-1 px-3 pt-3 pb-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+                        {days.map((day, i) => {
+                          const isSelected = selectedDay === i;
+                          const hasEvents = day.events.length > 0;
+                          return (
+                            <motion.button key={i} onClick={() => setSelectedDay(i)}
+                              className="flex flex-col items-center px-3 py-2 rounded-xl cursor-pointer border-0 flex-shrink-0 min-w-[52px] relative"
+                              style={{
+                                background: isSelected ? "rgba(59,130,246,0.12)" : "transparent",
+                                border: `1.5px solid ${isSelected ? "rgba(59,130,246,0.25)" : "transparent"}`,
+                              }}
+                              whileTap={{ scale: 0.95 }}>
+                              <span className="text-[9px] font-bold uppercase" style={{ color: isSelected ? "#60A5FA" : "rgba(255,255,255,0.3)" }}>{day.label}</span>
+                              <span className="text-lg font-black" style={{ color: isSelected ? "white" : "rgba(255,255,255,0.4)" }}>{day.dayNum}</span>
+                              {hasEvents && <div className="w-1 h-1 rounded-full mt-0.5" style={{ background: isSelected ? "#60A5FA" : "rgba(255,255,255,0.2)" }} />}
+                            </motion.button>
+                          );
+                        })}
                       </div>
-                      <p className="text-[7px] text-slate-700 mt-2">iCloud Calendar</p>
+
+                      {/* Events for selected day */}
+                      <AnimatePresence mode="wait">
+                        <motion.div key={selectedDay} className="px-4 pb-4"
+                          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+                          <div className="flex items-center gap-2 mb-3 mt-1">
+                            <Calendar className="w-4 h-4 text-blue-400" />
+                            <span className="text-sm font-bold text-white">{sel.monthLabel}</span>
+                            <span className="text-[10px] text-slate-500 ml-auto">{sel.events.length} event{sel.events.length !== 1 ? "s" : ""}</span>
+                          </div>
+
+                          {sel.events.length === 0 ? (
+                            <div className="py-5 text-center">
+                              <p className="text-sm text-slate-500">Nothing scheduled</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-1.5">
+                              {[...sel.events].sort((a: any, b: any) => {
+                                // Extract sort time: from ISO start (T06:00) or embedded title (13:00 14:30 ...)
+                                const getMinutes = (e: any) => {
+                                  if (!e.allDay && e.start?.includes("T")) {
+                                    const d = new Date(e.start);
+                                    return d.getHours() * 60 + d.getMinutes();
+                                  }
+                                  const emb = (e.title || "").match(/^(\d{1,2}):(\d{2})\s/);
+                                  if (emb) return parseInt(emb[1]) * 60 + parseInt(emb[2]);
+                                  return 9999; // all-day / unknown → end
+                                };
+                                return getMinutes(a) - getMinutes(b);
+                              }).map((e: any, i: number) => {
+                                let time = ""; let title = e.title;
+                                if (!e.allDay && e.start?.includes("T")) time = new Date(e.start).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/New_York" });
+                                const emb = title.match(/^(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})\s+(.+)$/);
+                                if (emb) { time = emb[1] + " - " + emb[2]; title = emb[3]; }
+                                return (
+                                  <div key={i} className="flex items-start gap-2.5 py-2 px-3 rounded-xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.03)" }}>
+                                    <span className="text-[11px] text-blue-400 w-[65px] text-right flex-shrink-0 tabular-nums font-semibold pt-0.5">{time || "all day"}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm text-white font-semibold leading-snug">{title}</p>
+                                      {e.location && <p className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{e.location}</p>}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
                     </motion.div>
                   );
                 })()}
 
-                {/* SLEEP / EIGHT SLEEP CARD */}
-                <motion.div className="rounded-2xl p-5" style={{ background: "rgba(129,140,248,0.04)", border: "1px solid rgba(129,140,248,0.1)" }}
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <img src="/eightsleep-logo.png" alt="Eight Sleep" className="h-5 object-contain" />
-                    <h3 className="text-lg font-black text-white">Tonight's sleep</h3>
-                    <div className="flex items-center gap-1 ml-auto px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,.06)" }}>
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      <span className="text-[8px] font-bold text-emerald-400">Pod Online</span>
-                    </div>
-                  </div>
-                  {/* Temp plan */}
-                  <div className="grid grid-cols-5 gap-1.5 mb-3">
-                    {[
-                      { t: "Bedtime", v: "68F", c: "#FBBF24" }, { t: "Onset", v: "64F", c: "#60A5FA" }, { t: "Deep", v: sleepScore < 80 ? "60F" : "62F", c: "#3B82F6" }, { t: "REM", v: "68F", c: "#8B5CF6" }, { t: "Wake", v: "78F", c: "#F87171" },
-                    ].map(s => (
-                      <div key={s.t} className="text-center rounded-lg py-2.5" style={{ background: `${s.c}06` }}>
-                        <p className="text-lg font-black leading-none" style={{ color: s.c }}>{s.v}</p>
-                        <p className="text-[8px] font-bold uppercase text-white/30 mt-1">{s.t}</p>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Pod activation button + animation */}
-                  {!podSent ? (
-                    <motion.button className="w-full py-4 rounded-xl cursor-pointer border-0 flex items-center justify-center gap-2 relative overflow-hidden"
-                      style={{ background: "rgba(129,140,248,0.08)", border: "1.5px solid rgba(129,140,248,0.15)" }}
-                      whileHover={{ scale: 1.01, boxShadow: "0 0 30px rgba(129,140,248,0.1)" }} whileTap={{ scale: 0.99 }}
-                      onClick={() => setPodSent(true)}>
-                      <img src="/eightsleep-logo.png" alt="" className="h-4 object-contain" />
-                      <span className="text-sm font-bold text-indigo-300">Activate tonight's plan</span>
-                    </motion.button>
-                  ) : (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-                      {/* Animated activation sequence */}
-                      <div className="rounded-xl p-4 relative overflow-hidden" style={{ background: "rgba(129,140,248,0.04)", border: "1px solid rgba(129,140,248,0.1)" }}>
-                        {/* Background wave effect */}
-                        <motion.div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, rgba(129,140,248,0.06), transparent)" }}
-                          animate={{ x: ["-100%", "200%"] }} transition={{ duration: 2, repeat: 2, ease: "easeInOut" }} />
-
-                        <div className="relative z-10 space-y-3">
-                          {[
-                            { icon: Bed, label: "Pre-cooling surface", detail: `Dropping to ${sleepScore < 80 ? "62" : "64"}F`, color: "#3B82F6", delay: 0 },
-                            { icon: Moon, label: "Temperature schedule set", detail: "68F → 64F → 62F → 68F → 78F through the night", color: "#818CF8", delay: 0.5 },
-                            { icon: Zap, label: "GentleRise alarm armed", detail: "7:30 AM · Thermal warming + vibration + sunrise sound", color: "#FBBF24", delay: 1 },
-                            { icon: Heart, label: "Snoring mitigation active", detail: "Auto-elevate when snoring detected", color: "#A78BFA", delay: 1.5 },
-                          ].map((action) => (
-                            <motion.div key={action.label} className="flex items-center gap-3"
-                              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: action.delay, duration: 0.5 }}>
-                              <motion.div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{ background: `${action.color}12` }}
-                                initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: action.delay + 0.2, type: "spring", stiffness: 300 }}>
-                                <action.icon className="w-4 h-4" style={{ color: action.color }} />
-                              </motion.div>
-                              <div className="flex-1 min-w-0">
-                                <motion.p className="text-xs font-bold text-white" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: action.delay + 0.3 }}>
-                                  {action.label}
-                                </motion.p>
-                                <motion.p className="text-[10px] text-slate-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: action.delay + 0.4 }}>
-                                  {action.detail}
-                                </motion.p>
-                              </div>
-                              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: action.delay + 0.5, type: "spring" }}>
-                                <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                              </motion.div>
-                            </motion.div>
-                          ))}
-                        </div>
-
-                        {/* Progress bar */}
-                        <motion.div className="mt-3 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.03)" }}>
-                          <motion.div className="h-full rounded-full" style={{ background: "linear-gradient(90deg, #818CF8, #4ADE80)" }}
-                            initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 2.5, ease: "easeInOut" }} />
-                        </motion.div>
-                      </div>
-
-                      {/* Confirmation */}
-                      <motion.div className="rounded-xl p-4 text-center" style={{ background: "rgba(74,222,128,0.06)", border: "1px solid rgba(74,222,128,0.12)" }}
-                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.3 }}>
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 2.5, type: "spring", stiffness: 200 }}>
-                          <Zap className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                        </motion.div>
-                        <p className="text-base font-black text-emerald-400">Pod 5 Ultra is ready</p>
-                        <p className="text-xs text-slate-400 mt-1">Your bed is preparing for tonight. Surface cooling now.</p>
-                        <div className="flex items-center justify-center gap-4 mt-3">
-                          <div className="text-center">
-                            <p className="text-lg font-black text-blue-400">{sleepScore < 80 ? "62" : "64"}F</p>
-                            <p className="text-[8px] text-slate-600 uppercase">Surface temp</p>
-                          </div>
-                          <div className="w-px h-8" style={{ background: "rgba(255,255,255,0.05)" }} />
-                          <div className="text-center">
-                            <p className="text-lg font-black text-amber-400">7:30</p>
-                            <p className="text-[8px] text-slate-600 uppercase">Alarm set</p>
-                          </div>
-                          <div className="w-px h-8" style={{ background: "rgba(255,255,255,0.05)" }} />
-                          <div className="text-center">
-                            <p className="text-lg font-black text-violet-400">+34%</p>
-                            <p className="text-[8px] text-slate-600 uppercase">Deep sleep</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </motion.div>
-                  )}
-                  <p className="text-[7px] text-slate-700 mt-2">Temperature protocol from Oura Ring sleep data · Eight Sleep Pod 5 Ultra</p>
-                </motion.div>
 
                 {/* BODY DATA CARD */}
                 <motion.div className="rounded-2xl p-5" style={{ background: "rgba(167,139,250,0.04)", border: "1px solid rgba(167,139,250,0.1)" }}
@@ -717,7 +697,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                     <h3 className="text-lg font-black text-white">Your body this week</h3>
                     <span className="text-xs text-slate-500 ml-auto">Oura Ring · {last14.length} nights</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.03)" }}>
                       <p className="text-[10px] font-bold uppercase text-slate-500 mb-2">Sleep + HRV</p>
                       <ResponsiveContainer width="100%" height={120}>
@@ -746,11 +726,58 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                   </div>
                 </motion.div>
 
+                  {/* SLEEP EXPERIMENTS — Interactive */}
+                  {sleepExperiments.length > 0 && (
+                    <motion.div className="rounded-2xl p-5" style={{ background: "rgba(129,140,248,0.04)", border: "1px solid rgba(129,140,248,0.1)" }}
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Beaker className="w-5 h-5 text-indigo-400" />
+                        <h3 className="text-lg font-black text-white">Tonight's sleep protocol</h3>
+                      </div>
+                      <p className="text-xs text-slate-500 mb-4">Two things to try tonight based on your weakest sleep metrics. Tell me tomorrow if you did them so we can track what works.</p>
+                      <div className="space-y-3">
+                        {sleepExperiments.slice(0, 2).map((exp: any) => {
+                          const done = experimentsDone[exp.id];
+                          return (
+                          <div key={exp.id} className="rounded-xl p-4" style={{ background: done === true ? "rgba(74,222,128,0.04)" : done === false ? "rgba(248,113,113,0.04)" : "rgba(255,255,255,0.02)", border: `1px solid ${done === true ? "rgba(74,222,128,0.12)" : done === false ? "rgba(248,113,113,0.12)" : "rgba(255,255,255,0.05)"}` }}>
+                            <p className="text-sm font-bold text-white mb-1">{exp.title}</p>
+                            <p className="text-xs text-slate-500 mb-3">{exp.why}</p>
+                            {done === null || done === undefined ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] text-slate-500 mr-auto">Did you do this last night?</span>
+                                <motion.button className="px-3 py-1.5 rounded-lg text-[11px] font-bold cursor-pointer border-0"
+                                  style={{ background: "rgba(74,222,128,0.08)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.15)" }}
+                                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                                  onClick={() => setExperimentsDone(prev => ({ ...prev, [exp.id]: true }))}>
+                                  Yes
+                                </motion.button>
+                                <motion.button className="px-3 py-1.5 rounded-lg text-[11px] font-bold cursor-pointer border-0"
+                                  style={{ background: "rgba(248,113,113,0.08)", color: "#F87171", border: "1px solid rgba(248,113,113,0.15)" }}
+                                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                                  onClick={() => setExperimentsDone(prev => ({ ...prev, [exp.id]: false }))}>
+                                  No
+                                </motion.button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                {done ? <Check className="w-4 h-4 text-emerald-400" /> : <span className="text-xs text-red-400">Skipped</span>}
+                                <span className="text-[10px] text-slate-500">{done ? "Logged. We'll track if your " + exp.metric + " improves." : "No worries. Try tonight."}</span>
+                                <button onClick={() => setExperimentsDone(prev => { const next = { ...prev }; delete next[exp.id]; return next; })}
+                                  className="text-[9px] text-slate-600 cursor-pointer border-0 bg-transparent ml-auto">Change</button>
+                              </div>
+                            )}
+                          </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+
                 </div>
 
-                {/* RIGHT COLUMN: Ask YU (always visible) */}
+                {/* RIGHT COLUMN: Ask YU */}
                 <div className="md:sticky md:top-4 md:self-start">
-                  <motion.div className="rounded-2xl p-5 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(16,185,129,0.05), rgba(59,130,246,0.03))", border: "1.5px solid rgba(16,185,129,0.1)" }}
+                  <motion.div className="rounded-2xl p-4 md:p-5 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(16,185,129,0.05), rgba(59,130,246,0.03))", border: "1.5px solid rgba(16,185,129,0.1)" }}
                     initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(16,185,129,0.1)" }}>
@@ -758,15 +785,27 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                       </div>
                       <div>
                         <h3 className="text-sm font-black text-white">Ask YU</h3>
-                        <p className="text-[9px] text-emerald-400/50">Keeps you on track all week</p>
+                        <p className="text-[9px] text-emerald-400/50">Your workout coach + daily planner</p>
                       </div>
                     </div>
-                    <div className="max-h-[400px] overflow-y-auto mb-3 space-y-2.5" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.05) transparent" }}>
+                    <div className="max-h-[300px] md:max-h-[400px] overflow-y-auto mb-3 space-y-2.5" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.05) transparent" }}>
                       {chatMessages.length === 0 && (
                         <div>
-                          <p className="text-xs text-slate-400 mb-3">Check in daily. I'll tell you what's next, what to skip, and how to stay on track.</p>
+                          <p className="text-xs text-slate-400 mb-3">{workoutType ? "Session is set. Ask me to adjust intensity, swap exercises, or add focus areas." : "Pick your workout first, then I'll help you dial it in."}</p>
                           <div className="space-y-1.5">
-                            {["What should I do right now?", "Walk me through tomorrow", "What should I cancel?", "How's my recovery looking?", "Keep me accountable this week"].map(q => (
+                            {(workoutType && aiWorkout ? [
+                              "Make it harder",
+                              "Add more core work",
+                              "I only have 20 minutes",
+                              "Swap for bodyweight only",
+                              "Add a finisher",
+                            ] : [
+                              "What should I train tomorrow?",
+                              "How's my recovery looking?",
+                              "I want to focus on upper body this week",
+                              "Should I do two-a-days?",
+                              "Plan my week of workouts",
+                            ]).map(q => (
                               <motion.button key={q} onClick={() => sendChat(q)}
                                 className="w-full text-left text-xs px-3 py-2.5 rounded-xl font-medium cursor-pointer border-0"
                                 style={{ background: "rgba(16,185,129,.03)", color: "#4ADE80", border: "1px solid rgba(16,185,129,.08)" }}
@@ -823,6 +862,8 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                 </div>
 
               </div>
+              </>
+              )}
             </motion.div>
           );})()}
         </AnimatePresence>

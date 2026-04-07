@@ -5,7 +5,6 @@ from enum import Enum
 
 
 class ActionType(str, Enum):
-    SLEEP_ENVIRONMENT = "sleep_environment"
     CALENDAR = "calendar"
     WELLNESS = "wellness"
     SHOPPING = "shopping"

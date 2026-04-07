@@ -81,41 +81,14 @@ def _generate_oura_checkins():
     return checkins
 
 
-# Demo flow uses mock check-ins (to trigger drift detection for Recovery demo)
-# Real Oura-derived check-ins available via _generate_oura_checkins() if needed
-if False:  # Set to True to use real Oura-derived check-ins
-    _oura_checkins = _generate_oura_checkins()
-    _STATIC_CHECKINS = _oura_checkins or []
+# Use real Oura-derived check-ins
+_oura_checkins = _generate_oura_checkins()
+if _oura_checkins:
+    print(f"[YU RestOS] Using real Oura-derived check-ins ({len(_oura_checkins)} days)")
+    _STATIC_CHECKINS = _oura_checkins
 else:
-    print("[YU RestOS] Using mock check-in data")
-    BASE_DATE = datetime(2026, 3, 14)
-    MOCK_CHECKINS = {
-        1:  (8, 8, 3, 8),
-        2:  (7, 8, 3, 8),
-        3:  (8, 9, 2, 9),
-        4:  (7, 7, 4, 7),
-        5:  (8, 8, 3, 8),
-        6:  (7, 7, 4, 7),
-        7:  (7, 6, 5, 7),
-        8:  (6, 6, 6, 6),
-        9:  (6, 5, 7, 5),
-        10: (5, 4, 7, 5),
-        11: (4, 4, 8, 4),
-        12: (4, 3, 8, 3),
-        13: (3, 3, 9, 3),
-        14: (3, 2, 9, 2),
-    }
+    print("[YU RestOS] No Oura data for check-ins, using empty list")
     _STATIC_CHECKINS = []
-    for day_num, (mood, energy, stress, sq) in MOCK_CHECKINS.items():
-        day_date = BASE_DATE + timedelta(days=day_num - 1)
-        _STATIC_CHECKINS.append({
-            "date": day_date.strftime("%Y-%m-%d"),
-            "mood": mood,
-            "energy": energy,
-            "stress": stress,
-            "sleep_quality_self": sq,
-            "notes": "",
-        })
 
 
 def get_all_checkins() -> list[dict]:

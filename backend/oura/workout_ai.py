@@ -29,18 +29,28 @@ WORKOUT_PROMPT = """You are an elite CrossFit and functional fitness programmer.
 ATHLETE CONTEXT:
 - Startup founder, high daily cognitive stress, no alcohol
 - Trains 1 session per day, ~60 minutes (adjust based on recovery state)
-- Equipment: 2x50lb dumbbells, treadmill, bodyweight, pull-up bar area (wall for HSPU)
+- Equipment ONLY: Pair of dumbbells (35/40/45/50 lb), treadmill, strict pull-up bar. NO box, NO bench, NO barbell, NO rings, NO ropes, NO kettlebells.
 - Goals: strength, great physical shape, lean body composition, low body fat
 - MENTAL TOUGHNESS IS A CORE GOAL. Every workout should have a moment where the athlete wants to quit and has to push through. This builds the same discipline that runs a startup. Include a "dark place" segment — the part of the workout designed to break you mentally so you come out stronger.
 - Even on easy days, include one small challenge that tests willpower (a 2-min plank hold, a final sprint, an extra round). The body may need rest but the mind always needs to grow.
 - On push days, go all out. Program workouts that are genuinely hard — not "hard for beginners." This athlete can handle pain.
 - On low-recovery days, the mental challenge shifts: discipline to hold back, do less, trust the process. That's its own form of mental strength.
 
-MOVEMENT CATALOG (use these, vary daily):
-Dumbbell: thrusters, devil press, clean & jerk, push press, hang clean, snatch, front squat, goblet squat, renegade rows, DB bench press, Turkish get-ups, farmers carry, lunges, step-ups
-Bodyweight: burpees, HSPU (wall), push-ups, pull-ups, air squats, box jumps (use bench), pistol squats, V-ups, toes-to-bar, mountain climbers, plank variations, broad jumps
-Treadmill: sprints, 400m repeats, 800m intervals, mile repeats, Zone 2 steady state, incline walks, hill sprints
-Core: hollow holds, L-sits, GHD sit-ups (V-ups substitute), Russian twists with DB
+EQUIPMENT CONSTRAINT: ONLY use movements possible with dumbbells, treadmill, pull-up bar, and bodyweight. NO box jumps, NO step-ups, NO bench press, NO HSPU, NO toes-to-bar, NO pistol squats, NO kettlebell moves, NO rope climbs. If a movement requires equipment not listed, DO NOT include it.
+
+MOVEMENT CATALOG (ONLY use these):
+Squat: DB front squat, goblet squat, air squat, tempo squat, jump squat, sumo squat, DB overhead squat, DB back squat, zercher DB squat
+Lunge (BODYWEIGHT ONLY): forward lunge, reverse lunge, walking lunge, lateral lunge, curtsy lunge, split squat, jump lunge
+Hinge: DB deadlift, DB Romanian deadlift, single-leg DB RDL, staggered-stance DB deadlift, glute bridge, hip thrust
+Horizontal Push: push-up, hand-release push-up, diamond push-up, decline push-up, archer push-up, plyometric push-up, DB floor press, alternating DB floor press
+Vertical Push: DB strict press, DB push press, DB push jerk, Arnold press, Z-press, DB lateral raise
+Pull (bar): strict pull-up, strict chin-up, tempo pull-up, chest-to-bar pull-up, weighted pull-up, hanging knee raise, hanging leg raise, L-hang
+Pull (DB): DB bent-over row, single-arm DB row, renegade row, DB reverse fly, DB seal row
+Olympic: DB power clean, DB hang power clean, DB squat clean, single-arm DB power snatch, alternating DB snatch, man maker, devil press, cluster
+Core: V-up, tuck-up, hollow hold, hollow rock, dead bug, Russian twist, DB weighted sit-up, plank hold, side plank, butterfly sit-up, DB side bend
+Cardio: treadmill run, burpees, burpee to pull-up, lateral burpee over DB, burpee broad jump, treadmill incline sprint
+Carry: DB farmer carry, single-arm farmer carry, front rack carry, overhead carry
+Plyo: tuck jump, squat jump, broad jump, skater jump
 
 FORMAT OPTIONS (choose based on recovery state):
 - AMRAP (high readiness): long grinders, 20-30 min, high volume
@@ -181,7 +191,7 @@ Recovery context: {biometrics.get('recovery_context', '')}
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
+            model="gemini-2.5-flash",
             contents=[{"role": "user", "parts": [{"text": prompt}]}],
         )
 

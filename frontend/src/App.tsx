@@ -8,25 +8,28 @@ import NavBar from "@/components/NavBar";
 import SmoothScroll from "@/components/SmoothScroll";
 import PageTransition from "@/components/PageTransition";
 import Landing from "@/pages/Landing";
+import Agent from "@/pages/Agent";
+import AskYU from "@/pages/AskYU";
+import OuraProfile from "@/pages/OuraProfile";
 import Drift from "@/pages/Drift";
 import Recovery from "@/pages/Recovery";
-import ActionStatus from "@/pages/ActionStatus";
-import OuraProfile from "@/pages/OuraProfile";
+import Employer from "@/pages/Employer";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
 function AnimatedRoutes() {
   const location = useLocation();
-  const isLanding = location.pathname === "/";
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Landing />} />
+        <Route path="/agent" element={<PageTransition><Agent /></PageTransition>} />
+        <Route path="/ask" element={<PageTransition><AskYU /></PageTransition>} />
         <Route path="/oura" element={<PageTransition><OuraProfile /></PageTransition>} />
         <Route path="/drift" element={<PageTransition><Drift /></PageTransition>} />
         <Route path="/recovery" element={<PageTransition><Recovery /></PageTransition>} />
-        <Route path="/action-status" element={<PageTransition><ActionStatus /></PageTransition>} />
+        <Route path="/employer" element={<PageTransition><Employer /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
