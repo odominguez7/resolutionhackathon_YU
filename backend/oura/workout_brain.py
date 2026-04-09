@@ -177,7 +177,6 @@ PATTERN_KEYWORDS = {
     "pull_h": ["row", "renegade row", "seal row", "bent-over"],
     "olympic": ["clean", "snatch", "man maker", "devil press", "cluster"],
     "core": ["plank", "hollow", "v-up", "tuck-up", "sit-up", "dead bug", "russian twist", "side plank", "leg raise"],
-    "carry": ["carry", "farmer"],
     "cardio": ["run", "treadmill", "burpee", "row erg", "bike", "sprint"],
     "plyo": ["jump", "broad jump", "skater", "tuck jump"],
 }
@@ -193,7 +192,7 @@ def tag_patterns(movements: list[str]) -> list[str]:
     return sorted(found)
 
 
-PATTERN_PRIORITY = ["squat", "hinge", "push_h", "push_v", "pull_v", "pull_h", "core", "carry", "olympic"]
+PATTERN_PRIORITY = ["squat", "hinge", "push_h", "push_v", "pull_v", "pull_h", "core", "olympic"]
 
 
 def balance_instructions(history: list[dict]) -> dict:

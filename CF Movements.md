@@ -311,14 +311,8 @@ Variations:
 
 ---
 
-## 10. DB Carries & Holds
+## 10. DB Holds (Isometric)
 
-- Farmer carry (2 DBs) [web:16][web:22]  
-- Single-arm farmer carry (suitcase carry)  
-- Front rack carry (2 DBs at shoulders)  
-- Single-arm front rack carry  
-- Overhead carry (single or double DB) [web:22]  
-- Cross-body carry (DB in one hand, opposite side load) [web:22]  
 - Static DB hold at top of deadlift  
 - Static goblet hold in squat (isometric)
 
