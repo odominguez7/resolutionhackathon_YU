@@ -42,6 +42,8 @@ async def embed_text(text: str) -> list[float] | None:
     try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={key}"
         async with httpx.AsyncClient(timeout=10.0) as client:
+            from .security import assert_egress_allowed
+            assert_egress_allowed(url)
             resp = await client.post(url, json={
                 "model": "models/gemini-embedding-001",
                 "content": {"parts": [{"text": text}]},
@@ -196,11 +198,22 @@ async def retrieve(query: str, top_k: int = 3) -> list[dict]:
     if not query_embedding:
         return []
 
-    # Rank by cosine similarity
+    # Rank by cosine similarity. Each result carries provenance so the
+    # State Card UI can show *why* the agent cited it (Q33 grounding).
     scored = []
     for chunk in _chunks_cache:
         sim = cosine_similarity(query_embedding, chunk["embedding"])
-        scored.append({"text": chunk["text"], "category": chunk["category"], "score": round(sim, 4)})
+        scored.append({
+            "text": chunk["text"],
+            "category": chunk["category"],
+            "score": round(sim, 4),
+            "provenance": {
+                "source": "Recovery Forecasting & Performance Optimization (Dominguez, 2026)",
+                "trust": "internal",
+                "indexed_at": chunk.get("indexed_at"),
+                "collection": COLLECTION,
+            },
+        })
 
     scored.sort(key=lambda x: x["score"], reverse=True)
     return scored[:top_k]

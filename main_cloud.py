@@ -14,6 +14,8 @@ from backend.oura.routes import router as oura_router
 from backend.optimize.routes import router as optimize_router
 from backend.calendar.routes import router as calendar_router
 from backend.agent.routes import router as agent_router
+from backend.agent.mcp_server import router as mcp_router
+from backend.agent.well_known import council_agent_card, specialist_agent_card
 
 app = FastAPI(title="YU RestOS", version="2.0.0")
 
@@ -65,6 +67,23 @@ app.include_router(oura_router, prefix="/api/oura", tags=["oura"])
 app.include_router(optimize_router, prefix="/api/optimize", tags=["optimize"])
 app.include_router(calendar_router, prefix="/api/calendar", tags=["calendar"])
 app.include_router(agent_router, prefix="/api/agent", tags=["agent"])
+app.include_router(mcp_router, prefix="/mcp", tags=["mcp"])
+
+
+# ── A2A Agent Cards (must be registered BEFORE the SPA catch-all) ──────────
+
+@app.get("/.well-known/agent.json")
+def well_known_council():
+    return council_agent_card()
+
+
+@app.get("/.well-known/agents/{name}.json")
+def well_known_specialist(name: str):
+    card = specialist_agent_card(name)
+    if not card:
+        return JSONResponse({"error": f"unknown agent: {name}"}, status_code=404)
+    return card
+
 
 DIST = Path(__file__).parent / "frontend" / "dist"
 

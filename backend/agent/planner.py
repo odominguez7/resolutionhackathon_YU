@@ -190,6 +190,8 @@ async def _call_gemini(user_prompt: str) -> dict | None:
 
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
+            from .security import assert_egress_allowed
+            assert_egress_allowed(url)
             resp = await client.post(url, json=payload)
             resp.raise_for_status()
             data = resp.json()

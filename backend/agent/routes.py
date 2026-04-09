@@ -187,6 +187,8 @@ AGENT STATUS:
 
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
+            from .security import assert_egress_allowed
+            assert_egress_allowed(url)
             resp = await client.post(url, json=api_payload)
             resp.raise_for_status()
             data = resp.json()
@@ -487,13 +489,17 @@ def council_today():
 
 
 @router.get("/ritual")
-def ritual_today():
-    """Single endpoint that returns everything the redesigned /agent screen needs."""
+def ritual_today(session_id: str = ""):
+    """Single endpoint that returns everything the redesigned /agent screen needs.
+    Records PLG activation latency (Q40) when a session_id is supplied."""
     from .council import pick_spokesperson
     from .goals import goal_progress
     from .specialists import _mystery_line_for
     from .predictions import baseline_trend
     from .goals import load_goal
+    from . import plg
+    if session_id:
+        plg.first_state_card(session_id)
     council = pick_spokesperson()
     spk = council["spokesperson"]
     spk_with_mystery = {**spk, "mystery": _mystery_line_for(spk)}
@@ -538,5 +544,74 @@ def habituation_check():
     from .effectiveness import check_habituation
     state = AgentState.load()
     return {"alerts": check_habituation(state.intervention_log)}
+
+
+# ── Long-term memory (Q34) ─────────────────────────────────────────────────
+
+@router.get("/memory/semantic")
+def memory_semantic_get():
+    from .memory_long import load_semantic
+    return load_semantic()
+
+
+@router.post("/memory/semantic")
+def memory_semantic_put(payload: dict):
+    from .memory_long import write_semantic
+    return write_semantic(
+        (payload or {}).get("key", ""),
+        (payload or {}).get("value", ""),
+        (payload or {}).get("source", "user"),
+        (payload or {}).get("trust", "user"),
+    )
+
+
+@router.delete("/memory/semantic/{key}")
+def memory_semantic_forget(key: str):
+    from .memory_long import forget_semantic
+    return {"forgotten": forget_semantic(key)}
+
+
+@router.get("/memory/rituals")
+def memory_rituals_list():
+    from .memory_long import load_rituals
+    return {"rituals": load_rituals()}
+
+
+@router.post("/memory/rituals")
+def memory_rituals_add(payload: dict):
+    from .memory_long import write_ritual
+    return write_ritual(
+        (payload or {}).get("name", ""),
+        (payload or {}).get("trigger", ""),
+        (payload or {}).get("steps", []),
+        (payload or {}).get("source", "user"),
+    )
+
+
+# ── Parallel specialist reveal (Q37) ───────────────────────────────────────
+
+@router.post("/specialists/reveal_all")
+async def reveal_all_specialists(payload: dict):
+    from .specialists import compose_all_reveals
+    mood = int((payload or {}).get("mood_score", 5))
+    persona_ctx, goal_ctx = _persona_and_goal_ctx()
+    cards = await compose_all_reveals(mood, persona_ctx=persona_ctx, goal_ctx=goal_ctx)
+    return {"cards": cards, "user": "Omar"}
+
+
+# ── PLG instrumentation (Q40) ──────────────────────────────────────────────
+
+@router.post("/plg/session")
+def plg_session(payload: dict):
+    from . import plg
+    sid = (payload or {}).get("session_id", "")
+    plg.session_started(sid)
+    return {"session_id": sid, "started": True}
+
+
+@router.get("/plg/summary")
+def plg_summary():
+    from . import plg
+    return plg.summary()
 
 

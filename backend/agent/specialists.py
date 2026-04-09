@@ -179,6 +179,25 @@ def evaluate_all() -> list[dict]:
     return [evaluate_agent(n) for n in AGENTS.keys()]
 
 
+async def evaluate_all_async() -> list[dict]:
+    """Parallel specialist evaluation (Q37 orchestrator pattern).
+    Each evaluate_agent reads files and runs stats — short, but parallelizing
+    keeps the council loop snappy and lets the gameplan generator run all
+    four at once instead of in sequence."""
+    import asyncio
+    return await asyncio.gather(*(asyncio.to_thread(evaluate_agent, n) for n in AGENTS.keys()))
+
+
+async def compose_all_reveals(mood_score: int, persona_ctx=None, goal_ctx=None) -> list[dict]:
+    """Run compose_reveal for every specialist in parallel (Q37).
+    Cuts wall-clock from 4×Gemini-latency down to ~1×."""
+    import asyncio
+    return await asyncio.gather(*(
+        compose_reveal(n, mood_score, persona_ctx=persona_ctx, goal_ctx=goal_ctx)
+        for n in AGENTS.keys()
+    ))
+
+
 def _mystery_line_for(agent_eval: dict) -> str:
     """Verbatim state copy. Identity-aware, performance-framed."""
     state = agent_eval.get("state", "insufficient")
@@ -280,6 +299,8 @@ HIS SELF-REPORTED MOOD (1-10, before seeing data): {mood_score}
         }
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
+                from .security import assert_egress_allowed
+                assert_egress_allowed(url)
                 resp = await client.post(url, json=payload)
                 resp.raise_for_status()
                 data = resp.json()

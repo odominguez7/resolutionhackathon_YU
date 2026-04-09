@@ -46,6 +46,8 @@ async def send_telegram(message: str) -> dict:
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
+            from .security import assert_egress_allowed
+            assert_egress_allowed(url)
             resp = await client.post(url, json={"chat_id": chat_id, "text": message, "parse_mode": "Markdown"})
             resp.raise_for_status()
         _sent_count += 1
