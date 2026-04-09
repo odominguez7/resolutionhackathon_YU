@@ -14,6 +14,11 @@ from typing import Optional
 BOSTON_TZ = ZoneInfo("America/New_York")
 DOC_ID = "yu_cortex_state"
 COLLECTION = "agent_state"
+# Subcollections (Fix #2 — keep parent doc small, lists become rows)
+SUB_TICKS = "ticks"
+SUB_DRIFT = "drift"
+SUB_INTERVENTIONS = "interventions"
+LIST_CAP = 200  # in-memory window kept on the parent for fast access
 
 _db = None
 
@@ -46,17 +51,23 @@ class AgentState:
         db = _get_db()
         if db:
             try:
-                doc = db.collection(COLLECTION).document(DOC_ID).get()
-                if doc.exists:
-                    data = doc.to_dict()
+                parent = db.collection(COLLECTION).document(DOC_ID).get()
+                if parent.exists:
+                    data = parent.to_dict()
                     state.baseline = data.get("baseline", {})
-                    state.drift_history = data.get("drift_history", [])
-                    state.intervention_log = data.get("intervention_log", [])
-                    state.pending_evaluations = data.get("pending_evaluations", [])
-                    state.tick_log = data.get("tick_log", [])
                     state.tick_count = data.get("tick_count", 0)
                     state.last_tick = data.get("last_tick")
                     state.effectiveness_summary = data.get("effectiveness_summary", {})
+                    state.pending_evaluations = data.get("pending_evaluations", [])
+                    # Subcollections (Fix #2). Fall back to legacy embedded
+                    # lists if the migration hasn't run yet.
+                    parent_ref = db.collection(COLLECTION).document(DOC_ID)
+                    sub_ticks = list(parent_ref.collection(SUB_TICKS).order_by("timestamp").stream())
+                    sub_drift = list(parent_ref.collection(SUB_DRIFT).order_by("timestamp").stream())
+                    sub_int = list(parent_ref.collection(SUB_INTERVENTIONS).order_by("timestamp").stream())
+                    state.tick_log = [d.to_dict() for d in sub_ticks][-LIST_CAP:] or data.get("tick_log", [])
+                    state.drift_history = [d.to_dict() for d in sub_drift][-LIST_CAP:] or data.get("drift_history", [])
+                    state.intervention_log = [d.to_dict() for d in sub_int][-LIST_CAP:] or data.get("intervention_log", [])
                     return state
             except Exception as e:
                 print(f"[YU Cortex] Firestore load failed: {e}")
@@ -81,31 +92,49 @@ class AgentState:
         return state
 
     def save(self):
-        data = {
+        # Parent doc holds only the small, bounded fields. Unbounded lists
+        # live in subcollections (Fix #2 — keeps the parent doc < 1 MB).
+        parent_data = {
             "baseline": self.baseline,
-            "drift_history": self.drift_history,
-            "intervention_log": self.intervention_log,
             "pending_evaluations": self.pending_evaluations,
-            "tick_log": self.tick_log,
             "tick_count": self.tick_count,
             "last_tick": self.last_tick,
             "effectiveness_summary": self.effectiveness_summary,
             "updated_at": datetime.now(BOSTON_TZ).isoformat(),
         }
+        # Local fallback still carries everything
+        full_data = {
+            **parent_data,
+            "drift_history": self.drift_history,
+            "intervention_log": self.intervention_log,
+            "tick_log": self.tick_log,
+        }
 
-        # Save to Firestore
         db = _get_db()
         if db:
             try:
-                db.collection(COLLECTION).document(DOC_ID).set(data)
+                parent_ref = db.collection(COLLECTION).document(DOC_ID)
+                parent_ref.set(parent_data)
+                # Idempotent upserts by deterministic id (avoids unbounded growth
+                # — same tick_number/timestamp overwrites itself).
+                def _upsert(sub: str, items: list[dict], id_field: str):
+                    col = parent_ref.collection(sub)
+                    for item in items[-LIST_CAP:]:
+                        rid = str(item.get(id_field) or item.get("timestamp") or item.get("id") or "")
+                        if not rid:
+                            continue
+                        col.document(rid.replace("/", "_")[:120]).set(item)
+                _upsert(SUB_TICKS, self.tick_log, "tick_number")
+                _upsert(SUB_DRIFT, self.drift_history, "timestamp")
+                _upsert(SUB_INTERVENTIONS, self.intervention_log, "id")
             except Exception as e:
                 print(f"[YU Cortex] Firestore save failed: {e}")
 
-        # Also save local fallback
+        # Also save local fallback (full snapshot)
         try:
             path = os.path.join(os.path.dirname(__file__), "..", "..", "agent_state.json")
             with open(os.path.abspath(path), "w") as f:
-                json.dump(data, f, indent=2, default=str)
+                json.dump(full_data, f, indent=2, default=str)
         except:
             pass
 

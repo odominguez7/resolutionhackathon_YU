@@ -172,8 +172,45 @@ async def index_knowledge() -> dict:
         return {"status": "error", "message": str(e)[:100]}
 
 
+async def _try_native_vector_search(query_embedding: list[float], top_k: int) -> list[dict] | None:
+    """Use Firestore native find_nearest if a vector index exists.
+    Returns None on any failure so callers fall back to in-process cosine."""
+    try:
+        from google.cloud import firestore
+        from google.cloud.firestore_v1.vector import Vector
+        from google.cloud.firestore_v1.base_vector_query import DistanceMeasure
+        db = firestore.Client(project="resolution-hack")
+        col = db.collection(COLLECTION)
+        results = col.find_nearest(
+            vector_field="embedding",
+            query_vector=Vector(query_embedding),
+            distance_measure=DistanceMeasure.COSINE,
+            limit=top_k,
+        ).stream()
+        out = []
+        for d in results:
+            x = d.to_dict()
+            out.append({
+                "text": x.get("text", ""),
+                "category": x.get("category", ""),
+                "score": None,  # Firestore returns ranked order, not raw cosine
+                "provenance": {
+                    "source": "Recovery Forecasting & Performance Optimization (Dominguez, 2026)",
+                    "trust": "internal",
+                    "indexed_at": x.get("indexed_at"),
+                    "collection": COLLECTION,
+                    "retriever": "firestore_find_nearest",
+                },
+            })
+        return out or None
+    except Exception:
+        return None
+
+
 async def retrieve(query: str, top_k: int = 3) -> list[dict]:
-    """Retrieve most relevant knowledge chunks for a query."""
+    """Retrieve most relevant knowledge chunks for a query.
+    Tries Firestore native vector search first; falls back to in-process
+    cosine over a cached chunk list."""
     global _chunks_cache
 
     # Load chunks from Firestore (cache after first load)
@@ -197,6 +234,12 @@ async def retrieve(query: str, top_k: int = 3) -> list[dict]:
     query_embedding = await embed_text(query)
     if not query_embedding:
         return []
+
+    # Fast path: native Firestore vector search (requires an index — see
+    # `gcloud firestore indexes composite create` in the README).
+    native = await _try_native_vector_search(query_embedding, top_k)
+    if native:
+        return native
 
     # Rank by cosine similarity. Each result carries provenance so the
     # State Card UI can show *why* the agent cited it (Q33 grounding).
