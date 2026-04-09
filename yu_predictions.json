@@ -1,0 +1,74 @@
+[
+  {
+    "made_on": "2026-04-07",
+    "agent_id": "sleep",
+    "target_metric": "sleep",
+    "predicted_zone": "way_up",
+    "baseline_at_prediction": 76.6,
+    "verified_on": "2026-04-08",
+    "actual": 82.1,
+    "actual_zone": "up",
+    "is_hit": false,
+    "zone_distance": 1
+  },
+  {
+    "made_on": "2026-04-06",
+    "agent_id": "sleep",
+    "target_metric": "sleep",
+    "predicted_zone": "way_up",
+    "baseline_at_prediction": 77.1,
+    "verified_on": "2026-04-07",
+    "actual": 79.2,
+    "actual_zone": "up",
+    "is_hit": false,
+    "zone_distance": 1
+  },
+  {
+    "made_on": "2026-04-05",
+    "agent_id": "sleep",
+    "target_metric": "sleep",
+    "predicted_zone": "same",
+    "baseline_at_prediction": 76.2,
+    "verified_on": "2026-04-06",
+    "actual": 74.0,
+    "actual_zone": "down",
+    "is_hit": false,
+    "zone_distance": 1
+  },
+  {
+    "made_on": "2026-04-04",
+    "agent_id": "sleep",
+    "target_metric": "sleep",
+    "predicted_zone": "down",
+    "baseline_at_prediction": 76.1,
+    "verified_on": "2026-04-05",
+    "actual": 71.5,
+    "actual_zone": "down",
+    "is_hit": true,
+    "zone_distance": 0
+  },
+  {
+    "made_on": "2026-04-03",
+    "agent_id": "sleep",
+    "target_metric": "sleep",
+    "predicted_zone": "up",
+    "baseline_at_prediction": 77.1,
+    "verified_on": "2026-04-04",
+    "actual": 80.6,
+    "actual_zone": "up",
+    "is_hit": true,
+    "zone_distance": 0
+  },
+  {
+    "made_on": "2026-04-02",
+    "agent_id": "sleep",
+    "target_metric": "sleep",
+    "predicted_zone": "down",
+    "baseline_at_prediction": 76.9,
+    "verified_on": "2026-04-03",
+    "actual": 74.3,
+    "actual_zone": "down",
+    "is_hit": true,
+    "zone_distance": 0
+  }
+]

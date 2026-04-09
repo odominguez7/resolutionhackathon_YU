@@ -1,857 +1,1161 @@
-import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import {
-  Brain, Radio, Eye, Crosshair, Zap, BarChart3,
-  Play, CheckCircle2, AlertTriangle, TrendingUp,
-  TrendingDown, ArrowRight, Bot, Sparkles, Clock,
-  Activity, Heart, Moon, ShieldCheck, ChevronRight,
-  History, RefreshCw, Globe,
-} from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip } from "recharts";
+import { Heart, Target, Moon, Zap, ArrowRight, Check, RefreshCw, X } from "lucide-react";
 
-/* ── Keyframes ─────────────────────────────────────────── */
-const keyframes = `
-@keyframes agent-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.5)} 50%{box-shadow:0 0 0 14px rgba(59,130,246,0)} }
-@keyframes agent-orbit { 0%{transform:rotate(0deg) translateX(28px) rotate(0deg)} 100%{transform:rotate(360deg) translateX(28px) rotate(-360deg)} }
-@keyframes agent-scan { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-@keyframes phase-glow { 0%,100%{opacity:0.4} 50%{opacity:1} }
-@keyframes ripple { 0%{transform:scale(1);opacity:0.4} 100%{transform:scale(2.5);opacity:0} }
-@keyframes loop-spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-`;
+/* ── YU brand tokens (mirrors yu.boston) ─────────────── */
+const YU = {
+  bg: "#FFFFFF",
+  bgSoft: "#F8FAFC",
+  ink: "#1C2B3A",
+  body: "#374151",
+  muted: "#6B7280",
+  label: "#9CA3AF",
+  line: "#E5E7EB",
+  teal: "#00BFA6",
+  amber: "#F59E0B",
+  indigo: "#6366F1",
+  red: "#E5484D",
+};
+const display = "'Space Grotesk', sans-serif";
+const sans = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 
-/* ── Types ─────────────────────────────────────────────── */
-interface TickResult {
-  phase: string;
-  tick_number: number;
-  duration_ms: number;
-  timestamp: string;
-  phases: {
-    sense: { biometrics_available: number; date_range: string; latest_date: string; averages: Record<string, number> };
-    think: { drift_detected: boolean; severity: string; consecutive_days: number; drivers: { metric: string; z_score: number }[]; baseline: Record<string, number> };
-    decide: { reasoning: string; source: string; actions_planned: number; actions: { tool: string; params: Record<string, any>; why: string }[] };
-    act: { actions_executed: number; details: { tool: string; why: string; result: Record<string, any> }[] };
-    measure: { evaluations_completed: number; pending_evaluations: number; effectiveness_summary: Record<string, any>; evaluations: any[] };
+const SPECIALIST_ICONS: Record<string, any> = { heart: Heart, readiness: Target, sleep: Moon, stress: Zap };
+function computeBaselineTrend(history?: number[], lowerIsWorse?: boolean): BaselineTrend | null {
+  if (!history || history.length < 4) return null;
+  const window = 7;
+  const rolling = history.map((_, i) => {
+    const lo = Math.max(0, i - window + 1);
+    const chunk = history.slice(lo, i + 1);
+    return Math.round((chunk.reduce((s, n) => s + n, 0) / chunk.length) * 10) / 10;
+  });
+  const early = rolling.length >= 7 ? rolling.slice(0, 7).reduce((s, n) => s + n, 0) / 7 : rolling[0];
+  const late = rolling.length >= 7 ? rolling.slice(-7).reduce((s, n) => s + n, 0) / 7 : rolling[rolling.length - 1];
+  const rawDelta = Math.round((late - early) * 10) / 10;
+  // For lower_is_worse=false (stress), an upward raw trend is BAD. Invert visible direction.
+  const visible = (lowerIsWorse ?? true) ? rawDelta : -rawDelta;
+  let direction: "up" | "flat" | "down" = "flat";
+  if (Math.abs(visible) >= 0.5) direction = visible > 0 ? "up" : "down";
+  return {
+    target_metric: "",
+    values: history,
+    rolling,
+    delta: visible,
+    direction,
+    days: history.length,
   };
 }
 
-interface AgentStatus {
-  agent: string; version: string; status: string;
-  tick_count: number; last_tick: string | null;
-  baseline: Record<string, number>;
-  total_drifts_detected: number; total_interventions: number;
-  pending_evaluations: number; effectiveness_summary: Record<string, any>;
-  last_drift: any;
+const STATE_GLYPH: Record<string, string> = { locked: "◆", loaded: "▲", steady: "●", compressed: "▼", depleted: "◉", insufficient: "·" };
+const STATE_LABEL: Record<string, string> = { locked: "Locked", loaded: "Loaded", steady: "Steady", compressed: "Compressed", depleted: "Depleted", insufficient: "Gathering" };
+
+type AgentState = "locked" | "loaded" | "steady" | "compressed" | "depleted" | "insufficient";
+interface Spokesperson {
+  id: string;
+  title: string;
+  subtitle: string;
+  color: string;
+  state: AgentState;
+  state_label?: string;
+  state_glyph?: string;
+  state_copy?: string;
+  metric_label?: string;
+  today_value?: number;
+  baseline_mean?: number;
+  delta_pct?: number;
+  z_score?: number;
+  history?: number[];
+  lower_is_worse?: boolean;
+  mystery: string;
+}
+interface Listening {
+  id: string;
+  title: string;
+  color: string;
+  state: AgentState;
+  state_label?: string;
+  state_glyph?: string;
+  state_copy?: string;
+  today_value?: number;
+  baseline_mean?: number;
+  delta_pct?: number;
+  metric_label?: string;
+  lower_is_worse?: boolean;
+  history?: number[];
+}
+interface GoalDay {
+  date: string;
+  status: "yes" | "partial" | "no" | "pending" | "skipped";
+}
+interface Goal {
+  goal: {
+    persona: string;
+    behavior: string;
+    duration_days: number;
+    target_metric: string;
+    target_metric_label: string;
+    started_on: string;
+    baseline_at_start?: number;
+  };
+  persona: { id: string; label: string; frame: string; voice_rule: string };
+  day_index: number;
+  duration: number;
+  days: GoalDay[];
+  complete: boolean;
+  baseline_at_start?: number;
+  today_value?: number;
+  running_delta?: number;
+  running_delta_pct?: number;
+  direction?: number;
+}
+interface ArchivedHypothesis {
+  behavior: string;
+  target_metric_label: string;
+  duration_days: number;
+  started_on: string;
+  ended_on: string;
+  baseline_at_start?: number;
+  ended_value?: number;
+  verdict: { label: "confirmed" | "inconclusive" | "weakened"; delta?: number; delta_pct?: number };
+}
+interface BaselineTrend {
+  target_metric: string;
+  values: number[];
+  rolling: number[];
+  delta: number | null;
+  direction: "up" | "flat" | "down";
+  days?: number;
+}
+interface Ritual {
+  user: string;
+  goal: Goal;
+  spokesperson: Spokesperson;
+  listening: Listening[];
+  baseline_trend?: BaselineTrend;
+}
+interface RevealedCard {
+  id: string;
+  title: string;
+  subtitle: string;
+  color: string;
+  metric_label: string;
+  today_value?: number;
+  baseline_mean?: number;
+  delta_pct?: number;
+  lower_is_worse?: boolean;
+  history?: number[];
+  data_line: string;
+  narrative: string;
+  implication: string;
+  action_label: string;
+  actionable: boolean;
+  source?: string;
+  notification?: { sent: boolean; mode: string; would_send?: string; message?: string; missing?: string[] };
 }
 
-/* ── Config ────────────────────────────────────────────── */
-const PHASES = [
-  { key: "sense", label: "Sense", icon: Eye, color: "#3b82f6", desc: "Oura biometrics" },
-  { key: "think", label: "Think", icon: Brain, color: "#8b5cf6", desc: "Drift detection + RAG" },
-  { key: "decide", label: "Decide", icon: Crosshair, color: "#f59e0b", desc: "LLM + clinical research" },
-  { key: "act", label: "Intervene", icon: Zap, color: "#22c55e", desc: "Micro-interventions" },
-  { key: "collaborate", label: "Network", icon: Globe, color: "#06b6d4", desc: "Expert agents" },
-  { key: "measure", label: "Measure", icon: BarChart3, color: "#ec4899", desc: "Closed loop" },
-];
-const SEVERITY_COLORS: Record<string, string> = { high: "#ef4444", medium: "#f59e0b", low: "#22c55e", none: "#6b7280" };
-const METRIC_ICONS: Record<string, any> = { hrv: Activity, sleep_score: Moon, readiness: ShieldCheck, rhr: Heart, deep_sleep: Moon, stress: AlertTriangle };
-const TOOL_LABELS: Record<string, string> = {
-  send_coaching: "CBT Coaching", sleep_protocol: "Sleep Protocol",
-  block_calendar: "Calendar Block", recommend_workout: "Workout Adjustment", no_action: "No Action Needed",
-};
-const METRIC_LABELS: Record<string, string> = {
-  sleep_score: "Sleep Score", hrv: "HRV", readiness: "Readiness",
-  rhr: "Resting HR", deep_sleep: "Deep Sleep", stress: "Stress",
-};
-
-/* ── Component ─────────────────────────────────────────── */
 export default function Agent() {
-  const [status, setStatus] = useState<AgentStatus | null>(null);
-  const [tickResult, setTickResult] = useState<TickResult | null>(null);
-  const [tickHistory, setTickHistory] = useState<any[]>([]);
-  const [running, setRunning] = useState(false);
-  const [activePhase, setActivePhase] = useState(-1);
-  const [showResult, setShowResult] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [error, setError] = useState("");
-  const [dataStatus, setDataStatus] = useState<any>(null);
-  const phaseTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [ritual, setRitual] = useState<Ritual | null>(null);
+  const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [mood, setMood] = useState<number | null>(null);
+  const [card, setCard] = useState<RevealedCard | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [closed, setClosed] = useState<RevealedCard | null>(null);
+  const [showGoalEdit, setShowGoalEdit] = useState(false);
+  const [dailyDone, setDailyDone] = useState(false);
+  const DAILY_DONE_KEY = "yu_daily_done";
+
+  const todayKey = () => new Date().toISOString().slice(0, 10);
+  const STORAGE_KEY = "yu_daily_state_v2";
+
+  const load = async () => {
+    try {
+      const r = await api.get("/api/agent/ritual");
+      setRitual(r);
+      setActiveAgentId(r.spokesperson.id);
+      // Restore today's mood + revealed card if it's the same day
+      try {
+        const cached = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (cached && cached.date === todayKey()) {
+          setMood(cached.mood);
+          if (cached.agent_id === r.spokesperson.id && cached.card) {
+            setCard(cached.card);
+            setRevealed(true);
+          }
+        }
+        const done = JSON.parse(localStorage.getItem(DAILY_DONE_KEY) || "null");
+        if (done && done.date === todayKey()) setDailyDone(true);
+      } catch {}
+    } catch (e) {}
+  };
 
   useEffect(() => {
-    api.get("/api/agent/status").then(setStatus).catch(() => {});
-    api.get("/api/agent/log").then(setTickHistory).catch(() => {});
-    api.get("/api/oura/data-status").then(setDataStatus).catch(() => {});
+    load();
   }, []);
 
-  const triggerLoop = async () => {
-    setRunning(true);
-    setError("");
-    setTickResult(null);
-    setShowResult(false);
-    setActivePhase(0);
-    phaseTimers.current.forEach(clearTimeout);
-    phaseTimers.current = [];
+  const reveal = async (score: number) => {
+    if (!activeAgentId) return;
+    setMood(score);
+    setLoading(true);
     try {
-      const phaseDelay = 600;
-      PHASES.forEach((_, i) => {
-        phaseTimers.current.push(setTimeout(() => setActivePhase(i), i * phaseDelay));
-      });
-      const result = await api.post("/api/agent/trigger");
-      setTickResult(result);
-      const remaining = Math.max(0, PHASES.length * phaseDelay - 800);
-      setTimeout(() => { setActivePhase(5); setShowResult(true); }, remaining);
-      const [s, h] = await Promise.all([api.get("/api/agent/status"), api.get("/api/agent/log")]);
-      setStatus(s);
-      setTickHistory(h);
-    } catch (e: any) {
-      setError(e.message || "Agent loop failed");
-      setActivePhase(-1);
+      const res = await api.post(`/api/agent/specialists/${activeAgentId}/reveal`, { mood_score: score });
+      setCard(res);
+      setRevealed(true);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: todayKey(), agent_id: activeAgentId, mood: score, card: res }));
+      } catch {}
     } finally {
-      setRunning(false);
+      setLoading(false);
     }
   };
 
-  const severityColor = tickResult?.phases?.think?.severity
-    ? SEVERITY_COLORS[tickResult.phases.think.severity] || "#6b7280" : "#6b7280";
+  const approve = async () => {
+    if (!activeAgentId || mood == null) return;
+    setApproving(true);
+    try {
+      const res = await api.post(`/api/agent/specialists/${activeAgentId}/approve`, { mood_score: mood });
+      setClosed(res);
+    } finally {
+      setApproving(false);
+    }
+  };
 
-  // Effectiveness chart data
-  const effData = Object.entries(status?.effectiveness_summary || {}).map(([type, data]: [string, any]) => ({
-    name: (TOOL_LABELS[type] || type).replace(" ", "\n"), rate: data.rate, total: data.total, positive: data.positive,
-  }));
+  const logAdherence = async (value: "yes" | "partial" | "no") => {
+    await api.post("/api/agent/goal/adherence", { value });
+    load();
+  };
+
+  const swapSpokesperson = async (id: string) => {
+    setActiveAgentId(id);
+    setRevealed(false);
+    setCard(null);
+    setClosed(null);
+    setDailyDone(false); // peek breaks the rest state without reopening it on reload
+    // Mood is the user's state, not the agent's — keep it across swaps within a day
+    // and auto-reveal the new agent's card immediately if mood is already known.
+    if (mood != null) {
+      setLoading(true);
+      try {
+        const res = await api.post(`/api/agent/specialists/${id}/reveal`, { mood_score: mood });
+        setCard(res);
+        setRevealed(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  if (!ritual) {
+    return (
+      <div style={{ minHeight: "100vh", background: YU.bg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: sans, color: YU.muted }}>
+        <RefreshCw size={20} className="animate-spin" />
+      </div>
+    );
+  }
+
+  const sp = ritual.spokesperson.id === activeAgentId
+    ? ritual.spokesperson
+    : ({ ...ritual.spokesperson, id: activeAgentId } as Spokesperson);
+  const SpIcon = SPECIALIST_ICONS[sp.id] || Heart;
+  const dayPct = Math.round((ritual.goal.day_index / ritual.goal.duration) * 100);
+  const adherenceCount = ritual.goal.days.filter((d) => d.status === "yes").length;
 
   return (
-    <div className="min-h-screen pb-20" style={{ background: "linear-gradient(180deg,#060918 0%,#0b1120 40%,#0a0f1f 100%)" }}>
-      <style>{keyframes}</style>
+    <div style={{ minHeight: "100vh", background: YU.bg, color: YU.body, fontFamily: sans, position: "relative" }}>
+      {/* Anomaly accent: a thin colored ribbon at the very top when any agent is in act */}
+      {(() => {
+        const allAgents = [ritual.spokesperson, ...ritual.listening] as any[];
+        const acting = allAgents.find((a) => a.state === "depleted");
+        if (!acting) return null;
+        return (
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: acting.color, opacity: 0.85 }} />
+        );
+      })()}
+      <style>{`
+        @keyframes yuFade { from {opacity:0} to {opacity:1} }
+        @keyframes yuRise { from {opacity:0;transform:translateY(14px)} to {opacity:1;transform:none} }
+        @keyframes yuBreath { 0%,100%{transform:scale(1);opacity:0.6} 50%{transform:scale(1.08);opacity:1} }
+        @keyframes yuPipBreath { 0%,100%{opacity:0.75} 50%{opacity:1} }
+        .yu-rise { animation: yuRise .55s cubic-bezier(.2,.8,.2,1) both; }
+        .yu-pip-active { animation: yuPipBreath 2.4s ease-in-out infinite; }
+        .yu-stat-pill:hover { border-color: var(--c) !important; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(28,43,58,.06); }
+      `}</style>
 
-      {/* ── Hero ──────────────────────────────────────── */}
-      <div className="relative overflow-hidden" style={{ paddingTop: 50, paddingBottom: 32 }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse 600px 400px at 50% 30%, rgba(59,130,246,0.08) 0%, transparent 70%)",
-        }} />
-        <div className="max-w-2xl mx-auto px-5 text-center relative z-10">
-          {/* Agent avatar */}
-          <div className="flex justify-center mb-5">
-            <div className="relative">
-              <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15))", border: "1px solid rgba(59,130,246,0.2)", animation: "agent-pulse 3s ease-in-out infinite" }}>
-                <Bot className="w-8 h-8" style={{ color: "#818cf8" }} />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center" style={{ animation: "agent-orbit 4s linear infinite" }}>
-                <div className="w-2 h-2 rounded-full" style={{ background: "#3b82f6", boxShadow: "0 0 8px #3b82f6" }} />
-              </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#0f172a", border: "2px solid #22c55e" }}>
-                <div className="w-2 h-2 rounded-full" style={{ background: "#22c55e" }} />
-              </div>
-            </div>
-          </div>
-
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight mb-1.5" style={{ color: "#f1f5f9" }}>
-            YU Cortex
-          </h1>
-          <p className="text-xs md:text-sm mb-4" style={{ color: "rgba(255,255,255,0.3)" }}>
-            Autonomous behavioral intelligence. Sense. Think. Decide. Act. Measure.
-          </p>
-
-          {/* Architecture badges */}
-          <div className="flex items-center justify-center gap-1.5 mb-5 flex-wrap">
-            {dataStatus && (
-              <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[8px] font-bold uppercase tracking-wider"
-                style={{ background: "rgba(34,197,94,0.08)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.12)" }}>
-                <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#22c55e" }} />
-                Oura {dataStatus.total_days}d
-              </div>
-            )}
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[8px] font-bold uppercase tracking-wider"
-              style={{ background: "rgba(139,92,246,0.08)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.12)" }}>
-              RAG
-            </div>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[8px] font-bold uppercase tracking-wider"
-              style={{ background: "rgba(245,158,11,0.08)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.12)" }}>
-              LangGraph
-            </div>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[8px] font-bold uppercase tracking-wider"
-              style={{ background: "rgba(236,72,153,0.08)", color: "#f472b6", border: "1px solid rgba(236,72,153,0.12)" }}>
-              Firestore
-            </div>
-            <a href="https://join39.org/chat/yu7" target="_blank" rel="noopener"
-              className="flex items-center gap-1 px-2 py-1 rounded-full text-[8px] font-bold uppercase tracking-wider no-underline"
-              style={{ background: "rgba(6,182,212,0.08)", color: "rgba(6,182,212,0.6)", border: "1px solid rgba(6,182,212,0.1)" }}>
-              <Globe className="w-3 h-3" /> NANDA
-            </a>
-          </div>
-
-          {/* Stats */}
-          {status && (
-            <div className="grid grid-cols-4 gap-3 mb-5">
-              {[
-                { label: "Ticks", value: status.tick_count },
-                { label: "Drifts", value: status.total_drifts_detected },
-                { label: "Actions", value: status.total_interventions },
-                { label: "Evals", value: status.pending_evaluations },
-              ].map((s, i) => (
-                <motion.div key={s.label} className="text-center"
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06, duration: 0.4 }}>
-                  <p className="text-lg md:text-xl font-extrabold tabular-nums"
-                    style={{ background: "linear-gradient(135deg,#3b82f6,#8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                    {s.value}
-                  </p>
-                  <p className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.2)" }}>{s.label}</p>
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          {/* Controls row */}
-          <div className="flex items-center justify-center gap-3">
-            <motion.button onClick={triggerLoop} disabled={running}
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-              className="relative px-6 py-3 rounded-xl font-bold text-sm tracking-wide border-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-              style={{
-                background: running ? "linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2))" : "linear-gradient(135deg, #3b82f6, #7c3aed)",
-                color: "#fff", boxShadow: running ? "none" : "0 0 30px rgba(59,130,246,0.3)",
-              }}>
-              {running ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  Running...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2"><Play className="w-4 h-4" /> Run Agent Loop</span>
-              )}
-              {running && <span className="absolute inset-0 rounded-xl" style={{ border: "2px solid rgba(59,130,246,0.4)", animation: "ripple 1.5s ease-out infinite" }} />}
-            </motion.button>
-
-          </div>
-          {false && (
-            <p className="hidden">{/* removed */}</p>
-          )}
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "56px 24px 96px" }}>
+        {/* ── 1. Persona chip + tests ── */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 36 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 999, background: YU.bgSoft, border: `1px solid ${YU.line}`, fontSize: 12, fontWeight: 600, color: YU.ink }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: YU.teal }} />
+            {ritual.goal.persona.label}
+          </span>
+          <button
+            onClick={() => setShowGoalEdit(true)}
+            style={{ background: "transparent", border: 0, color: YU.muted, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: sans, padding: "8px 4px" }}
+          >
+            your tests
+          </button>
         </div>
-      </div>
 
-      {/* ── Phase Pipeline ────────────────────────────── */}
-      <div className="max-w-2xl mx-auto px-5 mb-8">
-        <div className="grid grid-cols-5 gap-1">
-          {PHASES.map((phase, i) => {
-            const Icon = phase.icon;
-            const isActive = activePhase === i;
-            const isDone = activePhase > i;
-            const isWaiting = activePhase < i;
+        {/* ── Council stat row (Oura-style) ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 32 }}>
+          {[ritual.spokesperson, ...ritual.listening].sort((a: any, b: any) => {
+            const order = ["heart", "readiness", "sleep", "stress"];
+            return order.indexOf(a.id) - order.indexOf(b.id);
+          }).map((agent: any) => {
+            const Icon = SPECIALIST_ICONS[agent.id];
+            const isActive = agent.id === activeAgentId;
+            const isSpokes = agent.id === ritual.spokesperson.id;
+            const fullEval = isSpokes ? ritual.spokesperson : agent;
+            const value = (fullEval as any).today_value;
+            const rawDelta = (fullEval as any).delta_pct ?? 0;
+            const lwi = (fullEval as any).lower_is_worse ?? true;
+            const delta = lwi ? rawDelta : -rawDelta;
+            const isImprovement = delta === 0 ? null : delta > 0;
+            const dirColor = isImprovement === null ? YU.muted : isImprovement ? YU.teal : "#E5484D";
+            const dirArrow = isImprovement === null ? "•" : isImprovement ? "▲" : "▼";
+            const labels: Record<string, string> = { heart: "HRV", readiness: "Readiness", sleep: "Sleep", stress: "Stress" };
+            const units: Record<string, string> = { heart: "ms", readiness: "", sleep: "", stress: "min" };
+            const label = labels[agent.id] || agent.title;
+            const unit = units[agent.id] || "";
             return (
-              <motion.div key={phase.key} className="flex flex-col items-center"
-                animate={{ scale: isActive ? 1.08 : 1, opacity: isWaiting && running ? 0.3 : 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center mb-1 transition-all duration-500"
-                  style={{
-                    background: isDone ? `${phase.color}22` : isActive ? `${phase.color}30` : "rgba(255,255,255,0.03)",
-                    border: `1.5px solid ${isDone || isActive ? phase.color + "60" : "rgba(255,255,255,0.06)"}`,
-                    boxShadow: isActive ? `0 0 20px ${phase.color}30` : "none",
-                  }}>
-                  {isDone ? <CheckCircle2 className="w-5 h-5" style={{ color: phase.color }} /> :
-                    <Icon className="w-5 h-5" style={{ color: isActive ? phase.color : "rgba(255,255,255,0.2)", animation: isActive ? "phase-glow 1s ease-in-out infinite" : "none" }} />}
-                </div>
-                <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-center"
-                  style={{ color: isDone || isActive ? phase.color : "rgba(255,255,255,0.15)" }}>
-                  {phase.label}
+              <button
+                key={agent.id}
+                className="yu-stat-pill"
+                onClick={() => swapSpokesperson(agent.id)}
+                style={{
+                  ["--c" as any]: agent.color,
+                  background: isActive ? `${agent.color}08` : "#fff",
+                  border: `1px solid ${isActive ? agent.color : YU.line}`,
+                  borderRadius: 16,
+                  padding: "12px 12px 10px",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 4,
+                  fontFamily: sans,
+                  transition: "all .18s ease",
+                }}
+              >
+                <Icon size={14} style={{ color: agent.color }} />
+                <span style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, lineHeight: 1, letterSpacing: "-0.01em", fontVariantNumeric: "tabular-nums" }}>
+                  {value != null ? Math.round(value) : "—"}
+                  {value != null && unit && <span style={{ fontSize: 10, fontWeight: 500, color: YU.muted, marginLeft: 1 }}>{unit}</span>}
                 </span>
-                <span className="text-[7px] md:text-[8px] hidden md:block mt-0.5 text-center"
-                  style={{ color: "rgba(255,255,255,0.1)" }}>{phase.desc}</span>
-              </motion.div>
+                <span style={{ fontSize: 9, fontWeight: 600, color: YU.label, textTransform: "uppercase", letterSpacing: "1px" }}>
+                  {label}
+                </span>
+                {(fullEval as any).state_label && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 2, fontSize: 10, fontWeight: 700, color: dirColor }}>
+                    <span style={{ fontSize: 11 }}>{(fullEval as any).state_glyph}</span>
+                    {(fullEval as any).state_label}
+                  </span>
+                )}
+              </button>
             );
           })}
         </div>
+
+        {/* ── 2. Goal banner ── */}
+        <div className="yu-rise" style={{ borderTop: `1px solid ${YU.line}`, borderBottom: `1px solid ${YU.line}`, padding: "26px 0", marginBottom: 56, textAlign: "center" }}>
+          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: "0 0 10px" }}>
+            Active hypothesis · Day {ritual.goal.day_index} of {ritual.goal.duration}
+          </p>
+          <p style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, margin: "0 0 6px", lineHeight: 1.25, letterSpacing: "-0.01em" }}>
+            {ritual.goal.goal.behavior}
+          </p>
+          <p style={{ fontSize: 13, color: YU.muted, margin: "0 0 18px" }}>
+            does it move your {ritual.goal.goal.target_metric_label}?
+            {ritual.goal.baseline_at_start != null && (
+              <span style={{ marginLeft: 8, color: YU.label }}>· starting line {Math.round(ritual.goal.baseline_at_start)}</span>
+            )}
+          </p>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {ritual.goal.days.map((d, i) => {
+              const isToday = i + 1 === ritual.goal.day_index;
+              const isPast = i + 1 < ritual.goal.day_index;
+              if (isPast || d.status === "yes" || d.status === "partial" || d.status === "no") {
+                const fill = d.status === "yes" ? YU.teal : d.status === "partial" ? YU.amber : d.status === "no" ? YU.red : YU.line;
+                return <div key={d.date} style={{ flex: 1, height: 6, borderRadius: 3, background: fill }} />;
+              }
+              if (isToday) {
+                return <div key={d.date} className="yu-pip-active" style={{ flex: 1, height: 6, borderRadius: 3, background: YU.teal }} />;
+              }
+              // future = subtle teal-tinted dot, not gray bar
+              return (
+                <div key={d.date} style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: `${YU.teal}30` }} />
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: 12, gap: 16 }}>
+            <p style={{ fontSize: 12, color: YU.muted, margin: 0 }}>
+              {ritual.goal.day_index === 1 && adherenceCount === 0
+                ? "Day 1"
+                : `${adherenceCount} of ${ritual.goal.day_index - 1} nights held`}
+            </p>
+            {ritual.goal.day_index > 1 && ritual.goal.running_delta != null && (() => {
+              const dir = ritual.goal.direction || 1;
+              const isGood = (ritual.goal.running_delta || 0) * dir > 0;
+              const arrow = (ritual.goal.running_delta || 0) > 0 ? "+" : "";
+              return (
+                <p style={{ fontSize: 12, fontWeight: 600, color: isGood ? YU.teal : YU.muted, margin: 0, fontFamily: sans }}>
+                  {arrow}{Math.round(ritual.goal.running_delta || 0)} vs your starting line
+                </p>
+              );
+            })()}
+          </div>
+        </div>
+
+        {/* ── 3. Mystery card / reveal / closed ── */}
+        {/* Baseline trend — computed per active agent from its history */}
+        {(() => {
+          const activeFull: any = sp.id === ritual.spokesperson.id
+            ? ritual.spokesperson
+            : ritual.listening.find((l: any) => l.id === activeAgentId);
+          const trend = computeBaselineTrend(activeFull?.history, activeFull?.lower_is_worse);
+          if (!trend) return null;
+          const metricLabel = activeFull?.metric_label || "";
+          return <BaselineTrendChart trend={trend} metricLabel={metricLabel} agent={activeFull} />;
+        })()}
+
+        {!revealed && !closed && !dailyDone && (
+          <div className="yu-rise" style={{ textAlign: "center", marginBottom: 56, padding: "32px 0" }}>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: sp.color, margin: "0 0 16px" }}>
+              {sp.state_glyph} {sp.subtitle} · {sp.state_label}
+            </p>
+            <p style={{ fontSize: 13, color: YU.label, margin: "0 0 8px" }}>Hello {ritual.user}</p>
+            <h1 style={{ fontFamily: display, fontWeight: 700, fontSize: "clamp(34px, 5vw, 52px)", lineHeight: 1.05, letterSpacing: "-0.02em", color: YU.ink, margin: "0 auto 48px", maxWidth: 620 }}>
+              {sp.mystery}
+            </h1>
+
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 18px" }}>
+              first, how do you actually feel
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 10, maxWidth: 460, margin: "0 auto 10px" }}>
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => reveal(n)}
+                  disabled={loading}
+                  style={{
+                    aspectRatio: "1",
+                    borderRadius: "50%",
+                    border: `1px solid ${mood === n ? sp.color : YU.line}`,
+                    background: mood === n ? sp.color : "#fff",
+                    color: mood === n ? "#fff" : YU.ink,
+                    fontFamily: sans,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: loading ? "wait" : "pointer",
+                    transition: "all .15s ease",
+                    boxShadow: mood === n ? `0 4px 14px ${sp.color}40` : "none",
+                  }}
+                  onMouseEnter={(e) => { if (mood !== n) { e.currentTarget.style.borderColor = sp.color; e.currentTarget.style.transform = "scale(1.08)"; } }}
+                  onMouseLeave={(e) => { if (mood !== n) { e.currentTarget.style.borderColor = YU.line; e.currentTarget.style.transform = "none"; } }}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", maxWidth: 480, margin: "0 auto", fontSize: 11, color: YU.label }}>
+              <span>drained</span>
+              <span>peak</span>
+            </div>
+            {loading && (
+              <p style={{ marginTop: 28, fontSize: 13, color: YU.muted }}>
+                <RefreshCw size={14} className="animate-spin" style={{ display: "inline", marginRight: 8, verticalAlign: "middle" }} />
+                Reading your data
+              </p>
+            )}
+          </div>
+        )}
+
+        {revealed && card && !closed && !dailyDone && (() => {
+          const CardIcon = SPECIALIST_ICONS[card.id] || Heart;
+          const cc = card.color;
+          // Direction: improvement = (delta_pct sign) aligned with (lower_is_worse)
+          const rawDelta = card.delta_pct ?? 0;
+          const lwi = card.lower_is_worse ?? true;
+          // Visible delta: when lower_is_worse=false (e.g. stress), invert sign so user sees +50% better
+          const delta = lwi ? rawDelta : -rawDelta;
+          const isImprovement = delta > 0;
+          const dirColor = delta === 0 ? YU.muted : isImprovement ? YU.teal : "#E5484D";
+          const arrow = delta === 0 ? "→" : isImprovement ? "▲" : "▼";
+          return (
+          <div className="yu-rise" style={{ marginBottom: 56 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: `${cc}14`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <CardIcon size={20} style={{ color: cc }} />
+              </div>
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: cc, margin: 0 }}>
+                  {card.subtitle}
+                </p>
+                <p style={{ fontSize: 12, color: YU.label, margin: "2px 0 0" }}>{card.metric_label}</p>
+              </div>
+              <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", borderRadius: 999, background: `${dirColor}10`, border: `1px solid ${dirColor}30`, color: dirColor, fontSize: 12, fontWeight: 700, fontFamily: sans }}>
+                <span style={{ fontSize: 13 }}>{(card as any).state_glyph}</span>
+                {(card as any).state_label}
+                <span style={{ fontSize: 10, color: YU.muted, fontWeight: 500, marginLeft: 2 }}>{delta > 0 ? "+" : ""}{Math.round(delta)}%</span>
+              </span>
+            </div>
+            {(card as any).state_copy && (
+              <p style={{ fontFamily: display, fontSize: 17, fontWeight: 600, color: cc, margin: "0 0 14px", letterSpacing: "-0.01em" }}>
+                {(card as any).state_copy}
+              </p>
+            )}
+            <h2 style={{ fontFamily: display, fontSize: "clamp(26px, 3.5vw, 36px)", fontWeight: 700, lineHeight: 1.18, color: YU.ink, margin: "0 0 22px", letterSpacing: "-0.01em" }}>
+              {card.data_line}
+            </h2>
+
+            {/* 14-day history sparkline */}
+            {card.history && card.history.length >= 2 && (
+              <HistoryChart values={card.history} baseline={card.baseline_mean} color={cc} lowerIsWorse={lwi} />
+            )}
+
+            <p style={{ fontSize: 17, color: YU.body, lineHeight: 1.6, margin: "20px 0 22px" }}>
+              {card.narrative}
+            </p>
+            {card.implication && (
+              <div style={{ borderLeft: `3px solid ${cc}`, paddingLeft: 18, margin: "28px 0" }}>
+                <p style={{ fontSize: 17, color: YU.ink, fontWeight: 500, lineHeight: 1.55, margin: 0 }}>
+                  {card.implication}
+                </p>
+              </div>
+            )}
+            {card.actionable ? (
+              <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "flex-end", marginTop: 36 }}>
+                <button
+                  onClick={() => {
+                    try { localStorage.setItem(DAILY_DONE_KEY, JSON.stringify({ date: todayKey() })); } catch {}
+                    setDailyDone(true);
+                  }}
+                  style={{ background: "transparent", border: 0, color: YU.muted, fontSize: 14, fontFamily: sans, cursor: "pointer", padding: "14px 18px" }}
+                >
+                  Not now
+                </button>
+                <button
+                  onClick={approve}
+                  disabled={approving}
+                  style={{
+                    background: card.color,
+                    color: "#fff",
+                    border: 0,
+                    padding: "18px 32px",
+                    borderRadius: 999,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    fontFamily: sans,
+                    cursor: approving ? "wait" : "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 10,
+                    boxShadow: `0 8px 24px ${card.color}30`,
+                    transition: "all .2s ease",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 12px 28px ${card.color}40`; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = `0 8px 24px ${card.color}30`; }}
+                >
+                  {approving ? <RefreshCw size={16} className="animate-spin" /> : <ArrowRight size={16} />}
+                  {card.action_label || "Send to Telegram"}
+                </button>
+              </div>
+            ) : (
+              <p style={{ fontSize: 13, color: YU.muted, textAlign: "center", marginTop: 36 }}>
+                Your baseline is stable. Nothing to act on. Come back tomorrow.
+              </p>
+            )}
+          </div>
+          );
+        })()}
+
+        {closed && !dailyDone && (
+          <ClosedState
+            sp={sp}
+            ritual={ritual}
+            closed={closed}
+            adherenceCount={adherenceCount}
+            onLogAdherence={logAdherence}
+            onDismiss={() => {
+              try { localStorage.setItem(DAILY_DONE_KEY, JSON.stringify({ date: todayKey() })); } catch {}
+              setDailyDone(true);
+            }}
+          />
+        )}
+
+        {dailyDone && (
+          <DoneForToday sp={sp} ritual={ritual} />
+        )}
+
       </div>
 
-      {/* ── Results ───────────────────────────────────── */}
-      <AnimatePresence>
-        {showResult && tickResult && (
-          <motion.div className="max-w-2xl mx-auto px-5 space-y-4"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+      {/* ── Goal edit sheet ── */}
+      {showGoalEdit && (
+        <GoalEditSheet
+          goal={ritual.goal.goal}
+          progress={ritual.goal}
+          onClose={() => setShowGoalEdit(false)}
+          onSave={async (g) => {
+            await api.post("/api/agent/goal", { ...g, reset: true });
+            setShowGoalEdit(false);
+            setRevealed(false);
+            setCard(null);
+            setMood(null);
+            setClosed(null);
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
+}
 
-            {/* SENSE */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0, duration: 0.5 }}
-              className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.12)" }}>
-              <div className="flex items-center gap-2 mb-3">
-                <Eye className="w-4 h-4" style={{ color: "#3b82f6" }} />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#3b82f6" }}>Sense</span>
-                <span className="text-[10px] ml-auto" style={{ color: "rgba(255,255,255,0.2)" }}>
-                  Latest: {tickResult.phases.sense.latest_date}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {(() => {
-                  const today = (tickResult.phases.sense as any).today || {};
-                  const avgs = tickResult.phases.sense.averages;
-                  const baseline = tickResult.phases.think.baseline;
-                  const metrics = [
-                    { key: "hrv", label: "HRV", unit: "ms", todayVal: today.hrv, avgVal: avgs.hrv, blKey: "hrv" },
-                    { key: "sleep_score", label: "Sleep", unit: "", todayVal: today.sleep_score, avgVal: avgs.sleep_score, blKey: "sleepScore" },
-                    { key: "readiness", label: "Readiness", unit: "", todayVal: today.readiness, avgVal: avgs.readiness, blKey: "readiness" },
-                    { key: "rhr", label: "RHR", unit: "bpm", todayVal: today.rhr, avgVal: avgs.rhr, blKey: "rhr" },
-                  ];
-                  return metrics.map((m) => {
-                    const val = m.todayVal ?? m.avgVal;
-                    const bl = baseline[m.blKey] || 0;
-                    const delta = bl ? (val - bl) : 0;
-                    const deltaColor = m.key === "rhr" ? (delta < 0 ? "#22c55e" : "#ef4444") : (delta > 0 ? "#22c55e" : "#ef4444");
-                    return (
-                      <div key={m.key} className="text-center rounded-xl py-3" style={{ background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.08)" }}>
-                        <p className="text-lg font-extrabold tabular-nums" style={{ color: "#e2e8f0" }}>
-                          {Math.round(val)}
-                          <span className="text-[10px] font-normal ml-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>{m.unit}</span>
-                        </p>
-                        <p className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.25)" }}>{m.label}</p>
-                        {m.avgVal != null && m.todayVal != null && Math.round(m.todayVal) !== Math.round(m.avgVal) && (
-                          <p className="text-[8px] tabular-nums mt-0.5" style={{ color: "rgba(255,255,255,0.15)" }}>
-                            7d avg: {Math.round(m.avgVal)}
-                          </p>
-                        )}
-                        {bl > 0 && (
-                          <p className="text-[8px] font-bold tabular-nums" style={{ color: deltaColor }}>
-                            {delta > 0 ? "+" : ""}{delta.toFixed(1)} vs baseline
-                          </p>
-                        )}
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </motion.div>
+/* ── YourStateHero: big circular Shazam-style button ── */
+function BaselineTrendChart({ trend, metricLabel, agent }: { trend: BaselineTrend; metricLabel: string; agent?: any }) {
+  if (!trend.values || trend.values.length < 4) return null;
+  // ACTUAL values, not rolling means
+  const todayVal = Math.round(agent?.today_value ?? trend.values[trend.values.length - 1]);
+  const startVal = Math.round(trend.values[0]);
+  const lwi = agent?.lower_is_worse ?? true;
+  const rawDelta = todayVal - startVal;
+  // Visible delta — invert sign for stress (lower_is_worse=false)
+  const delta = lwi ? rawDelta : -rawDelta;
+  const direction: "up" | "flat" | "down" = Math.abs(delta) < 1 ? "flat" : delta > 0 ? "up" : "down";
+  const dirColor = direction === "up" ? YU.teal : direction === "down" ? "#E5484D" : YU.muted;
+  const arrow = direction === "up" ? "▲" : direction === "down" ? "▼" : "→";
+  const verdict = direction === "up" ? "Your floor is rising" : direction === "down" ? "Your floor is dropping" : "Your floor is steady";
+  const stateGlyph = agent?.state_glyph || "●";
+  const stateLabel = agent?.state_label || "Steady";
+  const stateColor = agent?.color || YU.teal;
+  const unit = metricLabel.toLowerCase().includes("hrv") ? "ms" : metricLabel.toLowerCase().includes("stress") ? "min" : "";
 
-            {/* THINK */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, duration: 0.5 }}
-              className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${severityColor}20` }}>
-              <div className="flex items-center gap-2 mb-3">
-                <Brain className="w-4 h-4" style={{ color: "#8b5cf6" }} />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#8b5cf6" }}>Think</span>
-                {tickResult.phases.think.drift_detected && (
-                  <span className="ml-auto px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                    style={{ background: severityColor + "18", color: severityColor, border: `1px solid ${severityColor}30` }}>
-                    {tickResult.phases.think.severity} drift
-                  </span>
-                )}
-              </div>
-              {tickResult.phases.think.drift_detected ? (
-                <>
-                  <div className="flex items-center gap-3 mb-3">
-                    <AlertTriangle className="w-5 h-5 flex-shrink-0" style={{ color: severityColor }} />
-                    <p className="text-[13px]" style={{ color: "rgba(255,255,255,0.7)" }}>
-                      <strong style={{ color: severityColor }}>{tickResult.phases.think.consecutive_days} consecutive days</strong> of decline across {tickResult.phases.think.drivers.length} signals.
+  const RING_SIZE = 320;
+  const CENTER = RING_SIZE / 2;
+  const RING_R = 148;
+  // Smooth ring: a 270° arc from -225° to +45°
+  const startAngle = -225 * (Math.PI / 180);
+  const endAngle = 45 * (Math.PI / 180);
+  const startPt = [CENTER + RING_R * Math.cos(startAngle), CENTER + RING_R * Math.sin(startAngle)];
+  const endPt = [CENTER + RING_R * Math.cos(endAngle), CENTER + RING_R * Math.sin(endAngle)];
+  // 270° arc — large-arc-flag = 1, sweep = 1
+  const ringPath = `M ${startPt[0].toFixed(1)} ${startPt[1].toFixed(1)} A ${RING_R} ${RING_R} 0 1 1 ${endPt[0].toFixed(1)} ${endPt[1].toFixed(1)}`;
+
+  return (
+    <div className="yu-rise" style={{
+      maxWidth: 560,
+      margin: "0 auto 48px",
+      padding: "12px 0",
+      textAlign: "center",
+    }}>
+      <style>{`
+        @keyframes yuShazamPulse {
+          0%, 100% { transform: scale(1); opacity: .7; }
+          50% { transform: scale(1.06); opacity: .35; }
+        }
+        @keyframes yuShazamGlow {
+          0%, 100% { box-shadow: 0 0 0 0 var(--yc), 0 24px 64px rgba(28,43,58,0.08); }
+          50% { box-shadow: 0 0 0 24px transparent, 0 24px 64px rgba(28,43,58,0.10); }
+        }
+      `}</style>
+
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: "0 0 18px" }}>
+        your {metricLabel.toLowerCase()} state
+      </p>
+
+      {/* The big circular state button */}
+      <div style={{
+        position: "relative",
+        width: RING_SIZE,
+        height: RING_SIZE,
+        margin: "0 auto",
+      }}>
+        {/* Pulse rings */}
+        <div style={{
+          position: "absolute",
+          inset: 24,
+          borderRadius: "50%",
+          border: `1.5px solid ${stateColor}`,
+          opacity: 0.18,
+          animation: "yuShazamPulse 3.4s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute",
+          inset: 38,
+          borderRadius: "50%",
+          border: `1.5px solid ${stateColor}`,
+          opacity: 0.12,
+          animation: "yuShazamPulse 3.4s ease-in-out infinite",
+          animationDelay: "0.6s",
+        }} />
+
+        {/* SVG trend ring around the button */}
+        <svg viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}>
+          <defs>
+            <linearGradient id={`yu-ring-${stateLabel}`} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor={`${stateColor}30`} />
+              <stop offset="100%" stopColor={stateColor} />
+            </linearGradient>
+          </defs>
+          {/* faint full background ring */}
+          <circle cx={CENTER} cy={CENTER} r={RING_R} fill="none" stroke={`${YU.line}`} strokeWidth={1} />
+          {/* clean 270° arc */}
+          <path d={ringPath} fill="none" stroke={`url(#yu-ring-${stateLabel})`} strokeWidth={3} strokeLinecap="round" />
+          {/* starting endpoint */}
+          <circle cx={startPt[0]} cy={startPt[1]} r={6} fill="#fff" stroke={YU.label} strokeWidth={2} />
+          {/* today endpoint */}
+          <circle cx={endPt[0]} cy={endPt[1]} r={9} fill={stateColor} />
+          <circle cx={endPt[0]} cy={endPt[1]} r={4} fill="#fff" />
+        </svg>
+
+        {/* Inner button face */}
+        <div
+          style={{
+            ["--yc" as any]: `${stateColor}40`,
+            position: "absolute",
+            inset: 60,
+            borderRadius: "50%",
+            background: `radial-gradient(circle at 30% 25%, #fff 0%, #fff 40%, ${stateColor}10 100%)`,
+            border: `1.5px solid ${stateColor}40`,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            animation: "yuShazamGlow 3.4s ease-in-out infinite",
+          }}
+        >
+          <span style={{ fontFamily: display, fontSize: 64, color: stateColor, lineHeight: 1, fontWeight: 700, marginBottom: 4 }}>
+            {stateGlyph}
+          </span>
+          <span style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, letterSpacing: "-0.01em", lineHeight: 1 }}>
+            {stateLabel}
+          </span>
+          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, marginTop: 8 }}>
+            today {todayVal}{unit}
+          </span>
+        </div>
+      </div>
+
+      {/* Stats row under the circle */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 28, marginTop: 28, flexWrap: "wrap" }}>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 4px" }}>starting line</p>
+          <p style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, margin: 0, letterSpacing: "-0.01em" }}>{startVal}{unit}</p>
+        </div>
+        <div style={{ width: 1, height: 30, background: YU.line }} />
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 4px" }}>30-day shift</p>
+          <p style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: dirColor, margin: 0, letterSpacing: "-0.01em" }}>
+            {arrow} {delta > 0 ? "+" : ""}{delta}{unit}
+          </p>
+        </div>
+        <div style={{ width: 1, height: 30, background: YU.line }} />
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 4px" }}>floor</p>
+          <p style={{ fontFamily: display, fontSize: 14, fontWeight: 700, color: dirColor, margin: 0, letterSpacing: "-0.01em" }}>
+            {trend.direction === "up" ? "rising" : trend.direction === "down" ? "dropping" : "steady"}
+          </p>
+        </div>
+      </div>
+
+      <p style={{ fontSize: 12, color: YU.muted, marginTop: 14 }}>
+        {verdict} · last {trend.days || 30} days
+      </p>
+    </div>
+  );
+}
+
+/* ── HistoryChart: simple inline 14-day SVG line + baseline ── */
+function HistoryChart({ values, baseline, color, lowerIsWorse }: { values: number[]; baseline?: number; color: string; lowerIsWorse: boolean }) {
+  const W = 560; const H = 100; const PAD = 8;
+  const vmin = Math.min(...values, baseline ?? Infinity);
+  const vmax = Math.max(...values, baseline ?? -Infinity);
+  const range = Math.max(1, vmax - vmin);
+  const x = (i: number) => PAD + (i * (W - PAD * 2)) / Math.max(1, values.length - 1);
+  const y = (v: number) => H - PAD - ((v - vmin) / range) * (H - PAD * 2);
+  const path = values.map((v, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(v)}`).join(" ");
+  const last = values[values.length - 1];
+  const lastIsBetter = baseline != null
+    ? (lowerIsWorse ? last >= baseline : last <= baseline)
+    : true;
+  const lastColor = lastIsBetter ? color : "#E5484D";
+  return (
+    <div style={{ marginTop: 8 }}>
+      <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 6px" }}>
+        last {values.length} days
+      </p>
+      <div style={{ width: "100%", border: `1px solid ${YU.line}`, borderRadius: 14, padding: "10px 14px", background: "#fff" }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 100, display: "block" }}>
+          {baseline != null && (
+            <line x1={PAD} y1={y(baseline)} x2={W - PAD} y2={y(baseline)} stroke={YU.line} strokeWidth={1} strokeDasharray="3 4" />
+          )}
+          {baseline != null && (
+            <text x={W - PAD - 4} y={y(baseline) - 4} fontSize={10} textAnchor="end" fill={YU.label} fontFamily="Inter">
+              your baseline {Math.round(baseline)}
+            </text>
+          )}
+          <path d={path} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          {values.map((v, i) => {
+            const isLast = i === values.length - 1;
+            return (
+              <circle key={i} cx={x(i)} cy={y(v)} r={isLast ? 5 : 2.5} fill={isLast ? lastColor : color} />
+            );
+          })}
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+/* ── Done for today: identity reinforcement (not closure) ── */
+function DoneForToday({ sp, ritual }: { sp: any; ritual: Ritual }) {
+  const now = new Date();
+  const tmw = new Date(now); tmw.setDate(now.getDate() + 1); tmw.setHours(6, 0, 0, 0);
+  const hoursUntil = Math.max(1, Math.round((tmw.getTime() - now.getTime()) / 3600000));
+  return (
+    <div className="yu-rise" style={{ textAlign: "center", padding: "32px 0 24px" }}>
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: sp.color, margin: "0 0 14px" }}>
+        you read yourself today
+      </p>
+      <h2 style={{ fontFamily: display, fontSize: "clamp(28px, 4vw, 36px)", fontWeight: 700, color: YU.ink, margin: "0 auto 18px", letterSpacing: "-0.01em", lineHeight: 1.18, maxWidth: 540 }}>
+        Day {ritual.goal.day_index} of building a body you can predict
+      </h2>
+      <p style={{ fontSize: 14, color: YU.muted, margin: "0 auto 28px", maxWidth: 460, lineHeight: 1.55 }}>
+        Tonight: {ritual.goal.goal.behavior.toLowerCase()}. The next read drops in <strong style={{ color: YU.ink }}>{hoursUntil}h</strong>.
+      </p>
+      <p style={{ fontSize: 11, color: YU.label, margin: "8px 0 0" }}>
+        Tap any agent above to peek. Your council is quiet until morning.
+      </p>
+    </div>
+  );
+}
+
+/* ── Closed state: tonight's commitment + prediction + countdown ── */
+function ClosedState({ sp, ritual, closed, adherenceCount, onLogAdherence, onDismiss }: {
+  sp: any; ritual: Ritual; closed: RevealedCard; adherenceCount: number;
+  onLogAdherence: (v: "yes" | "partial" | "no") => Promise<void>;
+  onDismiss: () => void;
+}) {
+  const [adherenceLogged, setAdherenceLogged] = useState(false);
+  const showAdherence = ritual.goal.day_index > 1 && adherenceCount < ritual.goal.day_index - 1;
+
+  const handleAdherence = async (v: "yes" | "partial" | "no") => {
+    await onLogAdherence(v);
+    setAdherenceLogged(true);
+  };
+
+  // Time until "tomorrow morning" (06:00 local)
+  const now = new Date();
+  const tmw = new Date(now); tmw.setDate(now.getDate() + 1); tmw.setHours(6, 0, 0, 0);
+  const hoursUntil = Math.max(1, Math.round((tmw.getTime() - now.getTime()) / 3600000));
+
+  return (
+    <div className="yu-rise" style={{ marginBottom: 56 }}>
+      {/* Sent confirmation */}
+      <div style={{ textAlign: "center", marginBottom: 36 }}>
+        <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${sp.color}14`, display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+          <Check size={28} style={{ color: sp.color }} />
+        </div>
+        <p style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, margin: "0 0 6px", letterSpacing: "-0.01em" }}>
+          {closed.notification?.sent
+            ? "Sent to your Telegram"
+            : closed.notification?.mode === "demo_cap_reached"
+            ? "You already used today's nudge"
+            : closed.notification?.mode === "stub"
+            ? "Reminder ready"
+            : "Reminder recorded"}
+        </p>
+        <p style={{ fontSize: 13, color: YU.muted, margin: 0 }}>
+          {closed.notification?.sent
+            ? "You won't hear from this agent again today"
+            : closed.notification?.mode === "demo_cap_reached"
+            ? "One reminder per day. Tonight's commitment is still on."
+            : closed.notification?.mode === "stub"
+            ? "Telegram not configured. Tonight's commitment is still on."
+            : "Tonight's commitment is on."}
+        </p>
+      </div>
+
+      {/* Tonight's commitment */}
+      <div style={{ borderTop: `1px solid ${YU.line}`, borderBottom: `1px solid ${YU.line}`, padding: "26px 0", marginBottom: 32 }}>
+        <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: "0 0 8px", textAlign: "center" }}>
+          Tonight's test
+        </p>
+        <p style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, margin: 0, lineHeight: 1.3, letterSpacing: "-0.01em", textAlign: "center" }}>
+          {ritual.goal.goal.behavior}
+        </p>
+      </div>
+
+      {/* Adherence (only if there's a yesterday to log) */}
+      {showAdherence && !adherenceLogged && (
+        <div style={{ marginBottom: 36, textAlign: "center" }}>
+          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: "0 0 14px" }}>
+            And yesterday — did you hold it
+          </p>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+            {(["yes", "partial", "no"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => handleAdherence(v)}
+                style={{
+                  background: "#fff",
+                  color: YU.ink,
+                  border: `1px solid ${YU.line}`,
+                  padding: "12px 22px",
+                  borderRadius: 12,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  fontFamily: sans,
+                  cursor: "pointer",
+                  textTransform: "capitalize",
+                }}
+              >
+                {v === "partial" ? "partly" : v}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Countdown */}
+      <div style={{ borderTop: `1px solid ${YU.line}`, paddingTop: 22, textAlign: "center" }}>
+        <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: "0 0 24px" }}>
+          Next read in {hoursUntil}h
+        </p>
+        <button
+          onClick={onDismiss}
+          style={{ background: YU.ink, color: "#fff", border: 0, padding: "16px 32px", borderRadius: 999, fontSize: 14, fontWeight: 600, fontFamily: sans, cursor: "pointer", boxShadow: "0 8px 24px rgba(28,43,58,.18)" }}
+        >
+          Close for today
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Hypothesis sheet (Active + Library tabs) ── */
+function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progress: Goal; onClose: () => void; onSave: (g: any) => void }) {
+  const [tab, setTab] = useState<"active" | "library">("active");
+  const [replacing, setReplacing] = useState(false);
+  const [behavior, setBehavior] = useState(goal.behavior);
+  const [duration, setDuration] = useState(goal.duration_days);
+  const [metric, setMetric] = useState(goal.target_metric);
+  const [library, setLibrary] = useState<ArchivedHypothesis[]>([]);
+  const METRICS = [
+    { id: "hrv", label: "morning HRV" },
+    { id: "readiness", label: "readiness" },
+    { id: "sleep", label: "sleep score" },
+    { id: "deep_sleep", label: "deep sleep" },
+    { id: "rhr", label: "resting heart rate" },
+  ];
+  useEffect(() => {
+    api.get("/api/agent/hypothesis/library").then((r) => setLibrary(r.library || [])).catch(() => {});
+  }, []);
+  const verdictColor = (label: string) => label === "confirmed" ? YU.teal : label === "weakened" ? YU.red : YU.muted;
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, background: "rgba(28,43,58,0.45)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 24, zIndex: 60, fontFamily: sans, animation: "yuFade .2s ease",
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        background: "#fff", maxWidth: 560, width: "100%", borderRadius: 20, padding: 36, maxHeight: "85vh", overflow: "auto",
+        border: `1px solid ${YU.line}`, boxShadow: "0 30px 80px rgba(28,43,58,0.18)", animation: "yuRise .35s cubic-bezier(.2,.8,.2,1)",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: 0 }}>
+              your hypotheses
+            </p>
+            <h3 style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, margin: "6px 0 0", letterSpacing: "-0.01em" }}>
+              One active. The rest learned.
+            </h3>
+          </div>
+          <button onClick={onClose} style={{ background: "transparent", border: 0, color: YU.muted, cursor: "pointer", padding: 4 }}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", gap: 4, borderBottom: `1px solid ${YU.line}`, marginBottom: 24 }}>
+          {(["active", "library"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              style={{
+                background: "transparent",
+                border: 0,
+                padding: "12px 16px",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "1.5px",
+                textTransform: "uppercase",
+                color: tab === t ? YU.ink : YU.label,
+                borderBottom: tab === t ? `2px solid ${YU.teal}` : "2px solid transparent",
+                marginBottom: -1,
+                cursor: "pointer",
+                fontFamily: sans,
+              }}
+            >
+              {t === "active" ? "Active" : `Past tests${library.length ? ` · ${library.length}` : ""}`}
+            </button>
+          ))}
+        </div>
+
+        {tab === "library" && (
+          <div>
+            {library.length === 0 ? (
+              <p style={{ fontSize: 14, color: YU.muted, textAlign: "center", padding: "32px 0", lineHeight: 1.6 }}>
+                No past tests yet.<br />Your library starts when you finish your first hypothesis.
+              </p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {library.map((h, i) => (
+                  <div key={i} style={{ border: `1px solid ${YU.line}`, borderRadius: 14, padding: 18 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                      <p style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: YU.ink, margin: 0, lineHeight: 1.3, letterSpacing: "-0.01em" }}>
+                        {h.behavior}
+                      </p>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase",
+                        color: verdictColor(h.verdict?.label),
+                        background: `${verdictColor(h.verdict?.label)}14`,
+                        padding: "4px 10px", borderRadius: 999, whiteSpace: "nowrap", marginLeft: 12,
+                      }}>
+                        {h.verdict?.label || "inconclusive"}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 12, color: YU.muted, margin: "0 0 8px" }}>
+                      {h.target_metric_label} · {h.duration_days} days · {h.started_on} → {h.ended_on}
                     </p>
-                  </div>
-                  <div className="space-y-2">
-                    {tickResult.phases.think.drivers.map((d) => {
-                      const MetricIcon = METRIC_ICONS[d.metric] || Activity;
-                      const pct = Math.min(Math.abs(d.z_score) / 2.5 * 100, 100);
-                      return (
-                        <div key={d.metric}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="flex items-center gap-1.5">
-                              <MetricIcon className="w-3 h-3" style={{ color: severityColor }} />
-                              <span className="text-[11px] font-semibold" style={{ color: "rgba(255,255,255,0.6)" }}>{METRIC_LABELS[d.metric] || d.metric}</span>
-                            </span>
-                            <span className="text-[10px] font-bold tabular-nums" style={{ color: severityColor }}>z = {d.z_score.toFixed(2)}</span>
-                          </div>
-                          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
-                            <motion.div className="h-full rounded-full" initial={{ width: 0 }} animate={{ width: `${pct}%` }}
-                              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                              style={{ background: `linear-gradient(90deg, ${severityColor}60, ${severityColor})` }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5" style={{ color: "#22c55e" }} />
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>No drift detected. Baseline is stable.</p>
-                </div>
-              )}
-            </motion.div>
-
-            {/* DECIDE */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, duration: 0.5 }}
-              className="rounded-2xl p-5 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(245,158,11,0.12)" }}>
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(90deg, transparent 0%, rgba(245,158,11,0.03) 50%, transparent 100%)", backgroundSize: "200% 100%", animation: "agent-scan 3s linear infinite" }} />
-              <div className="flex items-center gap-2 mb-3 relative z-10 flex-wrap">
-                <Crosshair className="w-4 h-4" style={{ color: "#f59e0b" }} />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#f59e0b" }}>Decide</span>
-                <div className="ml-auto flex items-center gap-1.5">
-                  {tickResult.phases.decide.rag_used && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider"
-                      style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.15)" }}>
-                      RAG {tickResult.phases.decide.rag_chunks} sources
-                    </span>
-                  )}
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider"
-                    style={{ background: "rgba(245,158,11,0.1)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.15)" }}>
-                    <Sparkles className="w-3 h-3" />
-                    {tickResult.phases.decide.source === "gemini" ? "Gemini 2.5" : "Rules"}
-                  </span>
-                </div>
-              </div>
-              <div className="relative z-10 rounded-xl p-4 mb-3" style={{ background: "rgba(245,158,11,0.04)", border: "1px solid rgba(245,158,11,0.08)" }}>
-                <p className="text-[12px] md:text-[13px] leading-relaxed italic" style={{ color: "rgba(255,255,255,0.65)" }}>
-                  "{tickResult.phases.decide.reasoning}"
-                </p>
-                {tickResult.phases.decide.rag_used && (
-                  <p className="text-[9px] mt-2 pt-2 border-t" style={{ color: "rgba(139,92,246,0.4)", borderColor: "rgba(139,92,246,0.1)" }}>
-                    Reasoning enriched with {tickResult.phases.decide.rag_chunks} clinical research passages (Meeusen et al., Plews et al., Buchheit)
-                  </p>
-                )}
-              </div>
-              <div className="relative z-10 space-y-2">
-                {tickResult.phases.decide.actions.map((a, i) => (
-                  <div key={i} className="flex items-center gap-3 rounded-xl px-4 py-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.15)" }}>
-                      <span className="text-[10px] font-black" style={{ color: "#fbbf24" }}>{i + 1}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.8)" }}>{TOOL_LABELS[a.tool] || a.tool}</p>
-                      <p className="text-[9px] truncate" style={{ color: "rgba(255,255,255,0.3)" }}>{a.why}</p>
-                    </div>
-                    <ArrowRight className="w-3 h-3 flex-shrink-0" style={{ color: "rgba(255,255,255,0.15)" }} />
+                    {h.verdict?.delta != null && h.baseline_at_start != null && h.ended_value != null && (
+                      <p style={{ fontSize: 13, color: YU.body, margin: 0 }}>
+                        {h.baseline_at_start} → {h.ended_value} · {h.verdict.delta > 0 ? "+" : ""}{h.verdict.delta} ({h.verdict.delta_pct}%)
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
-            </motion.div>
-
-            {/* ACT */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24, duration: 0.5 }}
-              className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(34,197,94,0.12)" }}>
-              <div className="flex items-center gap-2 mb-3">
-                <Zap className="w-4 h-4" style={{ color: "#22c55e" }} />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#22c55e" }}>Micro-Interventions</span>
-                <span className="ml-auto text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.3)" }}>{tickResult.phases.act.actions_executed} executed</span>
-              </div>
-              <div className="space-y-2">
-                {tickResult.phases.act.details.map((d, i) => {
-                  const msg = d.result?.message || d.result?.workout?.note || d.result?.description || (d.result?.event ? `Blocked: ${d.result.event.title}` : d.result?.status || "");
-                  return (
-                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.28 + i * 0.08 }}
-                      className="rounded-xl p-3.5" style={{ background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.08)" }}>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "#22c55e" }} />
-                        <span className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.8)" }}>{TOOL_LABELS[d.tool] || d.tool}</span>
-                      </div>
-                      {msg && <p className="text-[11px] leading-relaxed pl-5" style={{ color: "rgba(255,255,255,0.45)" }}>{msg}</p>}
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
-
-            {/* NANDA COLLABORATION */}
-            {(tickResult.phases as any).collaborate && (() => {
-              const collab = (tickResult.phases as any).collaborate;
-              const consensus = collab.consensus || [];
-              const upgraded = collab.upgraded_plan;
-              return (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28, duration: 0.5 }}
-                  className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(6,182,212,0.12)" }}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Globe className="w-4 h-4" style={{ color: "#06b6d4" }} />
-                    <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#06b6d4" }}>NANDA Network</span>
-                    <span className="ml-auto text-[10px] font-bold" style={{ color: collab.peers_collaborated > 0 ? "#22c55e" : "#22d3ee" }}>
-                      {collab.peers_collaborated > 0 ? `${collab.peers_collaborated} collaborated` : `${collab.peers_connected} connected`}
-                    </span>
-                  </div>
-
-                  {/* Agent list */}
-                  <div className="space-y-1.5 mb-4">
-                    {(collab.collaborators || []).map((c: any, i: number) => {
-                      const collaborated = c.status === "collaborated";
-                      const connected = c.status === "connected" || collaborated;
-                      const sc = collaborated ? "#22c55e" : connected ? "#22d3ee" : "#6b7280";
-                      return (
-                        <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-                          style={{ background: collaborated ? "rgba(34,197,94,0.03)" : "rgba(255,255,255,0.01)" }}>
-                          <div className="w-1.5 h-1.5 rounded-full" style={{ background: sc }} />
-                          <span className="text-[10px] font-semibold flex-1" style={{ color: "rgba(255,255,255,0.6)" }}>
-                            {c.agent} <span style={{ color: "rgba(6,182,212,0.3)" }}>{c.username}</span>
-                          </span>
-                          <span className="text-[8px] font-bold uppercase" style={{ color: sc }}>
-                            {collaborated ? "Responded" : c.role === "self" ? "Self" : connected ? "Verified" : "Offline"}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Peer responses */}
-                  {(collab.network_insights || []).length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-[9px] font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(6,182,212,0.4)" }}>
-                        Agent Responses
-                      </p>
-                      <div className="space-y-2">
-                        {collab.network_insights.map((ins: any, i: number) => (
-                          <div key={i} className="rounded-lg px-3 py-2" style={{ background: "rgba(6,182,212,0.03)", border: "1px solid rgba(6,182,212,0.05)" }}>
-                            <p className="text-[9px] font-bold mb-0.5" style={{ color: "#22d3ee" }}>{ins.source}</p>
-                            <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{ins.response}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Consensus bars */}
-                  {consensus.length > 0 && (
-                    <div className="mb-4 rounded-xl p-4" style={{ background: "rgba(6,182,212,0.04)", border: "1px solid rgba(6,182,212,0.08)" }}>
-                      <p className="text-[9px] font-bold uppercase tracking-widest mb-3" style={{ color: "#06b6d4" }}>
-                        Network Consensus
-                      </p>
-                      <div className="space-y-2.5">
-                        {consensus.map((t: any, i: number) => (
-                          <div key={i}>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-[11px] font-semibold" style={{ color: "rgba(255,255,255,0.6)" }}>{t.theme}</span>
-                              <span className="text-[10px] font-bold tabular-nums" style={{ color: t.pct >= 60 ? "#22c55e" : t.pct >= 40 ? "#06b6d4" : "rgba(255,255,255,0.3)" }}>
-                                {t.count}/{t.total} agents ({t.pct}%)
-                              </span>
-                            </div>
-                            <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
-                              <motion.div className="h-full rounded-full"
-                                initial={{ width: 0 }} animate={{ width: `${t.pct}%` }}
-                                transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                                style={{ background: t.pct >= 60 ? "linear-gradient(90deg, #22c55e80, #22c55e)" : "linear-gradient(90deg, #06b6d480, #06b6d4)" }} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Network-enhanced micro-interventions */}
-                  {upgraded && (
-                    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(34,197,94,0.15)" }}>
-                      <div className="px-4 py-3" style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.1), rgba(6,182,212,0.08))" }}>
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" style={{ color: "#22c55e" }} />
-                          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#22c55e" }}>
-                            Network-Enhanced Micro-Interventions
-                          </span>
-                        </div>
-                        <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>
-                          {upgraded.original_count} original + {upgraded.final_count - upgraded.original_count} from expert agents = {upgraded.final_count} total
-                        </p>
-                      </div>
-                      <div className="px-4 py-3" style={{ background: "rgba(34,197,94,0.03)" }}>
-                        <p className="text-[11px] italic mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>
-                          "{upgraded.reasoning}"
-                        </p>
-                        <div className="space-y-2">
-                          {(upgraded.new_actions || []).map((a: any, i: number) => (
-                            <div key={i} className="flex items-start gap-2.5 rounded-lg px-3 py-2.5"
-                              style={{ background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.08)" }}>
-                              <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5"
-                                style={{ background: "rgba(34,197,94,0.15)" }}>
-                                <span className="text-[9px] font-black" style={{ color: "#22c55e" }}>+</span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[12px] font-bold" style={{ color: "rgba(255,255,255,0.8)" }}>{a.action}</p>
-                                <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
-                                  {a.confidence} -- {a.source_theme} -- from {(a.credited_to || []).join(", ")}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <p className="text-[9px] mt-3 text-center" style={{ color: "rgba(6,182,212,0.15)" }}>
-                    join39.org/chat/yu7
-                  </p>
-                </motion.div>
-              );
-            })()}
-
-            {/* MEASURE — Closed Loop */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32, duration: 0.5 }}
-              className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(236,72,153,0.12)" }}>
-
-              {/* Header */}
-              <div className="px-5 py-3" style={{ background: "rgba(236,72,153,0.06)" }}>
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" style={{ color: "#ec4899" }} />
-                  <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#ec4899" }}>Closed Loop</span>
-                  <span className="text-[9px] ml-1" style={{ color: "rgba(236,72,153,0.4)" }}>Did the micro-interventions work?</span>
-                </div>
-              </div>
-
-              <div className="px-5 py-4 space-y-4" style={{ background: "rgba(255,255,255,0.015)" }}>
-
-                {/* How it works explanation */}
-                <div className="flex items-start gap-3 rounded-xl p-3" style={{ background: "rgba(236,72,153,0.03)", border: "1px solid rgba(236,72,153,0.06)" }}>
-                  <RefreshCw className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "rgba(236,72,153,0.4)" }} />
-                  <div>
-                    <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
-                      YU Cortex snapshots your biometrics <strong style={{ color: "rgba(255,255,255,0.6)" }}>before</strong> each micro-intervention.
-                      After 24h, it pulls fresh Oura data and compares: did HRV improve? Sleep score? Readiness?
-                      Each intervention gets a verdict: <strong style={{ color: "#22c55e" }}>worked</strong>, <strong style={{ color: "#6b7280" }}>neutral</strong>, or <strong style={{ color: "#ef4444" }}>ineffective</strong>.
-                      This feedback trains future decisions.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Completed evaluations */}
-                {tickResult.phases.measure.evaluations_completed > 0 && (
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest mb-2" style={{ color: "#ec4899" }}>
-                      Results -- {tickResult.phases.measure.evaluations_completed} evaluated
-                    </p>
-                    <div className="space-y-2">
-                      {tickResult.phases.measure.evaluations.map((ev: any, i: number) => {
-                        const isGood = ev.score > 0;
-                        const isBad = ev.score < 0;
-                        const color = isGood ? "#22c55e" : isBad ? "#ef4444" : "#6b7280";
-                        const label = isGood ? "Worked" : isBad ? "Ineffective" : "Neutral";
-                        const toolName = TOOL_LABELS[ev.intervention_id?.split("_").slice(1).join("_")] || ev.intervention_id;
-                        return (
-                          <div key={i} className="rounded-xl overflow-hidden" style={{ border: `1px solid ${color}18` }}>
-                            <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: `${color}08` }}>
-                              {isGood ? <TrendingUp className="w-4 h-4" style={{ color }} /> : isBad ? <TrendingDown className="w-4 h-4" style={{ color }} /> : <Activity className="w-4 h-4" style={{ color }} />}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[11px] font-bold" style={{ color: "rgba(255,255,255,0.7)" }}>{toolName}</p>
-                              </div>
-                              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded" style={{ background: `${color}15`, color }}>{label}</span>
-                              <span className="text-lg font-extrabold tabular-nums" style={{ color }}>
-                                {ev.score > 0 ? "+" : ""}{ev.score}
-                              </span>
-                            </div>
-                            {ev.signals?.length > 0 && (
-                              <div className="px-4 py-2 border-t" style={{ borderColor: `${color}10` }}>
-                                {ev.signals.map((s: string, j: number) => (
-                                  <p key={j} className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>{s}</p>
-                                ))}
-                              </div>
-                            )}
-                            {ev.pre_metrics && ev.post_metrics && (
-                              <div className="px-4 py-2 border-t grid grid-cols-4 gap-2" style={{ borderColor: `${color}10` }}>
-                                {[
-                                  { label: "HRV", pre: ev.pre_metrics.hrv, post: ev.post_metrics.hrv, unit: "ms", good: "up" },
-                                  { label: "Sleep", pre: ev.pre_metrics.sleep_score, post: ev.post_metrics.sleep_score, unit: "", good: "up" },
-                                  { label: "Ready", pre: ev.pre_metrics.readiness, post: ev.post_metrics.readiness, unit: "", good: "up" },
-                                  { label: "RHR", pre: ev.pre_metrics.rhr, post: ev.post_metrics.rhr, unit: "bpm", good: "down" },
-                                ].map((m, k) => {
-                                  if (!m.pre && !m.post) return null;
-                                  const delta = (m.post || 0) - (m.pre || 0);
-                                  const improved = m.good === "up" ? delta > 0 : delta < 0;
-                                  return (
-                                    <div key={k} className="text-center">
-                                      <p className="text-[8px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.2)" }}>{m.label}</p>
-                                      <p className="text-[10px] tabular-nums" style={{ color: "rgba(255,255,255,0.3)" }}>
-                                        {Math.round(m.pre || 0)} → <span style={{ color: improved ? "#22c55e" : delta === 0 ? "rgba(255,255,255,0.4)" : "#ef4444" }}>{Math.round(m.post || 0)}</span>
-                                      </p>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Pending evaluations */}
-                {tickResult.phases.measure.pending_evaluations > 0 && (
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(236,72,153,0.4)" }}>
-                      Awaiting Oura data -- {tickResult.phases.measure.pending_evaluations} pending
-                    </p>
-                    <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: "rgba(236,72,153,0.03)", border: "1px solid rgba(236,72,153,0.06)" }}>
-                      <div className="relative w-8 h-8 flex-shrink-0">
-                        <div className="absolute inset-0 rounded-full border-2" style={{ borderColor: "rgba(236,72,153,0.1)" }} />
-                        <div className="absolute inset-0 rounded-full border-2 border-t-pink-500" style={{ animation: "loop-spin 3s linear infinite" }} />
-                        <Clock className="absolute inset-0 m-auto w-3.5 h-3.5" style={{ color: "rgba(236,72,153,0.4)" }} />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-semibold" style={{ color: "rgba(255,255,255,0.4)" }}>
-                          Biometric snapshot saved. Waiting for 24h of new Oura data.
-                        </p>
-                        <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.2)" }}>
-                          When fresh data arrives, YU Cortex compares pre vs post and scores each micro-intervention.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Cumulative effectiveness */}
-                {effData.length > 0 && (
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(236,72,153,0.4)" }}>
-                      Cumulative -- Which micro-interventions work for you?
-                    </p>
-                    <div style={{ height: 140 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={effData} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 9, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} />
-                          <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "rgba(255,255,255,0.2)" }} axisLine={false} tickLine={false} />
-                          <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 11 }}
-                            formatter={(value: any, name: any, props: any) => [`${value}% (${props.payload.positive}/${props.payload.total})`, "Effective"]} />
-                          <Bar dataKey="rate" radius={[6, 6, 0, 0]}>
-                            {effData.map((entry, i) => (
-                              <Cell key={i} fill={entry.rate >= 60 ? "#22c55e" : entry.rate >= 30 ? "#f59e0b" : "#ef4444"} fillOpacity={0.7} />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Tick meta */}
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-              className="text-center text-[10px] font-semibold tabular-nums pt-1 pb-1" style={{ color: "rgba(255,255,255,0.12)" }}>
-              Tick #{tickResult.tick_number} -- {tickResult.duration_ms}ms -- {(tickResult as any).orchestration || "sequential"} orchestration
-            </motion.p>
-
-            {/* Contextual next steps */}
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.4 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3 pb-2">
-              {tickResult.phases.think.drift_detected && (
-                <Link to="/drift" className="no-underline">
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold border-0 cursor-pointer"
-                    style={{ background: `${severityColor}12`, color: severityColor, border: `1px solid ${severityColor}20` }}>
-                    <AlertTriangle className="w-3.5 h-3.5" /> View Drift Details
-                  </button>
-                </Link>
-              )}
-              {tickResult.phases.think.drift_detected && (
-                <Link to="/recovery" className="no-underline">
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold border-0 cursor-pointer"
-                    style={{ background: "rgba(34,197,94,0.08)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.15)" }}>
-                    <Zap className="w-3.5 h-3.5" /> Recovery Plan
-                  </button>
-                </Link>
-              )}
-              <Link to="/ask" className="no-underline">
-                <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold border-0 cursor-pointer"
-                  style={{ background: "rgba(139,92,246,0.08)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.15)" }}>
-                  <Brain className="w-3.5 h-3.5" /> Ask YU
-                </button>
-              </Link>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Tick History ──────────────────────────────── */}
-      {tickHistory.length > 0 && (
-        <div className="max-w-2xl mx-auto px-5 mt-6">
-          <button onClick={() => setShowHistory(!showHistory)}
-            className="flex items-center gap-2 w-full px-4 py-3 rounded-xl text-left border-0 cursor-pointer"
-            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}>
-            <History className="w-4 h-4" />
-            <span className="text-[11px] font-bold uppercase tracking-widest flex-1">Agent History</span>
-            <span className="text-[10px] tabular-nums font-semibold">{tickHistory.length} ticks</span>
-            <ChevronRight className="w-3.5 h-3.5 transition-transform" style={{ transform: showHistory ? "rotate(90deg)" : "rotate(0)" }} />
-          </button>
-
-          <AnimatePresence>
-            {showHistory && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }} className="overflow-hidden">
-                <div className="space-y-1.5 pt-2">
-                  {tickHistory.slice(0, 10).map((tick: any, i: number) => {
-                    const severity = tick.phases?.think?.severity || "none";
-                    const sc = SEVERITY_COLORS[severity] || "#6b7280";
-                    const actions = tick.phases?.act?.actions_executed || 0;
-                    const evals = tick.phases?.measure?.evaluations_completed || 0;
-                    const source = tick.phases?.decide?.source || "?";
-                    return (
-                      <motion.div key={tick.tick_number || i}
-                        initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.04 }}
-                        className="flex items-center gap-3 rounded-xl px-4 py-2.5"
-                        style={{ background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.03)" }}>
-                        <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: `${sc}15`, border: `1px solid ${sc}25` }}>
-                          <span className="text-[9px] font-black" style={{ color: sc }}>#{tick.tick_number}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold uppercase" style={{ color: sc }}>{severity}</span>
-                            <span className="text-[8px]" style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
-                            <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.3)" }}>{actions} actions</span>
-                            {evals > 0 && <span className="text-[9px]" style={{ color: "#ec4899" }}>{evals} evals</span>}
-                          </div>
-                        </div>
-                        <span className="text-[8px] px-1.5 py-0.5 rounded font-bold uppercase"
-                          style={{ background: source === "gemini" ? "rgba(245,158,11,0.1)" : "rgba(255,255,255,0.03)", color: source === "gemini" ? "#fbbf24" : "rgba(255,255,255,0.2)" }}>
-                          {source === "gemini" ? "LLM" : "Rules"}
-                        </span>
-                        <span className="text-[9px] tabular-nums" style={{ color: "rgba(255,255,255,0.15)" }}>
-                          {tick.duration_ms}ms
-                        </span>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </motion.div>
             )}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* ── Empty state with workflow explanation ───────── */}
-      {!showResult && !running && tickHistory.length === 0 && (
-        <div className="max-w-2xl mx-auto px-5 py-6 space-y-4">
-          <div className="rounded-2xl p-6 text-center" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.04)" }}>
-            <Radio className="w-7 h-7 mx-auto mb-3" style={{ color: "rgba(255,255,255,0.1)" }} />
-            <p className="text-sm font-bold mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>YU Cortex standing by</p>
-            <p className="text-[11px] mb-0" style={{ color: "rgba(255,255,255,0.15)" }}>
-              Hit "Run Agent Loop" to execute one autonomous cycle
-            </p>
           </div>
+        )}
 
-          {/* Workflow explanation */}
-          <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.03)" }}>
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-4 text-center" style={{ color: "rgba(255,255,255,0.15)" }}>How the autonomous loop works</p>
-            <div className="space-y-3">
-              {[
-                { icon: "1", color: "#3b82f6", title: "Sense", desc: "Pulls passive biometric data from your Oura Ring: HRV, sleep score, readiness, resting heart rate, deep sleep, and stress minutes." },
-                { icon: "2", color: "#8b5cf6", title: "Think", desc: "Runs drift detection using a 28-day personal baseline and weighted z-scores across 6 signals. RAG retrieves relevant clinical research (Meeusen, Plews, Buchheit) from an embedded knowledge base to inform the analysis." },
-                { icon: "3", color: "#f59e0b", title: "Decide", desc: "Gemini LLM reasons about which micro-interventions to deploy based on drift severity, your intervention history, and retrieved clinical literature. Selects from: CBT coaching, sleep protocols, calendar blocks, and workout adjustments." },
-                { icon: "4", color: "#22c55e", title: "Micro-Interventions", desc: "Executes CBT-grounded micro-interventions automatically. These are small, specific, actionable steps designed to shift your baseline back toward recovery within 24-48 hours." },
-                { icon: "5", color: "#06b6d4", title: "Network Enrichment", desc: "Queries expert agents on the NANDA network (Join39.org). Each peer agent contributes a unique recovery insight. YU Cortex calculates consensus and autonomously adds network-sourced micro-interventions to the plan." },
-                { icon: "6", color: "#ec4899", title: "Measure (Closed Loop)", desc: "After 24 hours, compares your post-intervention biometrics against pre-intervention baseline. Scores whether each micro-intervention actually worked. Feeds results back into future decisions." },
-              ].map((step, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                    style={{ background: `${step.color}15`, border: `1px solid ${step.color}25` }}>
-                    <span className="text-[10px] font-black" style={{ color: step.color }}>{step.icon}</span>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold" style={{ color: step.color }}>{step.title}</p>
-                    <p className="text-[10px] leading-relaxed" style={{ color: "rgba(255,255,255,0.2)" }}>{step.desc}</p>
-                  </div>
-                </div>
-              ))}
+        {tab === "active" && !replacing && (
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: "0 0 10px" }}>
+              Day {progress.day_index} of {progress.duration}
+            </p>
+            <h4 style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, margin: "0 0 6px", lineHeight: 1.25, letterSpacing: "-0.01em" }}>
+              {goal.behavior}
+            </h4>
+            <p style={{ fontSize: 13, color: YU.muted, margin: "0 0 22px" }}>
+              improves my {goal.target_metric_label}
+            </p>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0, border: `1px solid ${YU.line}`, borderRadius: 14, overflow: "hidden", marginBottom: 22 }}>
+              <div style={{ padding: 16, borderRight: `1px solid ${YU.line}` }}>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 6px" }}>starting line</p>
+                <p style={{ fontFamily: display, fontSize: 20, fontWeight: 700, color: YU.ink, margin: 0, letterSpacing: "-0.01em" }}>{progress.baseline_at_start ?? "—"}</p>
+              </div>
+              <div style={{ padding: 16, borderRight: `1px solid ${YU.line}` }}>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 6px" }}>today</p>
+                <p style={{ fontFamily: display, fontSize: 20, fontWeight: 700, color: YU.ink, margin: 0, letterSpacing: "-0.01em" }}>{progress.today_value ?? "—"}</p>
+              </div>
+              <div style={{ padding: 16 }}>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 6px" }}>delta</p>
+                {(() => {
+                  const d = progress.running_delta;
+                  if (d == null) return <p style={{ fontFamily: display, fontSize: 20, fontWeight: 700, color: YU.label, margin: 0 }}>—</p>;
+                  const dir = progress.direction || 1;
+                  const isGood = d * dir > 0;
+                  const color = d === 0 ? YU.muted : isGood ? YU.teal : YU.red;
+                  return (
+                    <p style={{ fontFamily: display, fontSize: 20, fontWeight: 700, color, margin: 0, letterSpacing: "-0.01em" }}>
+                      {d > 0 ? "+" : ""}{d}
+                    </p>
+                  );
+                })()}
+              </div>
             </div>
-            <p className="text-[9px] text-center mt-4" style={{ color: "rgba(255,255,255,0.08)" }}>
-              Runs autonomously every 24 hours. All data from Oura Ring API. Clinical research via RAG. Agent network via NANDA/Join39.
-            </p>
-          </div>
-        </div>
-      )}
 
-      {error && (
-        <div className="max-w-2xl mx-auto px-5 mt-4">
-          <div className="rounded-xl p-4 text-center" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
-            <p className="text-[12px] font-semibold" style={{ color: "#f87171" }}>{error}</p>
+            <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 8px" }}>Adherence</p>
+            <div style={{ display: "flex", gap: 4, marginBottom: 22 }}>
+              {progress.days.map((d, i) => {
+                const isToday = i + 1 === progress.day_index;
+                const fill = d.status === "yes" ? YU.teal : d.status === "partial" ? YU.amber : d.status === "no" ? YU.red : isToday ? YU.line : "#F3F4F6";
+                return <div key={d.date} style={{ flex: 1, height: 8, borderRadius: 4, background: fill }} />;
+              })}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: `1px solid ${YU.line}` }}>
+              <p style={{ fontSize: 11, color: YU.muted, margin: 0 }}>
+                Started {goal.started_on}
+              </p>
+              <button
+                onClick={() => setReplacing(true)}
+                style={{ background: "transparent", border: 0, color: YU.muted, fontSize: 12, fontWeight: 600, fontFamily: sans, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}
+              >
+                Replace with a new hypothesis
+              </button>
+            </div>
           </div>
+        )}
+
+        {tab === "active" && replacing && (
+        <>
+        <p style={{ fontSize: 11, color: YU.muted, lineHeight: 1.6, marginTop: 0, marginBottom: 18 }}>
+          Starting a new hypothesis archives your current one with its verdict so far.
+        </p>
+
+        <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label }}>Behavior</label>
+        <input
+          value={behavior}
+          onChange={(e) => setBehavior(e.target.value)}
+          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none" }}
+        />
+
+        <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label }}>For how many days</label>
+        <input
+          type="number"
+          min={1}
+          max={30}
+          value={duration}
+          onChange={(e) => setDuration(parseInt(e.target.value) || 7)}
+          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none" }}
+        />
+
+        <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label }}>Improves my</label>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8, marginBottom: 28 }}>
+          {METRICS.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => setMetric(m.id)}
+              style={{
+                background: metric === m.id ? YU.teal : "#fff",
+                color: metric === m.id ? "#fff" : YU.ink,
+                border: `1px solid ${metric === m.id ? YU.teal : YU.line}`,
+                borderRadius: 12, padding: "12px 14px", fontSize: 13, fontWeight: 600, fontFamily: sans, cursor: "pointer", textAlign: "left",
+              }}
+            >
+              {m.label}
+            </button>
+          ))}
         </div>
-      )}
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          <button onClick={onClose} style={{ background: "transparent", border: 0, color: YU.muted, fontSize: 14, fontFamily: sans, cursor: "pointer", padding: "12px 16px" }}>
+            Cancel
+          </button>
+          <button
+            onClick={() => onSave({ behavior, duration_days: duration, target_metric: metric, target_metric_label: METRICS.find((x) => x.id === metric)?.label })}
+            style={{ background: YU.ink, color: "#fff", border: 0, padding: "14px 22px", borderRadius: 12, fontSize: 14, fontWeight: 600, fontFamily: sans, cursor: "pointer" }}
+          >
+            Start the test
+          </button>
+        </div>
+        </>
+        )}
+      </div>
     </div>
   );
 }

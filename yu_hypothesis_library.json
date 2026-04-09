@@ -1,0 +1,22 @@
+[
+  {
+    "persona": "consultant",
+    "behavior": "Reduce screens before sleep",
+    "duration_days": 7,
+    "target_metric": "sleep",
+    "target_metric_label": "sleep score",
+    "started_on": "2026-04-08",
+    "baseline_at_start": 77.0,
+    "adherence": {
+      "2026-04-08": "no"
+    },
+    "ended_on": "2026-04-08",
+    "ended_value": 77.0,
+    "archive_reason": "replaced",
+    "verdict": {
+      "label": "inconclusive",
+      "delta": 0.0,
+      "delta_pct": 0.0
+    }
+  }
+]

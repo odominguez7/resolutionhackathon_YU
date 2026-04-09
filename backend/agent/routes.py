@@ -299,6 +299,222 @@ def longitudinal_insights():
     return build_longitudinal_insights(daily)
 
 
+@router.get("/specialists")
+def list_specialists():
+    """All 4 specialist agents with current state (no Gemini call)."""
+    from .specialists import evaluate_all, _mystery_line_for
+    agents = [{**a, "mystery": _mystery_line_for(a)} for a in evaluate_all()]
+    return {"agents": agents, "user": "Omar"}
+
+
+@router.get("/specialists/{name}")
+def get_specialist(name: str):
+    """Single specialist agent state (no Gemini call yet)."""
+    from .specialists import evaluate_agent, _mystery_line_for
+    ev = evaluate_agent(name)
+    if "error" in ev:
+        return ev
+    return {**ev, "mystery": _mystery_line_for(ev), "user": "Omar"}
+
+
+def _persona_and_goal_ctx():
+    from .goals import goal_progress
+    p = goal_progress()
+    persona_ctx = {"label": p["persona"]["label"], "frame": p["persona"]["frame"], "voice_rule": p["persona"]["voice_rule"]}
+    goal = p["goal"]
+    adherence_count = sum(1 for d in p["days"] if d["status"] == "yes")
+    goal_ctx = {
+        "behavior": goal["behavior"],
+        "duration_days": goal["duration_days"],
+        "target_metric_label": goal.get("target_metric_label", goal.get("target_metric", "")),
+        "day_index": p["day_index"],
+        "adherence_count": adherence_count,
+    }
+    return persona_ctx, goal_ctx
+
+
+@router.post("/specialists/{name}/reveal")
+async def reveal_specialist(name: str, payload: dict):
+    """After mood check, generate full Gemini-composed micro-copy card."""
+    from .specialists import compose_reveal
+    mood = int((payload or {}).get("mood_score", 5))
+    persona_ctx, goal_ctx = _persona_and_goal_ctx()
+    return await compose_reveal(name, mood, persona_ctx=persona_ctx, goal_ctx=goal_ctx)
+
+
+@router.post("/specialists/{name}/approve")
+async def approve_specialist(name: str, payload: dict):
+    """Fire the single Telegram notification for this agent's proposed action."""
+    from .specialists import compose_reveal
+    from .notify import send_telegram
+    mood = int((payload or {}).get("mood_score", 5))
+    persona_ctx, goal_ctx = _persona_and_goal_ctx()
+    composed = await compose_reveal(name, mood, persona_ctx=persona_ctx, goal_ctx=goal_ctx)
+    if not composed.get("actionable"):
+        return {"sent": False, "reason": "agent state is not actionable", **composed}
+    msg = (
+        f"*YU · {composed['title']} agent*\n\n"
+        f"{composed['data_line']}\n\n"
+        f"{composed['narrative']}\n\n"
+        f"_{composed['implication']}_"
+    )
+    result = await send_telegram(msg)
+    return {**composed, "notification": result}
+
+
+@router.get("/goal")
+def get_goal():
+    from .goals import goal_progress
+    return goal_progress()
+
+
+@router.post("/goal")
+def set_goal(payload: dict):
+    from .goals import update_goal, goal_progress
+    update_goal(payload or {})
+    return goal_progress()
+
+
+@router.post("/goal/adherence")
+def log_adherence_route(payload: dict):
+    from .goals import log_adherence, goal_progress
+    from datetime import datetime
+    day = (payload or {}).get("day") or datetime.now(BOSTON_TZ).strftime("%Y-%m-%d")
+    value = (payload or {}).get("value", "yes")
+    log_adherence(day, value)
+    return goal_progress()
+
+
+@router.post("/predictions")
+def post_prediction(payload: dict):
+    """Record a zone prediction the user just made."""
+    from .predictions import record_prediction
+    target_metric = (payload or {}).get("target_metric") or "hrv"
+    predicted_zone = (payload or {}).get("predicted_zone", "same")
+    baseline = float((payload or {}).get("baseline", 0))
+    agent_id = (payload or {}).get("agent_id", "")
+    rationale = (payload or {}).get("rationale", "")
+    mood = (payload or {}).get("mood_score")
+    return record_prediction(target_metric, predicted_zone, baseline, agent_id, rationale=rationale, mood_score=mood)
+
+
+@router.get("/predictions/accuracy")
+def get_accuracy():
+    """Forecast Accuracy: rolling 7d/30d/lifetime + last verification."""
+    from .predictions import accuracy_summary
+    return accuracy_summary()
+
+
+@router.post("/predictions/seed")
+def seed_predictions(payload: dict):
+    """DEV/DEMO: backdate a few zone predictions so the loop has data."""
+    from .predictions import _load, _save, _today_value, value_to_zone, ZONE_LABELS
+    from datetime import datetime, timedelta
+    import random
+    metric = (payload or {}).get("metric") or "sleep"
+    count = int((payload or {}).get("count", 5))
+    today = datetime.now(BOSTON_TZ)
+    actual_today = _today_value(metric) or 75
+    rows = _load()
+    for i in range(count):
+        made = (today - timedelta(days=i + 1)).strftime("%Y-%m-%d")
+        verified = (today - timedelta(days=i)).strftime("%Y-%m-%d")
+        actual = round(actual_today + random.uniform(-6, 6), 1)
+        baseline = round(actual_today + random.uniform(-2, 2), 1)
+        actual_zone = value_to_zone(actual, baseline, metric)
+        # 60% hits, 30% adjacent, 10% way off
+        roll = random.random()
+        if roll < 0.6:
+            predicted_zone = actual_zone
+        elif roll < 0.9:
+            idx = ZONE_LABELS.index(actual_zone)
+            predicted_zone = ZONE_LABELS[max(0, min(4, idx + random.choice([-1, 1])))]
+        else:
+            predicted_zone = random.choice(ZONE_LABELS)
+        try:
+            zd = abs(ZONE_LABELS.index(predicted_zone) - ZONE_LABELS.index(actual_zone))
+        except ValueError:
+            zd = 0
+        rows.append({
+            "made_on": made,
+            "agent_id": metric,
+            "target_metric": metric,
+            "predicted_zone": predicted_zone,
+            "baseline_at_prediction": baseline,
+            "verified_on": verified,
+            "actual": actual,
+            "actual_zone": actual_zone,
+            "is_hit": predicted_zone == actual_zone,
+            "zone_distance": zd,
+        })
+    _save(rows)
+    return {"seeded": count, "metric": metric}
+
+
+@router.delete("/predictions")
+def clear_predictions():
+    """DEV/DEMO: wipe the prediction store."""
+    from .predictions import _save
+    _save([])
+    return {"cleared": True}
+
+
+@router.get("/predictions/today")
+def todays_pred():
+    """Returns today's verification if any prior prediction matured into today."""
+    from .predictions import todays_verification, verify_pending
+    verify_pending()
+    return {"verification": todays_verification()}
+
+
+@router.get("/hypothesis/library")
+def hypothesis_library():
+    from .goals import load_library
+    return {"library": load_library()}
+
+
+@router.get("/council")
+def council_today():
+    from .council import pick_spokesperson
+    return pick_spokesperson()
+
+
+@router.get("/ritual")
+def ritual_today():
+    """Single endpoint that returns everything the redesigned /agent screen needs."""
+    from .council import pick_spokesperson
+    from .goals import goal_progress
+    from .specialists import _mystery_line_for
+    from .predictions import baseline_trend
+    from .goals import load_goal
+    council = pick_spokesperson()
+    spk = council["spokesperson"]
+    spk_with_mystery = {**spk, "mystery": _mystery_line_for(spk)}
+    g = load_goal()
+    return {
+        "user": "Omar",
+        "goal": goal_progress(),
+        "spokesperson": spk_with_mystery,
+        "listening": council["listening"],
+        "baseline_trend": baseline_trend(g.get("target_metric", "sleep"), 30),
+    }
+
+
+@router.get("/gameplan")
+async def gameplan():
+    """Today's personalized game plan: 3 cards (cognitive, physical, sleep)."""
+    from .gameplan import generate_gameplan
+    return await generate_gameplan()
+
+
+@router.post("/share")
+def share_summary(payload: dict):
+    """Generate a shareable summary for MD / coach / therapist / self."""
+    from .gameplan import generate_share_summary
+    audience = (payload or {}).get("audience", "self")
+    return generate_share_summary(audience)
+
+
 @router.get("/driver-pairing")
 def driver_pairing():
     """Which interventions work for which drift drivers."""
