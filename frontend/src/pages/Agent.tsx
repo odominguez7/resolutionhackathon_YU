@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { Heart, Target, Moon, Zap, ArrowRight, Check, RefreshCw, X, Share2 } from "lucide-react";
 
@@ -179,10 +179,24 @@ export default function Agent() {
 
   const todayKey = () => new Date().toISOString().slice(0, 10);
   const STORAGE_KEY = "yu_daily_state_v2";
+  const SESSION_KEY = "yu_session_id";
+  const cardCacheRef = useRef<Record<string, any>>({});
+
+  const getSessionId = () => {
+    let sid = sessionStorage.getItem(SESSION_KEY);
+    if (!sid) {
+      sid = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      sessionStorage.setItem(SESSION_KEY, sid);
+      // Fire-and-forget PLG session start (Q40 time-to-first-State-Card)
+      api.post("/api/agent/plg/session", { session_id: sid }).catch(() => {});
+    }
+    return sid;
+  };
 
   const load = async () => {
     try {
-      const r = await api.get("/api/agent/ritual");
+      const sid = getSessionId();
+      const r = await api.get(`/api/agent/ritual?session_id=${encodeURIComponent(sid)}`);
       setRitual(r);
       setActiveAgentId(r.spokesperson.id);
       // Restore today's mood + revealed card if it's the same day
@@ -210,11 +224,18 @@ export default function Agent() {
     setMood(score);
     setLoading(true);
     try {
-      const res = await api.post(`/api/agent/specialists/${activeAgentId}/reveal`, { mood_score: score });
-      setCard(res);
+      // Parallel reveal of all 4 specialists in one call (Q37 orchestrator).
+      // Cuts wall-clock from 4×Gemini latency down to ~1×.
+      const res = await api.post("/api/agent/specialists/reveal_all", { mood_score: score });
+      const cards: any[] = res?.cards || [];
+      const byId: Record<string, any> = {};
+      cards.forEach((c) => { if (c?.id) byId[c.id] = c; });
+      cardCacheRef.current = byId;
+      const active = byId[activeAgentId] || cards[0];
+      setCard(active);
       setRevealed(true);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: todayKey(), agent_id: activeAgentId, mood: score, card: res }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: todayKey(), agent_id: activeAgentId, mood: score, card: active }));
       } catch {}
     } finally {
       setLoading(false);
@@ -246,6 +267,13 @@ export default function Agent() {
     // Mood is the user's state, not the agent's — keep it across swaps within a day
     // and auto-reveal the new agent's card immediately if mood is already known.
     if (mood != null) {
+      // Prefer the cache from reveal_all; only refetch if missing.
+      const cached = cardCacheRef.current[id];
+      if (cached) {
+        setCard(cached);
+        setRevealed(true);
+        return;
+      }
       setLoading(true);
       try {
         const res = await api.post(`/api/agent/specialists/${id}/reveal`, { mood_score: mood });
