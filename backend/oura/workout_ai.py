@@ -66,6 +66,12 @@ INTENSITY RULES:
 - Readiness 50-65 → EASY DAY. Lower intensity, more rest, focus on movement quality.
 - Readiness < 50 → RECOVERY DAY. Zone 2 only, mobility, no heavy loading.
 
+CRITICAL RENDER RULE — read carefully:
+- NEVER put a full workout into a "description" string. The UI will not render description text. It will only render: the block header (built from block_type + sets/rounds + name), the bulleted movement list (one per line), the rest line, and the time_cap line.
+- Each movement MUST be an object: {"reps": "...", "movement_name": "...", "load": "..."}. Reps stays a string so distances ("400m") and time ("60 sec") work. Load is null when bodyweight. Optional "notes" field for tempo/cue.
+- If a movement appears in BOTH the strength and metcon block, that's fine — they're separate sections.
+- When format is "Strength + Metcon", you MUST emit BOTH a "strength" field AND a "metcon" field. Do not collapse them into a single workout block.
+
 RESPONSE FORMAT (return valid JSON only, no markdown):
 {
   "session_type": "crossfit",
@@ -78,28 +84,38 @@ RESPONSE FORMAT (return valid JSON only, no markdown):
     "movements": ["movement 1 - reps/duration", "movement 2", ...]
   },
   "workout": {
-    "description": "The main workout written exactly as a coach would write it on a whiteboard. Example: '5 Rounds For Time: 400m Run, 15 DB Devil Press (2x50lb), 12 Toes-to-Bar, 9 DB Hang Power Clean (2x50lb). Time cap: 25 min.'",
-    "movements": ["Full movement name with EXACT reps and weights. Example: '15 DB Devil Press (2x50lb)', '400m Treadmill Run', '12 Toes-to-Bar'. ALWAYS include reps, weight, distance. Never just the movement name alone."],
-    "rounds": "number of rounds if applicable",
-    "time_cap": "time cap if applicable",
+    "_render_rule": "NEVER put the full workout into a 'description' string. Each movement is its own object. The UI will render block_type + sets/rounds as the header and bullet each movement.",
+    "block_type": "Main",
+    "rounds": null,
+    "time_cap": null,
+    "movements": [
+      {"reps": "15", "movement_name": "DB Devil Press", "load": "2x50lb"},
+      {"reps": "400m", "movement_name": "Treadmill Run", "load": null},
+      {"reps": "12", "movement_name": "Strict Pull-up", "load": "BW"}
+    ],
     "notes": "Pacing strategy, scaling options, what to focus on"
   },
   "strength": {
-    "_comment": "ONLY include if format is 'Strength + Metcon'. Otherwise omit this field entirely.",
-    "sets": "number of sets, e.g. 5",
-    "description": "Headline like '5x5 DB Front Squat — build to a heavy 5'",
-    "movements": ["Bullet line per movement: '5x5 DB Front Squat (2x50lb)'", "..."],
-    "rest": "Rest between sets, e.g. '90-120 sec'",
-    "notes": "Coach's note: pacing, scaling, focus cue"
+    "_comment": "ONLY include if format is 'Strength + Metcon'. Otherwise omit this field entirely. NEVER put movements into a description string.",
+    "block_type": "Strength",
+    "sets": 5,
+    "for_time": false,
+    "movements": [
+      {"reps": "5", "movement_name": "DB Front Squat", "load": "2x50lb", "notes": "build to a heavy 5"}
+    ],
+    "rest": "90-120 sec between sets"
   },
   "metcon": {
-    "_comment": "ONLY include if format is 'Strength + Metcon'. Otherwise omit. This is the conditioning piece AFTER the strength piece, not a duplicate of 'workout'.",
-    "name": "Optional named workout, e.g. 'Diane' or 'YU Burner'",
-    "description": "Coach-style headline: '3 Rounds For Time: ...'",
-    "movements": ["bullet per movement with reps + load"],
-    "rounds": "number of rounds if applicable",
-    "time_cap": "time cap, e.g. '12 min'",
-    "notes": "Coach's note about pacing/strategy"
+    "_comment": "ONLY include if format is 'Strength + Metcon'. NEVER put the workout into a description string. The conditioning piece AFTER the strength piece.",
+    "block_type": "Metcon",
+    "name": "Optional named workout, e.g. 'The Dark Place' or null",
+    "rounds": 3,
+    "time_cap": 20,
+    "movements": [
+      {"reps": "21", "movement_name": "DB Thruster", "load": "2x50lb"},
+      {"reps": "15", "movement_name": "Chest-to-Bar Pull-up", "load": "BW"},
+      {"reps": "9", "movement_name": "Burpee Over DB", "load": null}
+    ]
   },
   "cooldown": {
     "duration_min": 5-8,

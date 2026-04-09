@@ -620,6 +620,46 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         <li className="text-sm text-slate-200 leading-relaxed pl-1">{children}</li>
                       );
 
+                      // Movement renderer — STRICT structured fields.
+                      // Object: {reps, movement_name, load, notes?}
+                      // Legacy string fallback only when the field isn't an object.
+                      const renderMovement = (m: any, key: number) => {
+                        if (m && typeof m === "object") {
+                          const reps = m.reps || m.rep_scheme || "";
+                          const name = m.movement_name || m.name || m.movement || "";
+                          const load = m.load || m.weight || "";
+                          const notes = m.notes || "";
+                          return (
+                            <Bullet key={key}>
+                              {reps && <span className="text-white font-bold">{reps} </span>}
+                              {name}
+                              {load && <span className="text-slate-400"> ({load})</span>}
+                              {notes && <span className="text-slate-500 italic"> — {notes}</span>}
+                            </Bullet>
+                          );
+                        }
+                        // Legacy string entry
+                        return <Bullet key={key}>{String(m)}</Bullet>;
+                      };
+
+                      // Header builders following the brief
+                      const strengthHeader = (b: any) => {
+                        const sets = b?.sets ? `${b.sets} SETS` : "";
+                        const ft = b?.for_time ? "FOR TIME" : "NOT FOR TIME";
+                        return `STRENGTH${sets ? ` — ${sets}` : ""}, ${ft}`;
+                      };
+                      const metconHeader = (b: any) => {
+                        const name = b?.name ? ` — "${String(b.name).toUpperCase()}"` : "";
+                        const rounds = b?.rounds ? ` — ${b.rounds} ROUNDS` : "";
+                        const ft = b?.time_cap ? ` FOR TIME` : "";
+                        return `METCON${name}${rounds}${ft}`;
+                      };
+                      const mainHeader = () => {
+                        const fmt = (mainFormat || "MAIN").toUpperCase();
+                        const rounds = main?.rounds ? ` — ${main.rounds} ROUNDS` : "";
+                        return `${fmt}${rounds}`;
+                      };
+
                       return (
                     <div className="space-y-4">
                       {/* TITLE BAR */}
@@ -660,50 +700,38 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         </SectionBlock>
                       )}
 
-                      {/* STRENGTH (only if explicitly separate) */}
-                      {strengthBlock && (
-                        <SectionBlock label="Strength" color="#3B82F6" durationOrMeta={strengthBlock.sets ? `${strengthBlock.sets} sets, not for time` : "not for time"}>
-                          {strengthBlock.description && <p className="text-sm text-white font-semibold mb-2 leading-relaxed">{strengthBlock.description}</p>}
+                      {/* STRENGTH — strict structured fields, NO description text */}
+                      {strengthBlock && (strengthBlock.movements?.length || 0) > 0 && (
+                        <SectionBlock label={strengthHeader(strengthBlock)} color="#3B82F6">
                           <ul className="list-disc list-inside space-y-1 marker:text-blue-400/40">
-                            {(strengthBlock.movements || []).map((m: string, i: number) => <Bullet key={i}>{m}</Bullet>)}
+                            {strengthBlock.movements.map((m: any, i: number) => renderMovement(m, i))}
                           </ul>
                           {strengthBlock.rest && (
                             <p className="text-[11px] text-slate-400 mt-2"><span className="font-bold text-slate-300">Rest:</span> {strengthBlock.rest}</p>
                           )}
-                          {strengthBlock.notes && (
-                            <p className="text-[11px] text-slate-500 mt-2 italic"><span className="not-italic font-bold text-slate-400">Coach's Note:</span> {strengthBlock.notes}</p>
-                          )}
                         </SectionBlock>
                       )}
 
-                      {/* METCON (when combo) */}
-                      {metconBlock && (
-                        <SectionBlock label={`Metcon${metconBlock.name ? ` — "${metconBlock.name}"` : ""}`} color="#EF4444" durationOrMeta={metconBlock.time_cap ? `${metconBlock.time_cap} cap` : metconBlock.rounds ? `${metconBlock.rounds} rounds` : (mainFormat || "for time")}>
-                          {metconBlock.description && <p className="text-sm text-white font-semibold mb-2 leading-relaxed">{metconBlock.description}</p>}
+                      {/* METCON — strict structured fields, NO description text */}
+                      {metconBlock && (metconBlock.movements?.length || 0) > 0 && (
+                        <SectionBlock label={metconHeader(metconBlock)} color="#EF4444">
                           <ul className="list-disc list-inside space-y-1 marker:text-red-400/40">
-                            {(metconBlock.movements || []).map((m: string, i: number) => <Bullet key={i}>{m}</Bullet>)}
+                            {metconBlock.movements.map((m: any, i: number) => renderMovement(m, i))}
                           </ul>
                           {metconBlock.time_cap && (
-                            <p className="text-[11px] text-slate-400 mt-2"><span className="font-bold text-slate-300">Time Cap:</span> {metconBlock.time_cap}</p>
-                          )}
-                          {metconBlock.notes && (
-                            <p className="text-[11px] text-slate-500 mt-2 italic"><span className="not-italic font-bold text-slate-400">Coach's Note:</span> {metconBlock.notes}</p>
+                            <p className="text-[11px] text-slate-400 mt-2"><span className="font-bold text-slate-300">Time Cap:</span> {metconBlock.time_cap}{typeof metconBlock.time_cap === "number" ? " min" : ""}</p>
                           )}
                         </SectionBlock>
                       )}
 
-                      {/* MAIN (when not a combo) */}
-                      {!strengthBlock && !metconBlock && main && (main.movements || main.description) && (
-                        <SectionBlock
-                          label={mainFormat || "Main"}
-                          color="#EF4444"
-                          durationOrMeta={[main.rounds ? `${main.rounds} rounds` : "", main.time_cap ? `${main.time_cap} cap` : ""].filter(Boolean).join(" · ")}>
-                          {main.description && <p className="text-sm text-white font-semibold mb-2 leading-relaxed">{main.description}</p>}
+                      {/* MAIN — only when there's no strength/metcon split */}
+                      {!strengthBlock && !metconBlock && main && (main.movements?.length || 0) > 0 && (
+                        <SectionBlock label={mainHeader()} color="#EF4444">
                           <ul className="list-disc list-inside space-y-1 marker:text-red-400/40">
-                            {(main.movements || []).map((m: string, i: number) => <Bullet key={i}>{m}</Bullet>)}
+                            {main.movements.map((m: any, i: number) => renderMovement(m, i))}
                           </ul>
                           {main.time_cap && (
-                            <p className="text-[11px] text-slate-400 mt-2"><span className="font-bold text-slate-300">Time Cap:</span> {main.time_cap}</p>
+                            <p className="text-[11px] text-slate-400 mt-2"><span className="font-bold text-slate-300">Time Cap:</span> {main.time_cap}{typeof main.time_cap === "number" ? " min" : ""}</p>
                           )}
                           {main.notes && (
                             <p className="text-[11px] text-slate-500 mt-2 italic"><span className="not-italic font-bold text-slate-400">Coach's Note:</span> {main.notes}</p>
