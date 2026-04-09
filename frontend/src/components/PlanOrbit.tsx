@@ -27,6 +27,11 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const [workoutType, setWorkoutType] = useState<string | null>(null);
   const [aiWorkout, setAiWorkout] = useState<any>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [workoutLogId, setWorkoutLogId] = useState<string | null>(null);
+  const [workoutFeedback, setWorkoutFeedback] = useState<string | null>(null); // yes / partial / no
+  const [workoutBacklog, setWorkoutBacklog] = useState<any[]>([]);
+  const [showBacklog, setShowBacklog] = useState(false);
+  const [regenLoading, setRegenLoading] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "yu"; text: string }[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatSending, setChatSending] = useState(false);
@@ -78,8 +83,74 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const loadWorkout = (type: string) => {
     setWorkoutType(type);
     setAiLoading(true);
-    fetch(`${API}/api/oura/workout?session_type=${type}`).then(r => r.json()).then(setAiWorkout).catch(() => setAiWorkout({ error: true })).finally(() => setAiLoading(false));
+    setWorkoutFeedback(null);
+    fetch(`${API}/api/oura/workout?session_type=${type}`)
+      .then(r => r.json())
+      .then((w) => {
+        setAiWorkout(w);
+        setWorkoutLogId(w?.log_id || null);
+        loadBacklog();
+      })
+      .catch(() => setAiWorkout({ error: true }))
+      .finally(() => setAiLoading(false));
   };
+
+  const loadBacklog = () => {
+    fetch(`${API}/api/oura/workout/log?days=7`)
+      .then(r => r.json())
+      .then(d => setWorkoutBacklog((d?.entries || []).slice().reverse()))
+      .catch(() => {});
+  };
+
+  const regenerateWorkout = async () => {
+    if (!workoutLogId || regenLoading) return;
+    setRegenLoading(true);
+    try {
+      const resp = await fetch(`${API}/api/oura/workout/regenerate`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ log_id: workoutLogId, session_type: workoutType || "crossfit", reason: "user_requested_alternative" }),
+      });
+      const data = await resp.json();
+      if (data && !data.error) {
+        setAiWorkout(data);
+        setWorkoutLogId(data?.log_id || null);
+        setWorkoutFeedback(null);
+        loadBacklog();
+      } else {
+        setAiWorkout({ error: true });
+      }
+    } catch { setAiWorkout({ error: true }); }
+    finally { setRegenLoading(false); }
+  };
+
+  const sendWorkoutFeedback = async (completed: "yes" | "partial" | "no") => {
+    if (!workoutLogId) return;
+    setWorkoutFeedback(completed);
+    try {
+      await fetch(`${API}/api/oura/workout/feedback`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ log_id: workoutLogId, completed }),
+      });
+      loadBacklog();
+    } catch {}
+  };
+
+  // On mount: restore today's workout if it exists, and load the backlog
+  useEffect(() => {
+    fetch(`${API}/api/oura/workout/today`)
+      .then(r => r.json())
+      .then((d) => {
+        const e = d?.workout;
+        if (e?.full_workout) {
+          setWorkoutType(e.session_type || "crossfit");
+          setAiWorkout(e.full_workout);
+          setWorkoutLogId(e.id);
+          if (e.user_feedback?.completed) setWorkoutFeedback(e.user_feedback.completed);
+        }
+      })
+      .catch(() => {});
+    loadBacklog();
+  }, []);
 
   const scanSources = [
     { label: "Oura Ring", detail: `Sleep ${sleepScore} · HRV ${hrv}ms · Readiness ${readiness}`, icon: Brain, color: "#A78BFA" },
@@ -526,8 +597,33 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         <p className="text-[9px] font-bold uppercase text-amber-400/60 mb-1">The hard part</p>
                         <p className="text-sm text-slate-300">{aiWorkout.mental_challenge}</p>
                       </div>}
+                      {/* Did you do it? — only ask if not yet answered */}
+                      {workoutLogId && !workoutFeedback && (
+                        <div className="rounded-xl p-3 flex items-center gap-3 flex-wrap" style={{ background: "rgba(99,102,241,.06)", border: "1px solid rgba(99,102,241,.15)" }}>
+                          <p className="text-xs font-bold text-indigo-300">Did you do this workout?</p>
+                          <div className="flex gap-2">
+                            <button onClick={() => sendWorkoutFeedback("yes")} className="text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer border-0" style={{ background: "rgba(74,222,128,.15)", color: "#4ADE80" }}>Yes, all of it</button>
+                            <button onClick={() => sendWorkoutFeedback("partial")} className="text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer border-0" style={{ background: "rgba(245,158,11,.15)", color: "#FBBF24" }}>Partial</button>
+                            <button onClick={() => sendWorkoutFeedback("no")} className="text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer border-0" style={{ background: "rgba(239,68,68,.15)", color: "#F87171" }}>Skipped</button>
+                          </div>
+                        </div>
+                      )}
+                      {workoutFeedback && (
+                        <div className="text-[10px] text-emerald-400/80">
+                          ✓ Logged: {workoutFeedback === "yes" ? "completed" : workoutFeedback === "partial" ? "partial" : "skipped"}
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-2 mt-3 flex-wrap">
-                        <button onClick={() => { setWorkoutType(null); setAiWorkout(null); setShareStatus("idle"); }} className="text-[10px] text-blue-400 cursor-pointer border-0 bg-transparent">Change type</button>
+                        <button onClick={() => { setWorkoutType(null); setAiWorkout(null); setWorkoutLogId(null); setWorkoutFeedback(null); setShareStatus("idle"); }} className="text-[10px] text-blue-400 cursor-pointer border-0 bg-transparent">Change type</button>
+                        <div className="w-px h-3" style={{ background: "rgba(255,255,255,0.06)" }} />
+                        <button
+                          onClick={regenerateWorkout}
+                          disabled={!workoutLogId || regenLoading}
+                          className="text-[10px] font-bold px-2.5 py-1 rounded-md cursor-pointer border-0"
+                          style={{ background: "rgba(99,102,241,.12)", color: "#A5B4FC" }}>
+                          {regenLoading ? "Reprogramming..." : "Try another combo"}
+                        </button>
                         <div className="w-px h-3" style={{ background: "rgba(255,255,255,0.06)" }} />
                         <motion.button
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer border-0 text-[10px] font-bold"
@@ -594,6 +690,47 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                   </>;
                   })()}
                   </motion.div>
+
+                {/* WORKOUT BACKLOG — last 7 days, with did-it / skipped marks */}
+                {workoutBacklog.length > 0 && (
+                  <motion.div className="rounded-2xl p-4 mt-3" style={{ background: "rgba(99,102,241,0.03)", border: "1px solid rgba(99,102,241,0.08)" }}
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+                    <button onClick={() => setShowBacklog(v => !v)} className="w-full flex items-center justify-between cursor-pointer border-0 bg-transparent p-0">
+                      <div className="flex items-center gap-2">
+                        <Dumbbell className="w-4 h-4 text-indigo-400" />
+                        <p className="text-xs font-bold text-indigo-300">Workout history</p>
+                        <span className="text-[10px] text-slate-500">({workoutBacklog.length})</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500">{showBacklog ? "hide" : "show"}</span>
+                    </button>
+                    {showBacklog && (
+                      <div className="mt-3 space-y-2">
+                        {workoutBacklog.slice(0, 7).map((e: any) => {
+                          const fb = e.user_feedback?.completed;
+                          const badge = fb === "yes" ? { txt: "Done", c: "#4ADE80", bg: "rgba(74,222,128,.15)" }
+                                      : fb === "partial" ? { txt: "Partial", c: "#FBBF24", bg: "rgba(245,158,11,.15)" }
+                                      : fb === "no" ? { txt: "Skipped", c: "#F87171", bg: "rgba(239,68,68,.15)" }
+                                      : { txt: "Pending", c: "#94A3B8", bg: "rgba(148,163,184,.15)" };
+                          const verdictColor = e.load_verdict === "too_much" ? "#F87171" : e.load_verdict === "undertrained" ? "#FBBF24" : e.load_verdict === "ok" ? "#4ADE80" : "#475569";
+                          return (
+                            <div key={e.id} className="flex items-center gap-2 rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)" }}>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs font-bold text-white truncate">{e.title || "Workout"}</p>
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase" style={{ background: badge.bg, color: badge.c }}>{badge.txt}</span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 mt-0.5">
+                                  {e.day} · {e.intensity || "?"} · {(e.patterns || []).join(", ") || "—"}
+                                </p>
+                              </div>
+                              {e.load_verdict && <span className="text-[9px] font-bold uppercase" style={{ color: verdictColor }} title={`next-morning verdict: ${e.load_verdict}`}>{e.load_verdict}</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
 
                 {/* CALENDAR — Swipeable Week View */}
                 {(() => {

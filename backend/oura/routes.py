@@ -6,7 +6,11 @@ Webhooks push real-time updates from Oura cloud.
 
 import json
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from fastapi import APIRouter, Request
+
+BOSTON_TZ = ZoneInfo("America/New_York")
 
 router = APIRouter()
 
@@ -999,7 +1003,7 @@ async def regenerate_workout(payload: dict):
 @router.post("/workout/feedback")
 def workout_feedback(payload: dict):
     """User feedback on a generated workout: completed, felt, soreness."""
-    from .workout_brain import _load_log, _save_log
+    from .workout_brain import _load_log, _save_log, _upsert_entry
     log = _load_log()
     target_id = (payload or {}).get("log_id")
     for entry in log:
@@ -1009,10 +1013,26 @@ def workout_feedback(payload: dict):
                 "felt": (payload or {}).get("felt"),
                 "soreness": (payload or {}).get("soreness"),
                 "notes": (payload or {}).get("notes", ""),
+                "recorded_at": datetime.now(BOSTON_TZ).isoformat(),
             }
             _save_log(log)
+            _upsert_entry(entry)
             return {"saved": True, "entry": entry}
     return {"saved": False, "reason": "log_id not found"}
+
+
+@router.get("/workout/today")
+def workout_today():
+    """Return the most recent non-rejected workout for today, if any.
+    Used by the UI to restore the card after a page refresh."""
+    from .workout_brain import recent_log
+    entries = recent_log(2)
+    today = datetime.now(BOSTON_TZ).strftime("%Y-%m-%d")
+    todays = [e for e in entries if e.get("day") == today and not e.get("rejected")]
+    if not todays:
+        return {"workout": None}
+    latest = sorted(todays, key=lambda e: e.get("generated_at", ""))[-1]
+    return {"workout": latest}
 
 
 @router.get("/objectives")

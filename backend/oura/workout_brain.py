@@ -115,7 +115,9 @@ def _upsert_entry(entry: dict) -> None:
 
 
 def log_workout(workout: dict, biometrics: dict, session_type: str) -> dict:
-    """Persist a generated workout. Returns the saved entry."""
+    """Persist a generated workout. Returns the saved entry.
+    `full_workout` carries the raw JSON so the UI can restore the card
+    without re-calling Gemini after a refresh."""
     entry = {
         "id": f"w_{int(datetime.now(BOSTON_TZ).timestamp())}",
         "generated_at": datetime.now(BOSTON_TZ).isoformat(),
@@ -127,6 +129,7 @@ def log_workout(workout: dict, biometrics: dict, session_type: str) -> dict:
         "duration_min": workout.get("duration_min"),
         "movements": _flatten_movements(workout),
         "patterns": tag_patterns(_flatten_movements(workout)),
+        "full_workout": workout,
         "biometrics_pre": {
             "readiness": biometrics.get("readiness"),
             "hrv": biometrics.get("hrv"),
