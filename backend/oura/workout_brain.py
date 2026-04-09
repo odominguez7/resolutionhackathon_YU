@@ -56,9 +56,34 @@ def load_catalog() -> str:
     return _catalog_cache
 
 
-# ── 2. Workout log ─────────────────────────────────────────────────────────
+# ── 2. Workout log (Firestore primary, JSON fallback) ─────────────────────
+
+FIRESTORE_COLLECTION = "workout_log"
+_db = None
+
+
+def _get_db():
+    global _db
+    if _db is None:
+        try:
+            from google.cloud import firestore
+            _db = firestore.Client(project="resolution-hack")
+        except Exception as e:
+            print(f"[workout_brain] Firestore unavailable: {e}")
+    return _db
+
 
 def _load_log() -> list[dict]:
+    """Load from Firestore first; fall back to local JSON if Firestore is down."""
+    db = _get_db()
+    if db:
+        try:
+            docs = db.collection(FIRESTORE_COLLECTION).order_by("generated_at").stream()
+            entries = [doc.to_dict() for doc in docs]
+            if entries:
+                return entries[-200:]
+        except Exception as e:
+            print(f"[workout_brain] Firestore load failed: {e}")
     if not os.path.exists(LOG_PATH):
         return []
     try:
@@ -69,8 +94,24 @@ def _load_log() -> list[dict]:
 
 
 def _save_log(entries: list[dict]) -> None:
-    with open(LOG_PATH, "w") as f:
-        json.dump({"entries": entries[-200:]}, f, indent=2, default=str)
+    """Save full list to local JSON; the Firestore writes happen per-entry
+    in _upsert_entry() so we keep the source of truth row-level."""
+    try:
+        with open(LOG_PATH, "w") as f:
+            json.dump({"entries": entries[-200:]}, f, indent=2, default=str)
+    except Exception:
+        pass
+
+
+def _upsert_entry(entry: dict) -> None:
+    """Write/update one entry to Firestore by id."""
+    db = _get_db()
+    if not db:
+        return
+    try:
+        db.collection(FIRESTORE_COLLECTION).document(entry["id"]).set(entry)
+    except Exception as e:
+        print(f"[workout_brain] Firestore upsert failed: {e}")
 
 
 def log_workout(workout: dict, biometrics: dict, session_type: str) -> dict:
@@ -100,13 +141,14 @@ def log_workout(workout: dict, biometrics: dict, session_type: str) -> dict:
     log = _load_log()
     log.append(entry)
     _save_log(log)
+    _upsert_entry(entry)
     return entry
 
 
 def recent_log(days: int = 7) -> list[dict]:
     cutoff = datetime.now(BOSTON_TZ) - timedelta(days=days)
     return [
-        e for e in _load_log()
+        e for e in active_log()
         if datetime.fromisoformat(e["generated_at"]) >= cutoff
     ]
 
@@ -198,6 +240,8 @@ def closed_loop_review(current_biometrics: dict) -> list[dict]:
     updated = []
     changed = False
     for entry in log:
+        if entry.get("rejected"):
+            continue
         if entry.get("biometrics_next_morning") is not None:
             continue
         gen_day = datetime.fromisoformat(entry["generated_at"]).date()
@@ -221,7 +265,35 @@ def closed_loop_review(current_biometrics: dict) -> list[dict]:
         changed = True
     if changed:
         _save_log(log)
+        for e in updated:
+            _upsert_entry(e)
     return updated
+
+
+# ── 6. Reject + regenerate (user wants a different combo) ─────────────────
+
+def reject_entry(log_id: str, reason: str = "user_rejected") -> dict | None:
+    """Mark an entry as rejected so it doesn't pollute future memory or
+    closed-loop reviews. Returns the rejected entry's patterns so the
+    regenerator can lock today to the same pattern shape."""
+    log = _load_log()
+    target = None
+    for e in log:
+        if e["id"] == log_id:
+            e["rejected"] = True
+            e["rejected_reason"] = reason
+            e["rejected_at"] = datetime.now(BOSTON_TZ).isoformat()
+            target = e
+            break
+    if target:
+        _save_log(log)
+        _upsert_entry(target)
+    return target
+
+
+def active_log() -> list[dict]:
+    """Log filtered to non-rejected entries (used by memory + closed-loop)."""
+    return [e for e in _load_log() if not e.get("rejected")]
 
 
 # ── 5. Build the memory block injected into the Gemini prompt ──────────────

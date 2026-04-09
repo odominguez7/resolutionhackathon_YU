@@ -933,6 +933,69 @@ def workout_log(days: int = 7):
     return {"entries": recent_log(days)}
 
 
+@router.post("/workout/regenerate")
+async def regenerate_workout(payload: dict):
+    """User didn't like the previous workout — mark it rejected and produce
+    a different combo locked to the same patterns."""
+    from .workout_brain import reject_entry, _load_log
+    from .workout_ai import generate_workout
+
+    log_id = (payload or {}).get("log_id")
+    session_type = (payload or {}).get("session_type", "crossfit")
+    if not log_id:
+        return {"error": "log_id required"}
+
+    rejected = reject_entry(log_id, reason=(payload or {}).get("reason", "user_rejected"))
+    if not rejected:
+        return {"error": "log_id not found"}
+
+    # Rebuild biometrics the same way the /workout route does, so the new
+    # generation reasons over the same body state.
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    import statistics
+
+    boston_tz = ZoneInfo("America/New_York")
+    today_str = datetime.now(boston_tz).strftime("%Y-%m-%d")
+    days = sorted(_sleep_by_day.keys())
+    last_30_hrvs = [_sleep_by_day[d].get("average_hrv") for d in days[-30:] if _sleep_by_day[d].get("average_hrv")]
+    last_30_rhrs = [_sleep_by_day[d].get("average_heart_rate") for d in days[-30:] if _sleep_by_day[d].get("average_heart_rate")]
+    latest_day = today_str if today_str in _score_by_day else (max(_score_by_day.keys()) if _score_by_day else today_str)
+    sleep_session = _sleep_by_day.get(latest_day, {})
+    readiness = _readiness_by_day.get(latest_day, {})
+    stress = _stress_by_day.get(latest_day, {})
+    last_3 = []
+    for d in days[-3:]:
+        s = _sleep_by_day[d]
+        last_3.append({
+            "day": d,
+            "sleep_score": _score_by_day.get(d, 0),
+            "hrv": s.get("average_hrv"),
+            "rhr": round(s.get("average_heart_rate", 0), 1) if s.get("average_heart_rate") else None,
+            "readiness": _readiness_by_day.get(d, {}).get("score"),
+        })
+    biometrics = {
+        "sleep_score": _score_by_day.get(latest_day),
+        "readiness": readiness.get("score", 0),
+        "hrv": sleep_session.get("average_hrv"),
+        "hrv_baseline": round(statistics.mean(last_30_hrvs), 1) if last_30_hrvs else None,
+        "rhr": round(sleep_session.get("average_heart_rate", 0), 1) if sleep_session.get("average_heart_rate") else None,
+        "rhr_baseline": round(statistics.mean(last_30_rhrs), 1) if last_30_rhrs else None,
+        "stress_min": round((stress.get("stress_high", 0) or 0) / 60),
+        "deep_min": round(sleep_session.get("deep_sleep_duration", 0) / 60),
+        "total_sleep_hrs": round(sleep_session.get("total_sleep_duration", 0) / 3600, 1),
+        "last_3_days": last_3,
+        "recovery_context": "regeneration after user rejected previous combo",
+    }
+
+    return await generate_workout(
+        session_type,
+        biometrics,
+        lock_patterns=rejected.get("patterns") or [],
+        avoid_movements=rejected.get("movements") or [],
+    )
+
+
 @router.post("/workout/feedback")
 def workout_feedback(payload: dict):
     """User feedback on a generated workout: completed, felt, soreness."""

@@ -155,9 +155,20 @@ MICRO-INTERVENTION OPTIONS (pick 3-5 based on what their data needs most):
 Choose based on what their specific data shows they need. If HRV is crashed, prioritize vagal tone. If sleep is short, prioritize sleep protocol. If stress is high, prioritize nervous system reset."""
 
 
-async def generate_workout(session_type: str, biometrics: dict) -> dict:
+async def generate_workout(
+    session_type: str,
+    biometrics: dict,
+    lock_patterns: list[str] | None = None,
+    avoid_movements: list[str] | None = None,
+) -> dict:
     """Generate a workout using Gemini 2.5 Flash based on real Oura data.
-    Uses raw httpx to match the rest of the project (no google-genai dep)."""
+    Uses raw httpx to match the rest of the project (no google-genai dep).
+
+    lock_patterns: if set, today's workout MUST hit exactly these patterns
+                   (used by /regenerate so the user gets a fresh combo with
+                   the same training intent).
+    avoid_movements: list of movement strings to avoid (typically the
+                     rejected workout's movements)."""
     import httpx
 
     if not GEMINI_API_KEY:
@@ -186,6 +197,27 @@ Recovery context: {biometrics.get('recovery_context', '')}
     from .workout_brain import build_memory_block, log_workout
     memory_block = build_memory_block(biometrics)
 
+    regen_block = ""
+    if lock_patterns or avoid_movements:
+        parts = ["", "=" * 60, "REGENERATION REQUEST", "=" * 60]
+        if lock_patterns:
+            parts.append(
+                "The user rejected the previous workout. You MUST hit "
+                "exactly these movement patterns again (same training "
+                f"intent): {', '.join(lock_patterns)}."
+            )
+        if avoid_movements:
+            parts.append(
+                "Do NOT reuse these specific movements from the rejected "
+                f"version: {'; '.join(avoid_movements[:12])}."
+            )
+        parts.append(
+            "Pick different movements from the catalog. Vary the format "
+            "(e.g. AMRAP -> For Time, or change the rep scheme) so it "
+            "feels like a genuinely new session."
+        )
+        regen_block = "\n".join(parts)
+
     if session_type == "yoga":
         prompt = YOGA_PROMPT + "\n\n" + bio_context
     elif session_type == "rest":
@@ -195,6 +227,7 @@ Recovery context: {biometrics.get('recovery_context', '')}
             WORKOUT_PROMPT
             + "\n\n" + bio_context
             + "\n\n" + memory_block
+            + regen_block
             + "\n\nGenerate today's workout. Return JSON only."
         )
 
