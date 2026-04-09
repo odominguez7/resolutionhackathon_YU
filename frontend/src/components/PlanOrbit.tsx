@@ -446,31 +446,52 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                     ))}
                   </div>
 
-                  {/* TODAY'S MOVEMENT — Summary */}
-                  {workoutStatus.worked_out && (
-                    <motion.div className="rounded-2xl p-4" style={{ background: "rgba(74,222,128,0.04)", border: "1px solid rgba(74,222,128,0.1)" }}
-                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-5 h-5 text-emerald-400" />
-                        <h3 className="text-base font-black text-white">Today's workout</h3>
-                        <span className="text-[8px] px-2 py-0.5 rounded-full font-bold uppercase ml-auto" style={{ background: "rgba(74,222,128,.1)", color: "#4ADE80" }}>Done</span>
-                      </div>
-                      <p className="text-sm text-slate-400 mt-1">
-                        {(workoutStatus.activity || "").replace(/([A-Z])/g, " $1").trim()}
-                        {workoutStatus.duration_min > 0 && ` · ${workoutStatus.duration_min}min`}
-                        {workoutStatus.calories > 0 && ` · ${Math.round(workoutStatus.calories)} cal`}
-                      </p>
-                    </motion.div>
-                  )}
+                  {/* TODAY'S MOVEMENT — only show as 'workout' if it crosses the
+                       intensity threshold. Light walks (<10 min, <80 cal,
+                       activity=walking) count as movement, not the session. */}
+                  {(() => {
+                    if (!workoutStatus.worked_out) return null;
+                    const act = (workoutStatus.activity || "").toLowerCase();
+                    const dur = workoutStatus.duration_min || 0;
+                    const cal = workoutStatus.calories || 0;
+                    const isLightWalk = act.includes("walk") && (dur < 10 || cal < 80);
+                    if (isLightWalk) {
+                      return (
+                        <motion.div className="rounded-2xl p-3" style={{ background: "rgba(148,163,184,0.04)", border: "1px solid rgba(148,163,184,0.1)" }}
+                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                          <p className="text-[11px] text-slate-500">
+                            <span className="text-slate-400">Movement so far today:</span> {(workoutStatus.activity || "").replace(/([A-Z])/g, " $1").trim()}
+                            {dur > 0 && ` · ${dur}min`}{cal > 0 && ` · ${Math.round(cal)} cal`}
+                            <span className="text-slate-600"> — not your main session</span>
+                          </p>
+                        </motion.div>
+                      );
+                    }
+                    return (
+                      <motion.div className="rounded-2xl p-4" style={{ background: "rgba(74,222,128,0.04)", border: "1px solid rgba(74,222,128,0.1)" }}
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                        <div className="flex items-center gap-2">
+                          <Check className="w-5 h-5 text-emerald-400" />
+                          <h3 className="text-base font-black text-white">Today's workout</h3>
+                          <span className="text-[8px] px-2 py-0.5 rounded-full font-bold uppercase ml-auto" style={{ background: "rgba(74,222,128,.1)", color: "#4ADE80" }}>Done</span>
+                        </div>
+                        <p className="text-sm text-slate-400 mt-1">
+                          {(workoutStatus.activity || "").replace(/([A-Z])/g, " $1").trim()}
+                          {dur > 0 && ` · ${dur}min`}
+                          {cal > 0 && ` · ${Math.round(cal)} cal`}
+                        </p>
+                      </motion.div>
+                    );
+                  })()}
 
-                  {/* TOMORROW'S WORKOUT — The Hero Feature */}
+                  {/* YOUR NEXT SESSION — generated from live data, refreshable */}
                   <motion.div className="rounded-2xl p-5 relative overflow-hidden" style={{ background: "rgba(248,113,113,0.04)", border: "1.5px solid rgba(248,113,113,0.12)" }}
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                     <div className="flex items-center gap-2 mb-1">
                       <Dumbbell className="w-5 h-5 text-red-400" />
-                      <h3 className="text-lg font-black text-white">Tomorrow's workout</h3>
+                      <h3 className="text-lg font-black text-white">Your next session</h3>
                     </div>
-                    <p className="text-[11px] md:text-xs text-slate-500 mb-4">Pick your type and get a full session built from your body data. Use Ask YU to refine it.</p>
+                    <p className="text-[11px] md:text-xs text-slate-500 mb-4">Built from your data right now. Tap <span className="text-slate-300 font-semibold">Refresh from current data</span> right before you start so the AI uses your freshest readiness.</p>
 
                   {(() => {
                   const recType = readiness >= 75 ? "crossfit" : readiness >= 60 ? "yoga" : "rest";
@@ -569,34 +590,158 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                       <p className="text-[10px] text-slate-600">Readiness {readiness} + HRV {hrv}ms + Sleep {sleepScore}</p>
                     </div>
                   ) : aiWorkout && !aiWorkout.error ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xl font-black text-white">{aiWorkout.title || aiWorkout.session_name || "Your Session"}</p>
-                        <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase" style={{ background: "rgba(248,113,113,.08)", color: "#F87171" }}>{aiWorkout.duration_min || 30} min</span>
+                    (() => {
+                      // Staleness check — encourage a refresh if the workout
+                      // is older than 2 hours so the AI can re-read live HRV.
+                      const genAt = aiWorkout.generated_at ? new Date(aiWorkout.generated_at).getTime() : 0;
+                      const ageMin = genAt ? Math.round((Date.now() - genAt) / 60000) : 0;
+                      const isStale = ageMin >= 120;
+                      const ageLabel = !genAt ? "" : ageMin < 60 ? `${ageMin} min ago` : `${Math.round(ageMin / 60)}h ago`;
+
+                      // Section block renderer following the formatting rules
+                      const SectionBlock = ({ label, color, durationOrMeta, children }: { label: string; color: string; durationOrMeta?: string; children: React.ReactNode }) => (
+                        <div className="rounded-xl p-3.5" style={{ background: `${color}07`, border: `1px solid ${color}14` }}>
+                          <p className="text-[10px] font-black uppercase tracking-wider mb-2.5" style={{ color: `${color}CC`, letterSpacing: "0.08em" }}>
+                            {label}{durationOrMeta ? ` (${durationOrMeta})` : ""}
+                          </p>
+                          {children}
+                        </div>
+                      );
+
+                      // Detect if main is a "strength + metcon" combo so we
+                      // render two separate sections rather than one block.
+                      const main = aiWorkout.main_set || aiWorkout.workout || {};
+                      const mainFormat = (aiWorkout.format || main.format || "").toString();
+                      const isCombo = /strength\s*\+\s*metcon/i.test(mainFormat);
+                      const strengthBlock = aiWorkout.strength || (isCombo ? main.strength : null);
+                      const metconBlock = aiWorkout.metcon || (isCombo ? main.metcon : null);
+
+                      const Bullet = ({ children }: { children: React.ReactNode }) => (
+                        <li className="text-sm text-slate-200 leading-relaxed pl-1">{children}</li>
+                      );
+
+                      return (
+                    <div className="space-y-4">
+                      {/* TITLE BAR */}
+                      <div>
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <p className="text-xl font-black text-white">{aiWorkout.title || aiWorkout.session_name || "Your Session"}</p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {aiWorkout.intensity && (
+                              <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase" style={{
+                                background: aiWorkout.intensity === "push" ? "rgba(239,68,68,.15)" : aiWorkout.intensity === "work" ? "rgba(245,158,11,.15)" : "rgba(74,222,128,.15)",
+                                color: aiWorkout.intensity === "push" ? "#F87171" : aiWorkout.intensity === "work" ? "#FBBF24" : "#4ADE80",
+                              }}>{aiWorkout.intensity} day</span>
+                            )}
+                            <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase" style={{ background: "rgba(248,113,113,.08)", color: "#F87171" }}>{aiWorkout.duration_min || 30} min</span>
+                          </div>
+                        </div>
+                        {ageLabel && (
+                          <p className={`text-[10px] mt-1 ${isStale ? "text-amber-400" : "text-slate-600"}`}>
+                            {isStale ? "⚠ " : ""}Generated {ageLabel}{isStale ? " — refresh before starting" : ""}
+                          </p>
+                        )}
                       </div>
+
+                      {/* WHY (coach context) */}
                       {aiWorkout.why_this_workout && (
                         <div className="rounded-xl p-3" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.06)" }}>
+                          <p className="text-[10px] font-bold uppercase text-emerald-400/60 mb-1 tracking-wider">Why this session</p>
                           <p className="text-xs text-slate-300 leading-relaxed">{aiWorkout.why_this_workout}</p>
                         </div>
                       )}
-                      {aiWorkout.warmup && <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,.04)", border: "1px solid rgba(245,158,11,.06)" }}>
-                        <p className="text-[9px] font-bold uppercase text-amber-400/60 mb-1">Warmup ({aiWorkout.warmup.duration_min || 5} min)</p>
-                        {aiWorkout.warmup.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-300">{m}</p>)}
-                      </div>}
-                      {(aiWorkout.main_set || aiWorkout.workout) && (() => { const ms = aiWorkout.main_set || aiWorkout.workout; return <div className="rounded-xl p-3" style={{ background: "rgba(248,113,113,.04)", border: "1px solid rgba(248,113,113,.06)" }}>
-                        <p className="text-[9px] font-bold uppercase text-red-400/60 mb-1">{aiWorkout.format || ms.format || "Main"} {ms.rounds ? `· ${ms.rounds} rounds` : ""} {ms.time_cap ? `· ${ms.time_cap}` : ""}</p>
-                        {ms.description && <p className="text-sm text-white font-bold mb-2 leading-relaxed">{ms.description}</p>}
-                        {ms.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-200">{m}</p>)}
-                        {ms.notes && <p className="text-xs text-slate-500 mt-2 italic">{ms.notes}</p>}
-                      </div>; })()}
-                      {aiWorkout.cooldown && <div className="rounded-xl p-3" style={{ background: "rgba(74,222,128,.04)", border: "1px solid rgba(74,222,128,.06)" }}>
-                        <p className="text-[9px] font-bold uppercase text-emerald-400/60 mb-1">Cooldown ({aiWorkout.cooldown.duration_min || 5} min)</p>
-                        {aiWorkout.cooldown.movements?.map((m: string, i: number) => <p key={i} className="text-sm text-slate-300">{m}</p>)}
-                      </div>}
-                      {aiWorkout.mental_challenge && <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,.04)", border: "1px solid rgba(245,158,11,.06)" }}>
-                        <p className="text-[9px] font-bold uppercase text-amber-400/60 mb-1">The hard part</p>
-                        <p className="text-sm text-slate-300">{aiWorkout.mental_challenge}</p>
-                      </div>}
+
+                      {/* WARMUP */}
+                      {aiWorkout.warmup && (aiWorkout.warmup.movements?.length || 0) > 0 && (
+                        <SectionBlock label="Warmup" color="#F59E0B" durationOrMeta={`${aiWorkout.warmup.duration_min || 5} min`}>
+                          <ul className="list-disc list-inside space-y-1 marker:text-amber-400/40">
+                            {aiWorkout.warmup.movements.map((m: string, i: number) => <Bullet key={i}>{m}</Bullet>)}
+                          </ul>
+                        </SectionBlock>
+                      )}
+
+                      {/* STRENGTH (only if explicitly separate) */}
+                      {strengthBlock && (
+                        <SectionBlock label="Strength" color="#3B82F6" durationOrMeta={strengthBlock.sets ? `${strengthBlock.sets} sets, not for time` : "not for time"}>
+                          {strengthBlock.description && <p className="text-sm text-white font-semibold mb-2 leading-relaxed">{strengthBlock.description}</p>}
+                          <ul className="list-disc list-inside space-y-1 marker:text-blue-400/40">
+                            {(strengthBlock.movements || []).map((m: string, i: number) => <Bullet key={i}>{m}</Bullet>)}
+                          </ul>
+                          {strengthBlock.rest && (
+                            <p className="text-[11px] text-slate-400 mt-2"><span className="font-bold text-slate-300">Rest:</span> {strengthBlock.rest}</p>
+                          )}
+                          {strengthBlock.notes && (
+                            <p className="text-[11px] text-slate-500 mt-2 italic"><span className="not-italic font-bold text-slate-400">Coach's Note:</span> {strengthBlock.notes}</p>
+                          )}
+                        </SectionBlock>
+                      )}
+
+                      {/* METCON (when combo) */}
+                      {metconBlock && (
+                        <SectionBlock label={`Metcon${metconBlock.name ? ` — "${metconBlock.name}"` : ""}`} color="#EF4444" durationOrMeta={metconBlock.time_cap ? `${metconBlock.time_cap} cap` : metconBlock.rounds ? `${metconBlock.rounds} rounds` : (mainFormat || "for time")}>
+                          {metconBlock.description && <p className="text-sm text-white font-semibold mb-2 leading-relaxed">{metconBlock.description}</p>}
+                          <ul className="list-disc list-inside space-y-1 marker:text-red-400/40">
+                            {(metconBlock.movements || []).map((m: string, i: number) => <Bullet key={i}>{m}</Bullet>)}
+                          </ul>
+                          {metconBlock.time_cap && (
+                            <p className="text-[11px] text-slate-400 mt-2"><span className="font-bold text-slate-300">Time Cap:</span> {metconBlock.time_cap}</p>
+                          )}
+                          {metconBlock.notes && (
+                            <p className="text-[11px] text-slate-500 mt-2 italic"><span className="not-italic font-bold text-slate-400">Coach's Note:</span> {metconBlock.notes}</p>
+                          )}
+                        </SectionBlock>
+                      )}
+
+                      {/* MAIN (when not a combo) */}
+                      {!strengthBlock && !metconBlock && main && (main.movements || main.description) && (
+                        <SectionBlock
+                          label={mainFormat || "Main"}
+                          color="#EF4444"
+                          durationOrMeta={[main.rounds ? `${main.rounds} rounds` : "", main.time_cap ? `${main.time_cap} cap` : ""].filter(Boolean).join(" · ")}>
+                          {main.description && <p className="text-sm text-white font-semibold mb-2 leading-relaxed">{main.description}</p>}
+                          <ul className="list-disc list-inside space-y-1 marker:text-red-400/40">
+                            {(main.movements || []).map((m: string, i: number) => <Bullet key={i}>{m}</Bullet>)}
+                          </ul>
+                          {main.time_cap && (
+                            <p className="text-[11px] text-slate-400 mt-2"><span className="font-bold text-slate-300">Time Cap:</span> {main.time_cap}</p>
+                          )}
+                          {main.notes && (
+                            <p className="text-[11px] text-slate-500 mt-2 italic"><span className="not-italic font-bold text-slate-400">Coach's Note:</span> {main.notes}</p>
+                          )}
+                        </SectionBlock>
+                      )}
+
+                      {/* COOLDOWN */}
+                      {aiWorkout.cooldown && (aiWorkout.cooldown.movements?.length || 0) > 0 && (
+                        <SectionBlock label="Cooldown" color="#4ADE80" durationOrMeta={`${aiWorkout.cooldown.duration_min || 5} min`}>
+                          <ul className="list-disc list-inside space-y-1 marker:text-emerald-400/40">
+                            {aiWorkout.cooldown.movements.map((m: string, i: number) => <Bullet key={i}>{m}</Bullet>)}
+                          </ul>
+                        </SectionBlock>
+                      )}
+
+                      {/* MENTAL CHALLENGE */}
+                      {aiWorkout.mental_challenge && (
+                        <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,.04)", border: "1px solid rgba(245,158,11,.06)" }}>
+                          <p className="text-[10px] font-bold uppercase text-amber-400/60 mb-1 tracking-wider">The hard part</p>
+                          <p className="text-sm text-slate-300 italic"><span className="not-italic font-bold text-slate-400">Coach's Note:</span> {aiWorkout.mental_challenge}</p>
+                        </div>
+                      )}
+
+                      {/* REFRESH FROM CURRENT DATA — the timing fix */}
+                      <button
+                        onClick={() => loadWorkout(workoutType || "crossfit")}
+                        disabled={aiLoading}
+                        className="w-full text-xs font-bold py-2.5 rounded-xl cursor-pointer border-0 flex items-center justify-center gap-2"
+                        style={{
+                          background: isStale ? "rgba(245,158,11,.18)" : "rgba(99,102,241,.10)",
+                          color: isStale ? "#FBBF24" : "#A5B4FC",
+                          border: `1px solid ${isStale ? "rgba(245,158,11,.35)" : "rgba(99,102,241,.20)"}`,
+                        }}>
+                        <Sparkles className="w-3.5 h-3.5" />
+                        {aiLoading ? "Reading your latest data..." : isStale ? "Refresh — your data has changed since this was made" : "Refresh from current data before you start"}
+                      </button>
+
                       {/* Did you do it? — only ask if not yet answered */}
                       {workoutLogId && !workoutFeedback && (
                         <div className="rounded-xl p-3 flex items-center gap-3 flex-wrap" style={{ background: "rgba(99,102,241,.06)", border: "1px solid rgba(99,102,241,.15)" }}>
@@ -686,6 +831,8 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         </motion.button>
                       </div>
                     </div>
+                      );
+                    })()
                   ) : <p className="text-sm text-red-400 py-4">Failed to generate. <button onClick={() => loadWorkout(workoutType!)} className="text-blue-400 cursor-pointer border-0 bg-transparent underline">Try again</button></p>}
                   </>;
                   })()}

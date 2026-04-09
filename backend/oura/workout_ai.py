@@ -84,6 +84,23 @@ RESPONSE FORMAT (return valid JSON only, no markdown):
     "time_cap": "time cap if applicable",
     "notes": "Pacing strategy, scaling options, what to focus on"
   },
+  "strength": {
+    "_comment": "ONLY include if format is 'Strength + Metcon'. Otherwise omit this field entirely.",
+    "sets": "number of sets, e.g. 5",
+    "description": "Headline like '5x5 DB Front Squat — build to a heavy 5'",
+    "movements": ["Bullet line per movement: '5x5 DB Front Squat (2x50lb)'", "..."],
+    "rest": "Rest between sets, e.g. '90-120 sec'",
+    "notes": "Coach's note: pacing, scaling, focus cue"
+  },
+  "metcon": {
+    "_comment": "ONLY include if format is 'Strength + Metcon'. Otherwise omit. This is the conditioning piece AFTER the strength piece, not a duplicate of 'workout'.",
+    "name": "Optional named workout, e.g. 'Diane' or 'YU Burner'",
+    "description": "Coach-style headline: '3 Rounds For Time: ...'",
+    "movements": ["bullet per movement with reps + load"],
+    "rounds": "number of rounds if applicable",
+    "time_cap": "time cap, e.g. '12 min'",
+    "notes": "Coach's note about pacing/strategy"
+  },
   "cooldown": {
     "duration_min": 5-8,
     "movements": ["stretch/mobility 1", "stretch/mobility 2", ...]
