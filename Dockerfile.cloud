@@ -26,6 +26,9 @@ RUN pip install --no-cache-dir aiofiles
 # Copy the main_cloud entry point
 COPY main_cloud.py ./
 
+# Workout brain assets: catalog (mandatory) + any seeded logs (optional)
+COPY ["CF Movements.md", "./CF Movements.md"]
+
 EXPOSE 8080
 
 CMD ["uvicorn", "main_cloud:app", "--host", "0.0.0.0", "--port", "8080"]

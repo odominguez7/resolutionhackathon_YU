@@ -926,6 +926,32 @@ async def get_workout(session_type: str = "crossfit"):
     return result
 
 
+@router.get("/workout/log")
+def workout_log(days: int = 7):
+    """Recent workout log entries with patterns + closed-loop verdicts."""
+    from .workout_brain import recent_log
+    return {"entries": recent_log(days)}
+
+
+@router.post("/workout/feedback")
+def workout_feedback(payload: dict):
+    """User feedback on a generated workout: completed, felt, soreness."""
+    from .workout_brain import _load_log, _save_log
+    log = _load_log()
+    target_id = (payload or {}).get("log_id")
+    for entry in log:
+        if entry["id"] == target_id:
+            entry["user_feedback"] = {
+                "completed": (payload or {}).get("completed", "unknown"),
+                "felt": (payload or {}).get("felt"),
+                "soreness": (payload or {}).get("soreness"),
+                "notes": (payload or {}).get("notes", ""),
+            }
+            _save_log(log)
+            return {"saved": True, "entry": entry}
+    return {"saved": False, "reason": "log_id not found"}
+
+
 @router.get("/objectives")
 def get_objectives():
     """List available analysis objectives."""

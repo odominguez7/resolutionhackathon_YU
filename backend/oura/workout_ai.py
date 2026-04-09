@@ -182,12 +182,21 @@ Last 3 days trend:
 Recovery context: {biometrics.get('recovery_context', '')}
 """
 
+    # Inject the deterministic workout brain (catalog + memory + balance + closed-loop)
+    from .workout_brain import build_memory_block, log_workout
+    memory_block = build_memory_block(biometrics)
+
     if session_type == "yoga":
         prompt = YOGA_PROMPT + "\n\n" + bio_context
     elif session_type == "rest":
         prompt = REST_PROMPT + "\n\n" + bio_context
     else:
-        prompt = WORKOUT_PROMPT + "\n\n" + bio_context + "\nGenerate today's workout. Return JSON only."
+        prompt = (
+            WORKOUT_PROMPT
+            + "\n\n" + bio_context
+            + "\n\n" + memory_block
+            + "\n\nGenerate today's workout. Return JSON only."
+        )
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
     payload = {
@@ -227,6 +236,14 @@ Recovery context: {biometrics.get('recovery_context', '')}
             "hrv": biometrics.get("hrv"),
             "sleep_score": biometrics.get("sleep_score"),
         }
+        # Persist to log so memory + closed-loop work tomorrow.
+        if session_type not in ("yoga", "rest"):
+            try:
+                entry = log_workout(workout, biometrics, session_type)
+                workout["log_id"] = entry["id"]
+                workout["patterns"] = entry["patterns"]
+            except Exception as _e:
+                pass
         return workout
 
     except json.JSONDecodeError as e:

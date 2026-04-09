@@ -1,0 +1,272 @@
+"""
+Workout brain — the deterministic logic that wraps the Gemini call.
+
+Responsibilities (none of which the raw Gemini prompt does well):
+1. Movement catalog — load CF Movements.md once and inject as the ONLY
+   allowed movement source.
+2. Workout log — record every generation + its biometric snapshot to
+   yu_workout_log.json so future sessions have memory.
+3. Pattern balancer — tag the last 3 sessions by movement pattern and
+   instruct Gemini what to include / what to avoid today (no back-to-back
+   same pattern, mandatory rotation).
+4. Closed-loop learning — when generating, look back 24h at any prior
+   workout and check whether the next-morning HRV/readiness recovered.
+   Tag that workout's load as "ok / too much / undertrained" so the
+   model learns Omar's personal tolerance instead of population rules.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+BOSTON_TZ = ZoneInfo("America/New_York")
+
+_HERE = os.path.dirname(__file__)
+_ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
+LOG_PATH = os.path.join(_ROOT, "yu_workout_log.json")
+CATALOG_PATH = os.path.join(_ROOT, "CF Movements.md")
+
+# ── 1. Movement catalog ────────────────────────────────────────────────────
+
+_catalog_cache: str | None = None
+
+
+def load_catalog() -> str:
+    """Read CF Movements.md once and cache. Strips html/img junk so we hand
+    Gemini only the movement bullets."""
+    global _catalog_cache
+    if _catalog_cache is not None:
+        return _catalog_cache
+    if not os.path.exists(CATALOG_PATH):
+        _catalog_cache = ""
+        return _catalog_cache
+    with open(CATALOG_PATH) as f:
+        raw = f.read()
+    # Strip leading html, the perplexity logo, and the prompt-quote header.
+    # Keep everything from the first markdown ``` block onward.
+    if "```markdown" in raw:
+        raw = raw.split("```markdown", 1)[1]
+    if raw.endswith("```"):
+        raw = raw[:-3]
+    _catalog_cache = raw.strip()
+    return _catalog_cache
+
+
+# ── 2. Workout log ─────────────────────────────────────────────────────────
+
+def _load_log() -> list[dict]:
+    if not os.path.exists(LOG_PATH):
+        return []
+    try:
+        with open(LOG_PATH) as f:
+            return json.load(f).get("entries", [])
+    except Exception:
+        return []
+
+
+def _save_log(entries: list[dict]) -> None:
+    with open(LOG_PATH, "w") as f:
+        json.dump({"entries": entries[-200:]}, f, indent=2, default=str)
+
+
+def log_workout(workout: dict, biometrics: dict, session_type: str) -> dict:
+    """Persist a generated workout. Returns the saved entry."""
+    entry = {
+        "id": f"w_{int(datetime.now(BOSTON_TZ).timestamp())}",
+        "generated_at": datetime.now(BOSTON_TZ).isoformat(),
+        "day": datetime.now(BOSTON_TZ).strftime("%Y-%m-%d"),
+        "session_type": session_type,
+        "title": workout.get("title", ""),
+        "format": workout.get("format", ""),
+        "intensity": workout.get("intensity", ""),
+        "duration_min": workout.get("duration_min"),
+        "movements": _flatten_movements(workout),
+        "patterns": tag_patterns(_flatten_movements(workout)),
+        "biometrics_pre": {
+            "readiness": biometrics.get("readiness"),
+            "hrv": biometrics.get("hrv"),
+            "hrv_baseline": biometrics.get("hrv_baseline"),
+            "sleep_score": biometrics.get("sleep_score"),
+        },
+        # Filled in later by closed_loop_review()
+        "biometrics_next_morning": None,
+        "load_verdict": None,
+        "user_feedback": None,
+    }
+    log = _load_log()
+    log.append(entry)
+    _save_log(log)
+    return entry
+
+
+def recent_log(days: int = 7) -> list[dict]:
+    cutoff = datetime.now(BOSTON_TZ) - timedelta(days=days)
+    return [
+        e for e in _load_log()
+        if datetime.fromisoformat(e["generated_at"]) >= cutoff
+    ]
+
+
+def _flatten_movements(workout: dict) -> list[str]:
+    out: list[str] = []
+    w = workout.get("workout") or {}
+    for m in (w.get("movements") or []):
+        if isinstance(m, str):
+            out.append(m)
+    return out
+
+
+# ── 3. Pattern balancer ────────────────────────────────────────────────────
+
+PATTERN_KEYWORDS = {
+    "squat": ["squat", "goblet", "front squat", "back squat", "wall sit", "pistol"],
+    "hinge": ["deadlift", "rdl", "romanian", "hip thrust", "glute bridge", "good morning", "swing", "kb swing"],
+    "lunge": ["lunge", "split squat", "step-up"],
+    "push_h": ["push-up", "pushup", "floor press", "bench"],
+    "push_v": ["press", "jerk", "push press", "strict press", "arnold", "z-press", "lateral raise"],
+    "pull_v": ["pull-up", "pullup", "chin-up", "chinup", "muscle-up"],
+    "pull_h": ["row", "renegade row", "seal row", "bent-over"],
+    "olympic": ["clean", "snatch", "man maker", "devil press", "cluster"],
+    "core": ["plank", "hollow", "v-up", "tuck-up", "sit-up", "dead bug", "russian twist", "side plank", "leg raise"],
+    "carry": ["carry", "farmer"],
+    "cardio": ["run", "treadmill", "burpee", "row erg", "bike", "sprint"],
+    "plyo": ["jump", "broad jump", "skater", "tuck jump"],
+}
+
+
+def tag_patterns(movements: list[str]) -> list[str]:
+    found: set[str] = set()
+    for raw in movements:
+        m = raw.lower()
+        for pattern, keys in PATTERN_KEYWORDS.items():
+            if any(k in m for k in keys):
+                found.add(pattern)
+    return sorted(found)
+
+
+PATTERN_PRIORITY = ["squat", "hinge", "push_h", "push_v", "pull_v", "pull_h", "core", "carry", "olympic"]
+
+
+def balance_instructions(history: list[dict]) -> dict:
+    """Given recent log, return what today MUST include and MUST avoid."""
+    yesterday_patterns: set[str] = set()
+    two_day_patterns: set[str] = set()
+    week_pattern_counts: dict[str, int] = {}
+    today = datetime.now(BOSTON_TZ).date()
+
+    for entry in history:
+        day = datetime.fromisoformat(entry["generated_at"]).date()
+        delta = (today - day).days
+        for p in entry.get("patterns", []):
+            week_pattern_counts[p] = week_pattern_counts.get(p, 0) + 1
+            if delta == 1:
+                yesterday_patterns.add(p)
+            if delta <= 2:
+                two_day_patterns.add(p)
+
+    avoid = sorted(yesterday_patterns)
+    # MUST include: lowest-frequency pattern from this week that wasn't done in
+    # the last 2 days. Falls back to the priority list.
+    must_include: list[str] = []
+    candidates = [p for p in PATTERN_PRIORITY if p not in two_day_patterns]
+    if candidates:
+        candidates.sort(key=lambda p: week_pattern_counts.get(p, 0))
+        must_include = candidates[:2]
+    return {
+        "must_include": must_include,
+        "avoid": avoid,
+        "week_counts": week_pattern_counts,
+    }
+
+
+# ── 4. Closed-loop learning ────────────────────────────────────────────────
+
+def closed_loop_review(current_biometrics: dict) -> list[dict]:
+    """Look at any logged workout from yesterday and label whether today's
+    biometrics suggest the load was tolerable. Returns the updated entries
+    so we can show them in the prompt as personal-tolerance memory."""
+    log = _load_log()
+    today = datetime.now(BOSTON_TZ).date()
+    today_hrv = current_biometrics.get("hrv")
+    today_readiness = current_biometrics.get("readiness")
+    today_hrv_bl = current_biometrics.get("hrv_baseline")
+
+    updated = []
+    changed = False
+    for entry in log:
+        if entry.get("biometrics_next_morning") is not None:
+            continue
+        gen_day = datetime.fromisoformat(entry["generated_at"]).date()
+        if (today - gen_day).days != 1:
+            continue
+        # We have an unreviewed yesterday workout. Score it.
+        entry["biometrics_next_morning"] = {
+            "hrv": today_hrv,
+            "readiness": today_readiness,
+        }
+        verdict = "ok"
+        pre_hrv = (entry.get("biometrics_pre") or {}).get("hrv")
+        if today_hrv and pre_hrv:
+            drop = pre_hrv - today_hrv
+            if drop >= 8 or (today_hrv_bl and today_hrv < today_hrv_bl - 5):
+                verdict = "too_much"
+            elif today_readiness and today_readiness >= 85 and entry.get("intensity") in ("easy", "recovery"):
+                verdict = "undertrained"
+        entry["load_verdict"] = verdict
+        updated.append(entry)
+        changed = True
+    if changed:
+        _save_log(log)
+    return updated
+
+
+# ── 5. Build the memory block injected into the Gemini prompt ──────────────
+
+def build_memory_block(current_biometrics: dict) -> str:
+    closed_loop_review(current_biometrics)
+    history = recent_log(7)
+    balance = balance_instructions(history)
+    catalog = load_catalog()
+
+    lines: list[str] = []
+    lines.append("=" * 60)
+    lines.append("ALLOWED MOVEMENT CATALOG (use ONLY movements from this list)")
+    lines.append("=" * 60)
+    if catalog:
+        lines.append(catalog)
+    else:
+        lines.append("(catalog file missing — fall back to general knowledge)")
+
+    lines.append("")
+    lines.append("=" * 60)
+    lines.append("RECENT TRAINING HISTORY (last 7 days, most recent first)")
+    lines.append("=" * 60)
+    if not history:
+        lines.append("No prior sessions logged.")
+    else:
+        for e in reversed(history[-7:]):
+            verdict = e.get("load_verdict") or "pending"
+            lines.append(
+                f"- {e['day']}  {e.get('intensity','?'):8s}  "
+                f"patterns: {','.join(e.get('patterns', [])) or 'none'}  "
+                f"-> next-morning verdict: {verdict}"
+            )
+
+    lines.append("")
+    lines.append("=" * 60)
+    lines.append("PROGRAMMING CONSTRAINTS FOR TODAY")
+    lines.append("=" * 60)
+    if balance["must_include"]:
+        lines.append(f"MUST include movement patterns: {', '.join(balance['must_include'])}")
+    if balance["avoid"]:
+        lines.append(f"AVOID (worked yesterday): {', '.join(balance['avoid'])}")
+    if balance["week_counts"]:
+        lines.append(f"Weekly pattern counts so far: {balance['week_counts']}")
+    lines.append("Hard rule: Every movement you output MUST appear in the catalog above.")
+    lines.append("Hard rule: If yesterday's verdict was 'too_much', drop intensity one tier.")
+    lines.append("Hard rule: If yesterday's verdict was 'undertrained' two days in a row, push harder today.")
+    return "\n".join(lines)
