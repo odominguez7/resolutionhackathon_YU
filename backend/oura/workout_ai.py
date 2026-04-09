@@ -49,7 +49,7 @@ Pull (DB): DB bent-over row, single-arm DB row, renegade row, DB reverse fly, DB
 Olympic: DB power clean, DB hang power clean, DB squat clean, single-arm DB power snatch, alternating DB snatch, man maker, devil press, cluster
 Core: V-up, tuck-up, hollow hold, hollow rock, dead bug, Russian twist, DB weighted sit-up, plank hold, side plank, butterfly sit-up, DB side bend
 Cardio: treadmill run, burpees, burpee to pull-up, lateral burpee over DB, burpee broad jump, treadmill incline sprint
-Carry: DB farmer carry, single-arm farmer carry, front rack carry, overhead carry
+HARD BAN: NEVER prescribe ANY carry variation. Forbidden movements include but are not limited to: farmer carry, single-arm farmer carry, suitcase carry, front rack carry, overhead carry, cross-body carry, sandbag carry. If a movement contains the word "carry" it is BANNED. Use a different movement instead.
 Plyo: tuck jump, squat jump, broad jump, skater jump
 
 FORMAT OPTIONS (choose based on recovery state):

@@ -133,12 +133,7 @@ MOVEMENTS = {
         {"name": "Tuck Jump", "pattern": "cardio", "load": False, "pressing": False},
         {"name": "Broad Jump", "pattern": "cardio", "load": False, "pressing": False},
     ],
-    "carry": [
-        {"name": "DB Farmer Carry", "pattern": "carry", "load": True, "pressing": False, "distance": True},
-        {"name": "Single-Arm Farmer Carry", "pattern": "carry", "load": True, "pressing": False, "distance": True},
-        {"name": "Front Rack Carry", "pattern": "carry", "load": True, "pressing": False, "distance": True},
-        {"name": "Overhead Carry", "pattern": "carry", "load": True, "pressing": False, "distance": True},
-    ],
+    # Carries removed per user — no farmer/front-rack/overhead/cross-body variations.
     "plyometric": [
         {"name": "Tuck Jump", "pattern": "plyometric", "load": False, "pressing": False},
         {"name": "Squat Jump", "pattern": "plyometric", "load": False, "pressing": False},
@@ -343,7 +338,6 @@ def _build_chipper(db_wt, duration, overhead, vol_mult, readiness=75):
     push2 = _pick(MOVEMENTS["h_push"], exclude=[push1])[0] if overhead else None
     pull = _pick(_get_pull_pool())[0]
     core = _pick(MOVEMENTS["core"])[0]
-    carry = _pick(MOVEMENTS["carry"])[0]
 
     high_reps = round(30 * vol_mult)
     med_reps = round(20 * vol_mult)
@@ -356,7 +350,6 @@ def _build_chipper(db_wt, duration, overhead, vol_mult, readiness=75):
         (hinge, f"{med_reps}" + (f" (2x{db_wt} lb)" if hinge["load"] else "")),
         (pull, f"{low_reps}" + (f" (2x{db_wt} lb)" if pull["load"] else "")),
         (core, f"{high_reps}" if not core.get("time_based") else "60 sec"),
-        (carry, f"200m (2x{db_wt} lb)"),
         (cardio, "400m" if cardio.get("distance") else str(med_reps)),
     ]
 
