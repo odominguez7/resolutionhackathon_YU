@@ -467,6 +467,13 @@ def todays_pred():
     return {"verification": todays_verification()}
 
 
+@router.post("/hypothesis/suggest")
+async def hypothesis_suggest():
+    """Gemini-generated 3 hypotheses based on current Oura state, persona, history."""
+    from .hypothesis_suggest import suggest_hypotheses
+    return await suggest_hypotheses()
+
+
 @router.get("/hypothesis/library")
 def hypothesis_library():
     from .goals import load_library

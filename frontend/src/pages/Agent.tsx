@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { Heart, Target, Moon, Zap, ArrowRight, Check, RefreshCw, X } from "lucide-react";
+import { Heart, Target, Moon, Zap, ArrowRight, Check, RefreshCw, X, Share2 } from "lucide-react";
 
 /* ── YU brand tokens (mirrors yu.boston) ─────────────── */
 const YU = {
@@ -47,6 +47,16 @@ function computeBaselineTrend(history?: number[], lowerIsWorse?: boolean): Basel
 
 const STATE_GLYPH: Record<string, string> = { locked: "◆", loaded: "▲", steady: "●", compressed: "▼", depleted: "◉", insufficient: "·" };
 const STATE_LABEL: Record<string, string> = { locked: "Locked", loaded: "Loaded", steady: "Steady", compressed: "Compressed", depleted: "Depleted", insufficient: "Gathering" };
+// F7 verbatim share lines from the YU intelligence document. Never paraphrase.
+const F7_LINE: Record<string, [string, string]> = {
+  locked:     ["Locked.", "Body absorbed the week. Big calls before noon."],
+  loaded:     ["Loaded.", "High week, absorbing well. Not adding meetings."],
+  steady:     ["Steady.", "Execution day. Moving through the list."],
+  compressed: ["Compressed.", "Moving the 3pm to Thursday, not the day for the big call."],
+  depleted:   ["Depleted.", "Recovery day. My team sees my best when I come back sharp."],
+};
+const SHAREABLE_STATES = new Set(["locked", "loaded", "compressed", "depleted"]);
+const PITCH = "Metrics are for spreadsheets, moods are for people. YU know the difference.";
 
 type AgentState = "locked" | "loaded" | "steady" | "compressed" | "depleted" | "insufficient";
 interface Spokesperson {
@@ -163,6 +173,7 @@ export default function Agent() {
   const [closed, setClosed] = useState<RevealedCard | null>(null);
   const [showGoalEdit, setShowGoalEdit] = useState(false);
   const [dailyDone, setDailyDone] = useState(false);
+  const [shareAgent, setShareAgent] = useState<any | null>(null);
   const DAILY_DONE_KEY = "yu_daily_done";
 
   const todayKey = () => new Date().toISOString().slice(0, 10);
@@ -317,9 +328,12 @@ export default function Agent() {
             const units: Record<string, string> = { heart: "ms", readiness: "", sleep: "", stress: "min" };
             const label = labels[agent.id] || agent.title;
             const unit = units[agent.id] || "";
+            const canShare = SHAREABLE_STATES.has((fullEval as any).state);
             return (
-              <button
+              <div
                 key={agent.id}
+                style={{ position: "relative" }}
+              ><button
                 className="yu-stat-pill"
                 onClick={() => swapSpokesperson(agent.id)}
                 style={{
@@ -335,6 +349,7 @@ export default function Agent() {
                   gap: 4,
                   fontFamily: sans,
                   transition: "all .18s ease",
+                  width: "100%",
                 }}
               >
                 <Icon size={14} style={{ color: agent.color }} />
@@ -352,6 +367,35 @@ export default function Agent() {
                   </span>
                 )}
               </button>
+              {canShare && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShareAgent(fullEval); }}
+                  title="Share this state"
+                  aria-label="Share this state"
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    right: 6,
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    background: "#fff",
+                    border: `1px solid ${YU.line}`,
+                    color: YU.muted,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 0,
+                    transition: "all .15s ease",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = agent.color; e.currentTarget.style.color = agent.color; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = YU.line; e.currentTarget.style.color = YU.muted; }}
+                >
+                  <Share2 size={11} />
+                </button>
+              )}
+              </div>
             );
           })}
         </div>
@@ -591,6 +635,11 @@ export default function Agent() {
 
       </div>
 
+      {/* ── Share state modal ── */}
+      {shareAgent && (
+        <ShareStateModal agent={shareAgent} ritual={ritual} onClose={() => setShareAgent(null)} />
+      )}
+
       {/* ── Goal edit sheet ── */}
       {showGoalEdit && (
         <GoalEditSheet
@@ -766,6 +815,241 @@ function BaselineTrendChart({ trend, metricLabel, agent }: { trend: BaselineTren
   );
 }
 
+/* ── ShareStateModal: F7 verbatim card → SVG → image → share ── */
+type ShareFormat = "square" | "story" | "wide";
+const FORMATS: { id: ShareFormat; label: string; w: number; h: number }[] = [
+  { id: "square", label: "Square", w: 1080, h: 1080 },
+  { id: "story",  label: "Story",  w: 1080, h: 1920 },
+  { id: "wide",   label: "Wide",   w: 1200, h: 630 },
+];
+
+function buildStateCardSVG(agent: any, ritual: Ritual, fmt: { w: number; h: number }): string {
+  const state: string = agent?.state || "steady";
+  const glyph = STATE_GLYPH[state] || "●";
+  const [stateBig, contextLine] = F7_LINE[state] || ["", ""];
+  const color = agent?.color || YU.teal;
+  const W = fmt.w;
+  const H = fmt.h;
+  const cx = W / 2;
+  // Layout scales relative to the smaller dimension
+  const base = Math.min(W, H);
+  const glyphSize = Math.round(base * 0.30);
+  const stateSize = Math.round(base * 0.13);
+  const contextSize = Math.round(base * 0.045);
+  const footerSize = Math.round(base * 0.025);
+  const pitchSize = Math.round(base * 0.022);
+  const padTop = Math.round(H * 0.18);
+  const goalLine = ritual.goal?.goal?.behavior ? `Day ${ritual.goal.day_index} of: ${ritual.goal.goal.behavior}` : "";
+  const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8FAFC"/>
+    </linearGradient>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#bg)"/>
+
+  <text x="${cx}" y="${padTop + glyphSize}" font-family="Space Grotesk, sans-serif" font-size="${glyphSize}" font-weight="700" fill="${color}" text-anchor="middle">${glyph}</text>
+
+  <text x="${cx}" y="${padTop + glyphSize + stateSize + 10}" font-family="Space Grotesk, sans-serif" font-size="${stateSize}" font-weight="700" fill="${YU.ink}" text-anchor="middle" letter-spacing="-2">${escape(stateBig)}</text>
+
+  <text x="${cx}" y="${padTop + glyphSize + stateSize + 10 + contextSize + 28}" font-family="Inter, sans-serif" font-size="${contextSize}" font-weight="500" fill="${YU.body}" text-anchor="middle">${escape(contextLine)}</text>
+
+  ${goalLine ? `
+  <line x1="${cx - base * 0.08}" y1="${H - padTop - footerSize * 4}" x2="${cx + base * 0.08}" y2="${H - padTop - footerSize * 4}" stroke="${YU.line}" stroke-width="2"/>
+  <text x="${cx}" y="${H - padTop - footerSize * 2}" font-family="Inter, sans-serif" font-size="${footerSize}" font-weight="600" fill="${YU.label}" text-anchor="middle" letter-spacing="2">${escape(goalLine.toUpperCase())}</text>
+  ` : ""}
+
+  <text x="${cx}" y="${H - padTop * 0.6}" font-family="Inter, sans-serif" font-size="${pitchSize}" font-weight="500" fill="${YU.muted}" text-anchor="middle" font-style="italic">${escape(PITCH)}</text>
+
+  <text x="${W - padTop * 0.8}" y="${H - padTop * 0.25}" font-family="Space Grotesk, sans-serif" font-size="${footerSize * 1.1}" font-weight="700" fill="${YU.teal}" text-anchor="end" letter-spacing="2">YU</text>
+</svg>`;
+}
+
+async function svgToPngBlob(svg: string, w: number, h: number): Promise<Blob> {
+  const dataUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  const img = new Image();
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = (e) => reject(e);
+    img.src = dataUrl;
+  });
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(img, 0, 0, w, h);
+  return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+}
+
+function ShareStateModal({ agent, ritual, onClose }: { agent: any; ritual: Ritual; onClose: () => void }) {
+  const [fmt, setFmt] = useState<ShareFormat>("square");
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+  const fmtDef = FORMATS.find((f) => f.id === fmt)!;
+  const svg = buildStateCardSVG(agent, ritual, fmtDef);
+  const dataUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+
+  const share = async () => {
+    setBusy(true); setStatus(null);
+    try {
+      const blob = await svgToPngBlob(svg, fmtDef.w, fmtDef.h);
+      const file = new File([blob], `yu-state.png`, { type: "image/png" });
+      const nav: any = navigator;
+      if (nav.share && nav.canShare && nav.canShare({ files: [file] })) {
+        await nav.share({ files: [file], text: PITCH });
+        setStatus("Shared");
+      } else {
+        // Clipboard fallback
+        const item = new (window as any).ClipboardItem({ "image/png": blob });
+        await (navigator.clipboard as any).write([item]);
+        setStatus("Copied to clipboard");
+      }
+    } catch (e: any) {
+      setStatus(e?.message || "Could not share");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const download = async () => {
+    setBusy(true);
+    try {
+      const blob = await svgToPngBlob(svg, fmtDef.w, fmtDef.h);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `yu-${agent.id}-${agent.state}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus("Downloaded");
+    } catch (e: any) {
+      setStatus(e?.message || "Could not download");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, background: "rgba(28,43,58,0.55)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 24, zIndex: 70, fontFamily: sans, animation: "yuFade .2s ease",
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        background: "#fff", maxWidth: 520, width: "100%", borderRadius: 22, padding: 28,
+        border: `1px solid ${YU.line}`, boxShadow: "0 30px 80px rgba(28,43,58,0.20)", animation: "yuRise .35s cubic-bezier(.2,.8,.2,1)",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: "0 0 4px" }}>
+              share your state
+            </p>
+            <h3 style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, margin: 0, letterSpacing: "-0.01em" }}>
+              {agent.state_glyph} {agent.state_label}
+            </h3>
+          </div>
+          <button onClick={onClose} style={{ background: "transparent", border: 0, color: YU.muted, cursor: "pointer", padding: 4 }}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Preview */}
+        <div style={{
+          background: YU.bgSoft,
+          border: `1px solid ${YU.line}`,
+          borderRadius: 16,
+          padding: 16,
+          marginBottom: 16,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          maxHeight: 360,
+          overflow: "hidden",
+        }}>
+          <img
+            src={dataUrl}
+            alt="State card preview"
+            style={{ maxWidth: "100%", maxHeight: 320, borderRadius: 8, boxShadow: "0 8px 24px rgba(28,43,58,0.10)" }}
+          />
+        </div>
+
+        {/* Format toggle */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 18, justifyContent: "center" }}>
+          {FORMATS.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setFmt(f.id)}
+              style={{
+                background: fmt === f.id ? YU.ink : "#fff",
+                color: fmt === f.id ? "#fff" : YU.ink,
+                border: `1px solid ${fmt === f.id ? YU.ink : YU.line}`,
+                borderRadius: 999,
+                padding: "8px 16px",
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: sans,
+                cursor: "pointer",
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+          <button
+            onClick={download}
+            disabled={busy}
+            style={{
+              background: "#fff",
+              color: YU.ink,
+              border: `1px solid ${YU.line}`,
+              borderRadius: 999,
+              padding: "14px 22px",
+              fontSize: 14,
+              fontWeight: 600,
+              fontFamily: sans,
+              cursor: busy ? "wait" : "pointer",
+            }}
+          >
+            Download
+          </button>
+          <button
+            onClick={share}
+            disabled={busy}
+            style={{
+              background: agent.color || YU.teal,
+              color: "#fff",
+              border: 0,
+              borderRadius: 999,
+              padding: "14px 26px",
+              fontSize: 14,
+              fontWeight: 600,
+              fontFamily: sans,
+              cursor: busy ? "wait" : "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              boxShadow: `0 8px 24px ${agent.color || YU.teal}30`,
+            }}
+          >
+            <Share2 size={14} />
+            {busy ? "Working" : "Share"}
+          </button>
+        </div>
+
+        {status && (
+          <p style={{ fontSize: 12, color: YU.muted, textAlign: "center", marginTop: 14 }}>{status}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ── HistoryChart: simple inline 14-day SVG line + baseline ── */
 function HistoryChart({ values, baseline, color, lowerIsWorse }: { values: number[]; baseline?: number; color: string; lowerIsWorse: boolean }) {
   const W = 560; const H = 100; const PAD = 8;
@@ -934,6 +1218,8 @@ function ClosedState({ sp, ritual, closed, adherenceCount, onLogAdherence, onDis
   );
 }
 
+interface Suggestion { behavior: string; target_metric: string; target_metric_label: string; duration_days: number; why: string; }
+
 /* ── Hypothesis sheet (Active + Library tabs) ── */
 function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progress: Goal; onClose: () => void; onSave: (g: any) => void }) {
   const [tab, setTab] = useState<"active" | "library">("active");
@@ -942,6 +1228,8 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
   const [duration, setDuration] = useState(goal.duration_days);
   const [metric, setMetric] = useState(goal.target_metric);
   const [library, setLibrary] = useState<ArchivedHypothesis[]>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const METRICS = [
     { id: "hrv", label: "morning HRV" },
     { id: "readiness", label: "readiness" },
@@ -952,6 +1240,26 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
   useEffect(() => {
     api.get("/api/agent/hypothesis/library").then((r) => setLibrary(r.library || [])).catch(() => {});
   }, []);
+
+  const loadSuggestions = async () => {
+    setLoadingSuggestions(true);
+    try {
+      const r = await api.post("/api/agent/hypothesis/suggest");
+      setSuggestions(r.suggestions || []);
+    } catch {} finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  useEffect(() => {
+    if (replacing && !suggestions) loadSuggestions();
+  }, [replacing]);
+
+  const applySuggestion = (s: Suggestion) => {
+    setBehavior(s.behavior);
+    setDuration(s.duration_days);
+    setMetric(s.target_metric);
+  };
   const verdictColor = (label: string) => label === "confirmed" ? YU.teal : label === "weakened" ? YU.red : YU.muted;
   return (
     <div onClick={onClose} style={{
@@ -1106,6 +1414,57 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
         <p style={{ fontSize: 11, color: YU.muted, lineHeight: 1.6, marginTop: 0, marginBottom: 18 }}>
           Starting a new hypothesis archives your current one with its verdict so far.
         </p>
+
+        {/* AI suggestions */}
+        <div style={{ marginBottom: 24 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 12px" }}>
+            hypotheses your data suggests
+          </p>
+          {loadingSuggestions && (
+            <p style={{ fontSize: 12, color: YU.muted, padding: "16px 0", textAlign: "center" }}>
+              <RefreshCw size={12} className="animate-spin" style={{ display: "inline", marginRight: 6, verticalAlign: "middle" }} />
+              Reading your data
+            </p>
+          )}
+          {!loadingSuggestions && suggestions && suggestions.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {suggestions.map((s, i) => {
+                const isSelected = behavior === s.behavior;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => applySuggestion(s)}
+                    style={{
+                      textAlign: "left",
+                      background: isSelected ? `${YU.teal}08` : "#fff",
+                      border: `1px solid ${isSelected ? YU.teal : YU.line}`,
+                      borderRadius: 14,
+                      padding: "14px 16px",
+                      fontFamily: sans,
+                      cursor: "pointer",
+                      transition: "all .15s ease",
+                    }}
+                    onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.borderColor = YU.teal; }}
+                    onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.borderColor = YU.line; }}
+                  >
+                    <p style={{ fontFamily: display, fontSize: 15, fontWeight: 700, color: YU.ink, margin: "0 0 4px", letterSpacing: "-0.01em", lineHeight: 1.3 }}>
+                      {s.behavior}
+                    </p>
+                    <p style={{ fontSize: 11, color: YU.label, margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>
+                      {s.target_metric_label} · {s.duration_days} days
+                    </p>
+                    <p style={{ fontSize: 12, color: YU.muted, margin: 0, lineHeight: 1.5 }}>
+                      {s.why}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <p style={{ fontSize: 11, color: YU.label, textAlign: "center", margin: "16px 0 0" }}>
+            or write your own ↓
+          </p>
+        </div>
 
         <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label }}>Behavior</label>
         <input
