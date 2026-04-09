@@ -21,6 +21,8 @@ COLLECTION = "rag_knowledge"
 
 _chunks_cache: list[dict] | None = None
 
+EMBED_DIM = 1536  # <=2048 so Firestore native vector index accepts it
+
 
 def _get_gemini_key() -> str:
     key = os.getenv("GEMINI_API_KEY", "")
@@ -47,6 +49,7 @@ async def embed_text(text: str) -> list[float] | None:
             resp = await client.post(url, json={
                 "model": "models/gemini-embedding-001",
                 "content": {"parts": [{"text": text}]},
+                "outputDimensionality": EMBED_DIM,
             })
             if resp.status_code == 200:
                 return resp.json()["embedding"]["values"]
@@ -155,21 +158,27 @@ async def index_knowledge() -> dict:
             chunk["embedding"] = embedding
             embedded += 1
 
-    # Store in Firestore
+    # Store in Firestore. Wrap the vector with firestore Vector type so the
+    # native find_nearest index can read it. Also reset the in-process cache.
+    global _chunks_cache
+    _chunks_cache = None
     try:
         from google.cloud import firestore
+        from google.cloud.firestore_v1.vector import Vector
         db = firestore.Client(project="resolution-hack")
         for chunk in chunks:
             doc_id = chunk["id"].replace("/", "_").replace(" ", "_")[:60] or f"chunk_{chunks.index(chunk)}"
+            emb = chunk.get("embedding", [])
             db.collection(COLLECTION).document(doc_id).set({
                 "text": chunk["text"],
                 "category": chunk["category"],
-                "embedding": chunk.get("embedding", []),
+                "embedding": Vector(emb) if emb else [],
+                "embedding_dim": len(emb),
                 "indexed_at": datetime.now(BOSTON_TZ).isoformat(),
             })
-        return {"status": "ok", "chunks": len(chunks), "embedded": embedded}
+        return {"status": "ok", "chunks": len(chunks), "embedded": embedded, "dim": EMBED_DIM}
     except Exception as e:
-        return {"status": "error", "message": str(e)[:100]}
+        return {"status": "error", "message": str(e)[:200]}
 
 
 async def _try_native_vector_search(query_embedding: list[float], top_k: int) -> list[dict] | None:
@@ -222,7 +231,14 @@ async def retrieve(query: str, top_k: int = 3) -> list[dict]:
             _chunks_cache = []
             for doc in docs:
                 d = doc.to_dict()
-                if d.get("embedding"):
+                emb = d.get("embedding")
+                if emb:
+                    # Vector or list -> always normalize to list
+                    if hasattr(emb, "to_map_value"):
+                        try:
+                            d["embedding"] = list(emb)
+                        except Exception:
+                            d["embedding"] = emb.to_map_value().get("value", [])
                     _chunks_cache.append(d)
         except:
             _chunks_cache = []
