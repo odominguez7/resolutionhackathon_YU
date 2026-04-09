@@ -156,13 +156,13 @@ Choose based on what their specific data shows they need. If HRV is crashed, pri
 
 
 async def generate_workout(session_type: str, biometrics: dict) -> dict:
-    """Generate a workout using Gemini 2.5 Pro based on real Oura data."""
+    """Generate a workout using Gemini 2.5 Flash based on real Oura data.
+    Uses raw httpx to match the rest of the project (no google-genai dep)."""
+    import httpx
+
     if not GEMINI_API_KEY:
         return {"error": "No GEMINI_API_KEY configured"}
 
-    from google import genai
-
-    client = genai.Client(api_key=GEMINI_API_KEY)
     now = datetime.now(BOSTON_TZ)
 
     bio_context = f"""CURRENT BIOMETRIC STATE ({now.strftime('%A, %B %d at %I:%M %p ET')}):
@@ -189,14 +189,30 @@ Recovery context: {biometrics.get('recovery_context', '')}
     else:
         prompt = WORKOUT_PROMPT + "\n\n" + bio_context + "\nGenerate today's workout. Return JSON only."
 
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=[{"role": "user", "parts": [{"text": prompt}]}],
-        )
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 2048,
+            "responseMimeType": "application/json",
+            "thinkingConfig": {"thinkingBudget": 0},
+        },
+    }
 
-        text = response.text.strip()
-        # Strip markdown code fences if present
+    text = ""
+    try:
+        try:
+            from backend.agent.security import assert_egress_allowed
+            assert_egress_allowed(url)
+        except Exception:
+            pass
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(url, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+        text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        # Strip markdown code fences if present (defensive)
         if text.startswith("```"):
             text = text.split("\n", 1)[1] if "\n" in text else text[3:]
         if text.endswith("```"):
