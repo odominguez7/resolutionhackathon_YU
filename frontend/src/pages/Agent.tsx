@@ -55,7 +55,8 @@ const F7_LINE: Record<string, [string, string]> = {
   compressed: ["Compressed.", "Moving the 3pm to Thursday, not the day for the big call."],
   depleted:   ["Depleted.", "Recovery day. My team sees my best when I come back sharp."],
 };
-const SHAREABLE_STATES = new Set(["locked", "loaded", "compressed", "depleted"]);
+// Share is available on every agent. Steady-state share is for execution-day pride.
+const SHAREABLE_STATES = new Set(["locked", "loaded", "steady", "compressed", "depleted"]);
 const PITCH = "Metrics are for spreadsheets, moods are for people. YU know the difference.";
 
 type AgentState = "locked" | "loaded" | "steady" | "compressed" | "depleted" | "insufficient";
@@ -823,6 +824,23 @@ const FORMATS: { id: ShareFormat; label: string; w: number; h: number }[] = [
   { id: "wide",   label: "Wide",   w: 1200, h: 630 },
 ];
 
+// Word-wrap a string to a max char count per line
+function wrapWords(text: string, maxChars: number): string[] {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let current = "";
+  for (const w of words) {
+    if ((current + " " + w).trim().length > maxChars) {
+      if (current) lines.push(current.trim());
+      current = w;
+    } else {
+      current = (current + " " + w).trim();
+    }
+  }
+  if (current) lines.push(current.trim());
+  return lines;
+}
+
 function buildStateCardSVG(agent: any, ritual: Ritual, fmt: { w: number; h: number }): string {
   const state: string = agent?.state || "steady";
   const glyph = STATE_GLYPH[state] || "●";
@@ -831,40 +849,78 @@ function buildStateCardSVG(agent: any, ritual: Ritual, fmt: { w: number; h: numb
   const W = fmt.w;
   const H = fmt.h;
   const cx = W / 2;
-  // Layout scales relative to the smaller dimension
-  const base = Math.min(W, H);
-  const glyphSize = Math.round(base * 0.30);
-  const stateSize = Math.round(base * 0.13);
-  const contextSize = Math.round(base * 0.045);
-  const footerSize = Math.round(base * 0.025);
-  const pitchSize = Math.round(base * 0.022);
-  const padTop = Math.round(H * 0.18);
-  const goalLine = ritual.goal?.goal?.behavior ? `Day ${ritual.goal.day_index} of: ${ritual.goal.goal.behavior}` : "";
+  const isWide = W > H * 1.4;
+  const base = isWide ? H : Math.min(W, H);
+
+  // Proportional sizing
+  const ringR = Math.round(base * 0.13);
+  const glyphSize = Math.round(base * 0.16);
+  const stateSize = Math.round(base * 0.115);
+  const contextSize = Math.round(base * 0.038);
+  const hypothesisSize = Math.round(base * 0.022);
+  const pitchSize = Math.round(base * 0.024);
+  const yuMarkSize = Math.round(base * 0.034);
+  const padX = Math.round(W * 0.08);
   const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // Wrap context line by midpoint of available width
+  const maxChars = Math.floor((W - padX * 2) / (contextSize * 0.48));
+  const contextWrapped = wrapWords(contextLine, maxChars);
+
+  const goalLine = ritual.goal?.goal?.behavior
+    ? `Day ${ritual.goal.day_index} of: ${ritual.goal.goal.behavior}`
+    : "";
+
+  // Vertical layout — place block centered vertically
+  const ringCY = Math.round(H * 0.30);
+  const stateY = ringCY + ringR + Math.round(stateSize * 1.1);
+  const contextStartY = stateY + Math.round(stateSize * 0.55) + Math.round(contextSize * 1.6);
+  const dividerY = contextStartY + contextWrapped.length * Math.round(contextSize * 1.35) + Math.round(base * 0.04);
+  const goalY = dividerY + Math.round(hypothesisSize * 1.8);
+  const pitchY = H - Math.round(base * 0.10);
+  const yuY = H - Math.round(base * 0.05);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="yu-bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#FFFFFF"/>
       <stop offset="100%" stop-color="#F8FAFC"/>
     </linearGradient>
+    <radialGradient id="yu-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="${W}" height="${H}" fill="url(#bg)"/>
+  <rect width="${W}" height="${H}" fill="url(#yu-bg)"/>
 
-  <text x="${cx}" y="${padTop + glyphSize}" font-family="Space Grotesk, sans-serif" font-size="${glyphSize}" font-weight="700" fill="${color}" text-anchor="middle">${glyph}</text>
+  <!-- Glow behind ring -->
+  <circle cx="${cx}" cy="${ringCY}" r="${ringR * 2.2}" fill="url(#yu-glow)"/>
 
-  <text x="${cx}" y="${padTop + glyphSize + stateSize + 10}" font-family="Space Grotesk, sans-serif" font-size="${stateSize}" font-weight="700" fill="${YU.ink}" text-anchor="middle" letter-spacing="-2">${escape(stateBig)}</text>
+  <!-- Ring around the glyph -->
+  <circle cx="${cx}" cy="${ringCY}" r="${ringR}" fill="none" stroke="${color}" stroke-width="${Math.max(2, base * 0.005)}" opacity="0.35"/>
+  <circle cx="${cx}" cy="${ringCY}" r="${ringR * 0.78}" fill="#fff"/>
 
-  <text x="${cx}" y="${padTop + glyphSize + stateSize + 10 + contextSize + 28}" font-family="Inter, sans-serif" font-size="${contextSize}" font-weight="500" fill="${YU.body}" text-anchor="middle">${escape(contextLine)}</text>
+  <!-- Glyph in center of ring -->
+  <text x="${cx}" y="${ringCY + glyphSize * 0.36}" font-family="Space Grotesk, -apple-system, sans-serif" font-size="${glyphSize}" font-weight="700" fill="${color}" text-anchor="middle">${glyph}</text>
+
+  <!-- State name -->
+  <text x="${cx}" y="${stateY}" font-family="Space Grotesk, -apple-system, sans-serif" font-size="${stateSize}" font-weight="700" fill="${YU.ink}" text-anchor="middle" letter-spacing="${-stateSize * 0.025}">${escape(stateBig)}</text>
+
+  <!-- Context lines (wrapped) -->
+  ${contextWrapped.map((line, i) => `
+  <text x="${cx}" y="${contextStartY + i * Math.round(contextSize * 1.35)}" font-family="Inter, -apple-system, sans-serif" font-size="${contextSize}" font-weight="500" fill="${YU.body}" text-anchor="middle">${escape(line)}</text>
+  `).join("")}
 
   ${goalLine ? `
-  <line x1="${cx - base * 0.08}" y1="${H - padTop - footerSize * 4}" x2="${cx + base * 0.08}" y2="${H - padTop - footerSize * 4}" stroke="${YU.line}" stroke-width="2"/>
-  <text x="${cx}" y="${H - padTop - footerSize * 2}" font-family="Inter, sans-serif" font-size="${footerSize}" font-weight="600" fill="${YU.label}" text-anchor="middle" letter-spacing="2">${escape(goalLine.toUpperCase())}</text>
+  <line x1="${cx - base * 0.10}" y1="${dividerY}" x2="${cx + base * 0.10}" y2="${dividerY}" stroke="${YU.line}" stroke-width="${Math.max(1.5, base * 0.0035)}"/>
+  <text x="${cx}" y="${goalY}" font-family="Inter, -apple-system, sans-serif" font-size="${hypothesisSize}" font-weight="700" fill="${YU.label}" text-anchor="middle" letter-spacing="${hypothesisSize * 0.12}">${escape(goalLine.toUpperCase())}</text>
   ` : ""}
 
-  <text x="${cx}" y="${H - padTop * 0.6}" font-family="Inter, sans-serif" font-size="${pitchSize}" font-weight="500" fill="${YU.muted}" text-anchor="middle" font-style="italic">${escape(PITCH)}</text>
+  <!-- Pitch line -->
+  <text x="${cx}" y="${pitchY}" font-family="Inter, -apple-system, sans-serif" font-size="${pitchSize}" font-weight="500" fill="${YU.muted}" text-anchor="middle" font-style="italic">${escape(PITCH)}</text>
 
-  <text x="${W - padTop * 0.8}" y="${H - padTop * 0.25}" font-family="Space Grotesk, sans-serif" font-size="${footerSize * 1.1}" font-weight="700" fill="${YU.teal}" text-anchor="end" letter-spacing="2">YU</text>
+  <!-- YU mark -->
+  <text x="${cx}" y="${yuY}" font-family="Space Grotesk, -apple-system, sans-serif" font-size="${yuMarkSize}" font-weight="700" fill="${YU.teal}" text-anchor="middle" letter-spacing="${yuMarkSize * 0.18}">YU</text>
 </svg>`;
 }
 
