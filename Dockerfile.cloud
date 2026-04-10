@@ -15,7 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt caldav vobject httpx
 # Copy backend
 COPY backend/ ./backend/
 COPY scripts/ ./scripts/
-COPY .env* ./
+# Secrets are mounted via Cloud Run --set-secrets, not baked into the image.
+# Local dev still uses .env files; the code reads os.getenv() first.
 
 # Copy built frontend
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist

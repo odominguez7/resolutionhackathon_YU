@@ -537,6 +537,27 @@ def driver_pairing():
     return build_driver_pairing(state.intervention_log, state.drift_history)
 
 
+@router.post("/behavioral-tick")
+async def behavioral_tick():
+    """Trigger one behavioral agent cycle (LangGraph).
+    Called by Cloud Scheduler daily or manually. Reads AthleteContext,
+    decides if a nudge is needed, composes it, sends via Telegram."""
+    from .behavioral import run_behavioral_tick
+    return await run_behavioral_tick()
+
+
+@router.get("/behavioral-log")
+def behavioral_log():
+    """History of behavioral agent decisions and nudges."""
+    try:
+        from google.cloud import firestore
+        db = firestore.Client(project="resolution-hack")
+        docs = db.collection("agent_nudge_log").order_by("timestamp").stream()
+        return {"entries": [d.to_dict() for d in docs]}
+    except Exception:
+        return {"entries": []}
+
+
 @router.get("/habituation")
 def habituation_check():
     """Check for interventions showing diminishing returns."""

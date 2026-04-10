@@ -32,6 +32,9 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const [workoutBacklog, setWorkoutBacklog] = useState<any[]>([]);
   const [showBacklog, setShowBacklog] = useState(false);
   const [regenLoading, setRegenLoading] = useState(false);
+  const [loggedSets, setLoggedSets] = useState<Record<string, any>>({});
+  const [activeLog, setActiveLog] = useState<string | null>(null); // movement key currently being logged
+  const [logForm, setLogForm] = useState<{ reps: string; load: string; rpe: number }>({ reps: "", load: "", rpe: 7 });
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "yu"; text: string }[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatSending, setChatSending] = useState(false);
@@ -132,6 +135,28 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
         body: JSON.stringify({ log_id: workoutLogId, completed }),
       });
       loadBacklog();
+    } catch {}
+  };
+
+  const logSet = async (movementName: string) => {
+    if (!workoutLogId) return;
+    const setNum = Object.keys(loggedSets).filter(k => k.startsWith(movementName + "_")).length + 1;
+    const key = `${movementName}_s${setNum}`;
+    try {
+      await fetch(`${API}/api/oura/workout/rpe`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          log_id: workoutLogId,
+          movement_name: movementName,
+          set_number: setNum,
+          reps_actual: logForm.reps || null,
+          load_actual: logForm.load || null,
+          rpe: logForm.rpe,
+        }),
+      });
+      setLoggedSets(prev => ({ ...prev, [key]: { reps: logForm.reps, load: logForm.load, rpe: logForm.rpe } }));
+      setActiveLog(null);
+      setLogForm({ reps: "", load: "", rpe: 7 });
     } catch {}
   };
 
@@ -620,26 +645,63 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         <li className="text-sm text-slate-200 leading-relaxed pl-1">{children}</li>
                       );
 
-                      // Movement renderer — STRICT structured fields.
-                      // Object: {reps, movement_name, load, notes?}
-                      // Legacy string fallback only when the field isn't an object.
+                      // Movement renderer — STRICT structured fields + inline set logger.
                       const renderMovement = (m: any, key: number) => {
-                        if (m && typeof m === "object") {
-                          const reps = m.reps || m.rep_scheme || "";
-                          const name = m.movement_name || m.name || m.movement || "";
-                          const load = m.load || m.weight || "";
-                          const notes = m.notes || "";
-                          return (
-                            <Bullet key={key}>
-                              {reps && <span className="text-white font-bold">{reps} </span>}
-                              {name}
-                              {load && <span className="text-slate-400"> ({load})</span>}
-                              {notes && <span className="text-slate-500 italic"> — {notes}</span>}
-                            </Bullet>
-                          );
-                        }
-                        // Legacy string entry
-                        return <Bullet key={key}>{String(m)}</Bullet>;
+                        const movName = (m && typeof m === "object") ? (m.movement_name || m.name || m.movement || "") : String(m);
+                        const reps = (m && typeof m === "object") ? (m.reps || m.rep_scheme || "") : "";
+                        const load = (m && typeof m === "object") ? (m.load || m.weight || "") : "";
+                        const notes = (m && typeof m === "object") ? (m.notes || "") : "";
+                        const setCount = Object.keys(loggedSets).filter(k => k.startsWith(movName + "_")).length;
+                        const isActive = activeLog === movName;
+
+                        return (
+                          <li key={key} className="text-sm text-slate-200 leading-relaxed pl-1 space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span>
+                                {reps && <span className="text-white font-bold">{reps} </span>}
+                                {movName}
+                                {load && <span className="text-slate-400"> ({load})</span>}
+                                {notes && <span className="text-slate-500 italic"> — {notes}</span>}
+                              </span>
+                              {workoutLogId && (
+                                <button
+                                  onClick={() => { setActiveLog(isActive ? null : movName); setLogForm({ reps: reps, load: load, rpe: 7 }); }}
+                                  className="text-[9px] font-bold px-2 py-0.5 rounded-md cursor-pointer border-0"
+                                  style={{ background: setCount > 0 ? "rgba(74,222,128,.12)" : "rgba(99,102,241,.12)", color: setCount > 0 ? "#4ADE80" : "#A5B4FC" }}>
+                                  {setCount > 0 ? `${setCount} logged` : "Log"}
+                                </button>
+                              )}
+                            </div>
+                            {isActive && (
+                              <div className="flex items-center gap-2 flex-wrap ml-2 mt-1 p-2 rounded-lg" style={{ background: "rgba(99,102,241,.06)", border: "1px solid rgba(99,102,241,.12)" }}>
+                                <input
+                                  type="text" placeholder="Reps" value={logForm.reps}
+                                  onChange={e => setLogForm(f => ({ ...f, reps: e.target.value }))}
+                                  className="w-14 text-[10px] px-2 py-1 rounded-md bg-transparent text-white border"
+                                  style={{ borderColor: "rgba(255,255,255,.1)" }} />
+                                <input
+                                  type="text" placeholder="Load" value={logForm.load}
+                                  onChange={e => setLogForm(f => ({ ...f, load: e.target.value }))}
+                                  className="w-20 text-[10px] px-2 py-1 rounded-md bg-transparent text-white border"
+                                  style={{ borderColor: "rgba(255,255,255,.1)" }} />
+                                <div className="flex items-center gap-1">
+                                  <span className="text-[9px] text-slate-500">RPE</span>
+                                  <input
+                                    type="range" min={1} max={10} value={logForm.rpe}
+                                    onChange={e => setLogForm(f => ({ ...f, rpe: Number(e.target.value) }))}
+                                    className="w-16 h-1 accent-indigo-400" />
+                                  <span className="text-[10px] font-bold" style={{ color: logForm.rpe >= 9 ? "#F87171" : logForm.rpe >= 7 ? "#FBBF24" : "#4ADE80" }}>{logForm.rpe}</span>
+                                </div>
+                                <button
+                                  onClick={() => logSet(movName)}
+                                  className="text-[9px] font-bold px-2.5 py-1 rounded-md cursor-pointer border-0"
+                                  style={{ background: "rgba(74,222,128,.15)", color: "#4ADE80" }}>
+                                  Save
+                                </button>
+                              </div>
+                            )}
+                          </li>
+                        );
                       };
 
                       // Header builders following the brief
