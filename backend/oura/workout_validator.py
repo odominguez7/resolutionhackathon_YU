@@ -39,7 +39,7 @@ def _normalize(name: str) -> str:
     return re.sub(r"\s+", " ", name.strip().lower())
 
 
-def validate_workout(workout: dict, required_patterns: list[str] | None = None) -> dict:
+def validate_workout(workout: dict, required_patterns: list[str] | None = None, equipment: dict | None = None) -> dict:
     """Validate a generated workout. Returns:
     {
         "valid": bool,
@@ -143,7 +143,20 @@ def validate_workout(workout: dict, required_patterns: list[str] | None = None) 
             if int(n) > 100:
                 errors.append(f"Load {n}lb exceeds max (100lb per DB): {m.get('movement_name')}")
 
-    # 6. Description leak check — no block should have a description field
+    # 6. Equipment check — every movement's required gear must be in the set
+    if equipment:
+        for block_key, m in all_movements:
+            if not isinstance(m, dict):
+                continue
+            name = m.get("movement_name") or m.get("name") or ""
+            if not name:
+                continue
+            from .athlete_context import check_equipment
+            err = check_equipment(name, equipment)
+            if err:
+                errors.append(f"Equipment violation in {block_key}: {err}")
+
+    # 7. Description leak check — no block should have a description field
     for block_key in ("workout", "strength", "metcon"):
         block = workout.get(block_key)
         if block and block.get("description"):

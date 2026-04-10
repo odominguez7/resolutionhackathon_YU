@@ -193,6 +193,7 @@ async def generate_workout(
     biometrics: dict,
     lock_patterns: list[str] | None = None,
     avoid_movements: list[str] | None = None,
+    athlete_context: dict | None = None,
 ) -> dict:
     """Generate a workout using Gemini 2.5 Flash based on real Oura data.
     Uses raw httpx to match the rest of the project (no google-genai dep).
@@ -251,6 +252,16 @@ Recovery context: {biometrics.get('recovery_context', '')}
         )
         regen_block = "\n".join(parts)
 
+    # Build the rule-based skeleton (v2.1 planner-svc layer 1)
+    skeleton_block = ""
+    if session_type not in ("yoga", "rest") and athlete_context:
+        try:
+            from .workout_skeleton import build_skeleton, build_skeleton_prompt_block
+            skeleton = build_skeleton(athlete_context)
+            skeleton_block = build_skeleton_prompt_block(skeleton)
+        except Exception:
+            skeleton_block = ""
+
     if session_type == "yoga":
         prompt = YOGA_PROMPT + "\n\n" + bio_context
     elif session_type == "rest":
@@ -260,6 +271,7 @@ Recovery context: {biometrics.get('recovery_context', '')}
             WORKOUT_PROMPT
             + "\n\n" + bio_context
             + "\n\n" + memory_block
+            + skeleton_block
             + regen_block
             + "\n\nGenerate today's workout. Return JSON only."
         )
@@ -302,7 +314,8 @@ Recovery context: {biometrics.get('recovery_context', '')}
         from .workout_progression import record_movements
 
         if session_type not in ("yoga", "rest"):
-            check = validate_workout(workout, required_patterns=lock_patterns)
+            equip = (athlete_context or {}).get("equipment")
+            check = validate_workout(workout, required_patterns=lock_patterns, equipment=equip)
             if not check["valid"]:
                 # ONE bounded retry — reprompt with the specific errors
                 retry_text = build_retry_prompt(check["errors"])
@@ -327,7 +340,7 @@ Recovery context: {biometrics.get('recovery_context', '')}
                     if text2.startswith("json"):
                         text2 = text2[4:]
                     workout2 = json.loads(text2.strip())
-                    check2 = validate_workout(workout2, required_patterns=lock_patterns)
+                    check2 = validate_workout(workout2, required_patterns=lock_patterns, equipment=equip)
                     if check2["valid"]:
                         workout = workout2
                     else:

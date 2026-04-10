@@ -858,75 +858,21 @@ async def list_webhooks():
 
 
 @router.get("/workout")
-async def get_workout(session_type: str = "crossfit"):
-    """Generate AI-powered workout based on real biometrics."""
+async def get_workout(session_type: str = "crossfit", travel: bool = False):
+    """Generate AI-powered workout based on real biometrics.
+    Uses the typed AthleteContext — single assembly point for all state."""
     from .workout_ai import generate_workout
-    from datetime import datetime
-    from zoneinfo import ZoneInfo
-    import statistics
+    from .athlete_context import build_athlete_context
 
-    boston_tz = ZoneInfo("America/New_York")
-    today_str = datetime.now(boston_tz).strftime("%Y-%m-%d")
-
-    # Build biometrics context from real data
-    days = sorted(_sleep_by_day.keys())
-    last_30_hrvs = [_sleep_by_day[d].get("average_hrv") for d in days[-30:] if _sleep_by_day[d].get("average_hrv")]
-    last_30_rhrs = [_sleep_by_day[d].get("average_heart_rate") for d in days[-30:] if _sleep_by_day[d].get("average_heart_rate")]
-
-    # Today or most recent day
-    today_score = _score_by_day.get(today_str)
-    if today_score is None and _score_by_day:
-        latest_day = max(_score_by_day.keys())
-    else:
-        latest_day = today_str
-
-    sleep_session = _sleep_by_day.get(latest_day, {})
-    readiness = _readiness_by_day.get(latest_day, {})
-    stress = _stress_by_day.get(latest_day, {})
-
-    # Last 3 days for trend
-    last_3 = []
-    for d in days[-3:]:
-        s = _sleep_by_day[d]
-        last_3.append({
-            "day": d,
-            "sleep_score": _score_by_day.get(d, 0),
-            "hrv": s.get("average_hrv"),
-            "rhr": round(s.get("average_heart_rate", 0), 1) if s.get("average_heart_rate") else None,
-            "readiness": _readiness_by_day.get(d, {}).get("score"),
-            "deep_min": round(s.get("deep_sleep_duration", 0) / 60),
-            "total_hrs": round(s.get("total_sleep_duration", 0) / 3600, 1),
-        })
-
-    # Recovery context
-    hrv_val = sleep_session.get("average_hrv")
-    hrv_bl = round(statistics.mean(last_30_hrvs), 1) if last_30_hrvs else None
-    readiness_score = readiness.get("score", 0)
-
-    if readiness_score > 80 and hrv_val and hrv_bl and hrv_val >= hrv_bl:
-        context = "Fully recovered. Push hard today."
-    elif readiness_score > 65:
-        context = "Decent recovery. Solid work day."
-    elif readiness_score > 50:
-        context = "Under-recovered. Go easier today."
-    else:
-        context = "Low recovery. Active recovery only."
-
-    biometrics = {
-        "sleep_score": _score_by_day.get(latest_day),
-        "readiness": readiness_score,
-        "hrv": hrv_val,
-        "hrv_baseline": hrv_bl,
-        "rhr": round(sleep_session.get("average_heart_rate", 0), 1) if sleep_session.get("average_heart_rate") else None,
-        "rhr_baseline": round(statistics.mean(last_30_rhrs), 1) if last_30_rhrs else None,
-        "stress_min": round((stress.get("stress_high", 0) or 0) / 60),
-        "deep_min": round(sleep_session.get("deep_sleep_duration", 0) / 60),
-        "total_sleep_hrs": round(sleep_session.get("total_sleep_duration", 0) / 3600, 1),
-        "last_3_days": last_3,
-        "recovery_context": context,
-    }
-
-    result = await generate_workout(session_type, biometrics)
+    ctx = build_athlete_context(
+        sleep_by_day=_sleep_by_day,
+        score_by_day=_score_by_day,
+        readiness_by_day=_readiness_by_day,
+        stress_by_day=_stress_by_day,
+        session_type=session_type,
+        travel_mode=travel,
+    )
+    result = await generate_workout(session_type, ctx["biometrics"], athlete_context=ctx)
     return result
 
 
@@ -953,50 +899,23 @@ async def regenerate_workout(payload: dict):
     if not rejected:
         return {"error": "log_id not found"}
 
-    # Rebuild biometrics the same way the /workout route does, so the new
-    # generation reasons over the same body state.
-    from datetime import datetime
-    from zoneinfo import ZoneInfo
-    import statistics
+    from .athlete_context import build_athlete_context
 
-    boston_tz = ZoneInfo("America/New_York")
-    today_str = datetime.now(boston_tz).strftime("%Y-%m-%d")
-    days = sorted(_sleep_by_day.keys())
-    last_30_hrvs = [_sleep_by_day[d].get("average_hrv") for d in days[-30:] if _sleep_by_day[d].get("average_hrv")]
-    last_30_rhrs = [_sleep_by_day[d].get("average_heart_rate") for d in days[-30:] if _sleep_by_day[d].get("average_heart_rate")]
-    latest_day = today_str if today_str in _score_by_day else (max(_score_by_day.keys()) if _score_by_day else today_str)
-    sleep_session = _sleep_by_day.get(latest_day, {})
-    readiness = _readiness_by_day.get(latest_day, {})
-    stress = _stress_by_day.get(latest_day, {})
-    last_3 = []
-    for d in days[-3:]:
-        s = _sleep_by_day[d]
-        last_3.append({
-            "day": d,
-            "sleep_score": _score_by_day.get(d, 0),
-            "hrv": s.get("average_hrv"),
-            "rhr": round(s.get("average_heart_rate", 0), 1) if s.get("average_heart_rate") else None,
-            "readiness": _readiness_by_day.get(d, {}).get("score"),
-        })
-    biometrics = {
-        "sleep_score": _score_by_day.get(latest_day),
-        "readiness": readiness.get("score", 0),
-        "hrv": sleep_session.get("average_hrv"),
-        "hrv_baseline": round(statistics.mean(last_30_hrvs), 1) if last_30_hrvs else None,
-        "rhr": round(sleep_session.get("average_heart_rate", 0), 1) if sleep_session.get("average_heart_rate") else None,
-        "rhr_baseline": round(statistics.mean(last_30_rhrs), 1) if last_30_rhrs else None,
-        "stress_min": round((stress.get("stress_high", 0) or 0) / 60),
-        "deep_min": round(sleep_session.get("deep_sleep_duration", 0) / 60),
-        "total_sleep_hrs": round(sleep_session.get("total_sleep_duration", 0) / 3600, 1),
-        "last_3_days": last_3,
-        "recovery_context": "regeneration after user rejected previous combo",
-    }
-
-    return await generate_workout(
-        session_type,
-        biometrics,
+    ctx = build_athlete_context(
+        sleep_by_day=_sleep_by_day,
+        score_by_day=_score_by_day,
+        readiness_by_day=_readiness_by_day,
+        stress_by_day=_stress_by_day,
+        session_type=session_type,
         lock_patterns=rejected.get("patterns") or [],
         avoid_movements=rejected.get("movements") or [],
+    )
+    return await generate_workout(
+        session_type,
+        ctx["biometrics"],
+        lock_patterns=rejected.get("patterns") or [],
+        avoid_movements=rejected.get("movements") or [],
+        athlete_context=ctx,
     )
 
 
