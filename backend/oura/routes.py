@@ -882,7 +882,10 @@ async def get_daily_action(request: Request):
     except Exception:
         events = []
 
-    calendar_load = compute_calendar_cognitive_load(events)
+    try:
+        calendar_load = compute_calendar_cognitive_load(events)
+    except Exception:
+        calendar_load = 0
 
     ctx = build_athlete_context(
         sleep_by_day=data["sleep_by_day"],

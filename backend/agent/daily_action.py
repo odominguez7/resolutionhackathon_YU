@@ -220,8 +220,12 @@ def compute_calendar_cognitive_load(events: list[dict]) -> int:
     stress_score = 0
 
     for event in events:
-        title = (event.get("summary") or event.get("title") or "").lower()
-        duration_min = event.get("duration_min", 60)
+        if isinstance(event, str):
+            title = event.lower()
+            duration_min = 60
+        else:
+            title = (event.get("summary") or event.get("title") or "").lower()
+            duration_min = event.get("duration_min", 60)
         total_hours += duration_min / 60
 
         # Keyword scoring
