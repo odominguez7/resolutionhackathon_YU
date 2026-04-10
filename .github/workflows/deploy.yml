@@ -1,8 +1,9 @@
 name: Deploy to Cloud Run
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:  # Manual trigger only until WIF is fixed
+  # push:
+  #   branches: [main]
 
 env:
   PROJECT_ID: resolution-hack

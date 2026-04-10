@@ -5,21 +5,30 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { PlanProvider } from "@/contexts/PlanContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence } from "framer-motion";
+import { lazy, Suspense } from "react";
 import NavBar from "@/components/NavBar";
 import SmoothScroll from "@/components/SmoothScroll";
 import PageTransition from "@/components/PageTransition";
-import Landing from "@/pages/Landing";
-import Onboarding from "@/pages/Onboarding";
-import Agent from "@/pages/Agent";
-import AskYU from "@/pages/AskYU";
-import OuraProfile from "@/pages/OuraProfile";
-import Drift from "@/pages/Drift";
-import Recovery from "@/pages/Recovery";
-import Employer from "@/pages/Employer";
-import Settings from "@/pages/Settings";
-import History from "@/pages/History";
-import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
+
+// Lazy-loaded pages — code split into separate chunks
+const Landing = lazy(() => import("@/pages/Landing"));
+const Onboarding = lazy(() => import("@/pages/Onboarding"));
+const Agent = lazy(() => import("@/pages/Agent"));
+const AskYU = lazy(() => import("@/pages/AskYU"));
+const OuraProfile = lazy(() => import("@/pages/OuraProfile"));
+const Drift = lazy(() => import("@/pages/Drift"));
+const Recovery = lazy(() => import("@/pages/Recovery"));
+const Employer = lazy(() => import("@/pages/Employer"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const History = lazy(() => import("@/pages/History"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0b0d" }}>
+    <div className="w-3 h-3 rounded-full animate-pulse" style={{ background: "#FF5C35" }} />
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -34,6 +43,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AnimatedRoutes() {
   const location = useLocation();
   return (
+    <Suspense fallback={<PageLoader />}>
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Landing />} />
@@ -49,6 +59,7 @@ function AnimatedRoutes() {
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
+    </Suspense>
   );
 }
 

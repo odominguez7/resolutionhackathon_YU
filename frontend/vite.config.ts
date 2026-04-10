@@ -19,4 +19,19 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split heavy deps into separate chunks
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-motion": ["framer-motion"],
+          "vendor-charts": ["recharts"],
+          "vendor-firebase": ["firebase/app", "firebase/auth"],
+          "vendor-query": ["@tanstack/react-query"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
 }));

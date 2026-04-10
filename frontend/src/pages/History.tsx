@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Dumbbell, TrendingUp, Calendar, ChevronDown, ChevronUp, Check, X, Minus, AlertTriangle } from "lucide-react";
+import { Dumbbell, TrendingUp, Calendar, ChevronDown, ChevronUp, Check, X, Minus, AlertTriangle, Activity } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { api } from "@/lib/api";
 
 const VERDICT_COLORS: Record<string, string> = { ok: "#C2FF4A", too_much: "#FF5D6C", undertrained: "#FFC36B" };
@@ -90,6 +91,42 @@ export default function History() {
               );
             })}
           </div>
+        </motion.div>
+      )}
+
+      {/* HRV Trend Chart — before/after visualization */}
+      {summary?.hrv_values && summary.hrv_values.length >= 3 && (
+        <motion.div className="rounded-2xl p-5 mb-6" style={{ background: "rgba(110,231,255,0.03)", border: "1px solid rgba(110,231,255,0.08)" }}
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Activity className="w-4 h-4" style={{ color: "#6EE7FF" }} />
+            <p className="text-xs font-black uppercase tracking-wider" style={{ color: "#6EE7FF" }}>HRV Trend (7 days)</p>
+            <span className="text-[9px] px-2 py-0.5 rounded-full ml-auto" style={{
+              background: summary.hrv_trend === "improving" ? "rgba(194,255,74,.12)" : summary.hrv_trend === "declining" ? "rgba(255,93,108,.12)" : "rgba(255,255,255,.04)",
+              color: summary.hrv_trend === "improving" ? "#C2FF4A" : summary.hrv_trend === "declining" ? "#FF5D6C" : "#94A3B8",
+            }}>{summary.hrv_trend}</span>
+          </div>
+          <ResponsiveContainer width="100%" height={120}>
+            <AreaChart data={summary.hrv_values.map((v: number, i: number) => ({ day: i + 1, hrv: v }))}>
+              <defs>
+                <linearGradient id="hrvGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6EE7FF" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#6EE7FF" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="day" hide />
+              <YAxis hide domain={["dataMin - 2", "dataMax + 2"]} />
+              <Tooltip
+                contentStyle={{ background: "#1a1d24", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 11 }}
+                labelStyle={{ color: "#94A3B8" }}
+                formatter={(v: number) => [`${v}ms`, "HRV"]}
+              />
+              <Area type="monotone" dataKey="hrv" stroke="#6EE7FF" fill="url(#hrvGrad)" strokeWidth={2} dot={{ r: 3, fill: "#6EE7FF" }} />
+            </AreaChart>
+          </ResponsiveContainer>
+          <p className="text-[9px] text-slate-500 mt-2 text-center">
+            {summary.hrv_values[0]}ms → {summary.hrv_values[summary.hrv_values.length - 1]}ms over the last {summary.hrv_values.length} days
+          </p>
         </motion.div>
       )}
 
