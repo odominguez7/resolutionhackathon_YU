@@ -116,15 +116,14 @@ def get_oura_workout_history() -> list[dict]:
         from backend.oura.routes import WORKOUTS
         entries = []
         for w in WORKOUTS:
-            start = w.get("start_datetime", "")
-            if not start:
+            day = w.get("day") or (w.get("start_datetime") or "")[:10]
+            if not day:
                 continue
             activity = (w.get("activity") or "").lower()
             calories = w.get("calories") or 0
             # Skip light walks (< 80 cal) — not a real training session
             if "walk" in activity and calories < 80:
                 continue
-            day = start[:10]
             # Estimate intensity from calories and activity type
             if calories >= 400 or activity in ("crosstraining", "hiit", "running"):
                 intensity = "push"
@@ -137,6 +136,7 @@ def get_oura_workout_history() -> list[dict]:
             # Estimate duration
             dur = w.get("duration")
             duration_min = round(dur / 60) if isinstance(dur, (int, float)) and dur > 0 else round(calories / 8) if calories else 30
+            start = w.get("start_datetime") or f"{day}T06:00:00-04:00"
             entries.append({
                 "generated_at": start,
                 "day": day,
