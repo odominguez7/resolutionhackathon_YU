@@ -949,8 +949,22 @@ async def get_daily_action(request: Request):
         },
         "calendar_cognitive_load": calendar_load,
         "universal_context": universal,
+        "last_trained": _get_last_trained(),
         "user_id": user_id,
     }
+
+
+def _get_last_trained() -> dict | None:
+    """Get the most recent real workout from Oura (not test generations)."""
+    try:
+        from backend.oura.normalize import get_oura_workout_history
+        workouts = get_oura_workout_history()
+        if workouts:
+            latest = sorted(workouts, key=lambda w: w.get("day", ""), reverse=True)[0]
+            return {"day": latest["day"], "activity": latest.get("activity"), "calories": latest.get("calories")}
+    except Exception:
+        pass
+    return None
 
 
 @router.post("/workout/generate")

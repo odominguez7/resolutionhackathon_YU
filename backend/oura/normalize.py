@@ -108,6 +108,51 @@ def detect_nervous_system_state(
 
 # ── ACWR (Acute:Chronic Workload Ratio) ──────────────────────────────────────
 
+def get_oura_workout_history() -> list[dict]:
+    """Read actual workout sessions from Oura (the source of truth for
+    whether the user actually trained). Returns simplified entries
+    compatible with the ACWR computation."""
+    try:
+        from backend.oura.routes import WORKOUTS
+        entries = []
+        for w in WORKOUTS:
+            start = w.get("start_datetime", "")
+            if not start:
+                continue
+            activity = (w.get("activity") or "").lower()
+            calories = w.get("calories") or 0
+            # Skip light walks (< 80 cal) — not a real training session
+            if "walk" in activity and calories < 80:
+                continue
+            day = start[:10]
+            # Estimate intensity from calories and activity type
+            if calories >= 400 or activity in ("crosstraining", "hiit", "running"):
+                intensity = "push"
+            elif calories >= 200:
+                intensity = "work"
+            elif "yoga" in activity:
+                intensity = "easy"
+            else:
+                intensity = "easy"
+            # Estimate duration
+            dur = w.get("duration")
+            duration_min = round(dur / 60) if isinstance(dur, (int, float)) and dur > 0 else round(calories / 8) if calories else 30
+            entries.append({
+                "generated_at": start,
+                "day": day,
+                "intensity": intensity,
+                "duration_min": duration_min,
+                "user_feedback": {"completed": "yes"},  # Oura recorded = it happened
+                "patterns": [],  # unknown from Oura
+                "source": "oura",
+                "activity": activity,
+                "calories": calories,
+            })
+        return entries
+    except Exception:
+        return []
+
+
 def compute_acwr(workout_log: list[dict]) -> dict:
     """The golden metric of sports science.
 
@@ -210,7 +255,17 @@ def compute_muscle_heatmap(workout_log: list[dict]) -> dict:
 
 def build_universal_context(ctx: dict, workout_log: list[dict]) -> dict:
     """Transform the existing AthleteContext into the universal schema.
-    This is the normalization layer that sits between PERCEIVE and THINK."""
+    This is the normalization layer that sits between PERCEIVE and THINK.
+
+    Merges the internal workout_log with actual Oura workout sessions
+    so the ACWR and muscle heatmap reflect real training, not just
+    YU-generated workouts."""
+
+    # Merge: Oura workouts (source of truth) + internal log (has patterns + RPE)
+    oura_workouts = get_oura_workout_history()
+    # Deduplicate by day — prefer internal log entries (they have patterns + detail)
+    internal_days = {e.get("day") for e in workout_log}
+    merged_log = list(workout_log) + [w for w in oura_workouts if w.get("day") not in internal_days]
 
     bio = ctx.get("biometrics") or {}
     baseline = ctx.get("baseline") or {}
@@ -261,9 +316,9 @@ def build_universal_context(ctx: dict, workout_log: list[dict]) -> dict:
             "rhr_deviation_bpm": rhr_deviation,
         },
         "load_ledger": {
-            "acwr": compute_acwr(workout_log),
-            "muscle_readiness_heatmap": compute_muscle_heatmap(workout_log),
-            "days_since_complete_rest": _days_since_rest(workout_log),
+            "acwr": compute_acwr(merged_log),
+            "muscle_readiness_heatmap": compute_muscle_heatmap(merged_log),
+            "days_since_complete_rest": _days_since_rest(merged_log),
         },
         "system_flags": {
             "is_missing_wearable_data": not has_wearable,
