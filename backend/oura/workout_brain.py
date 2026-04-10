@@ -306,6 +306,20 @@ def build_memory_block(current_biometrics: dict) -> str:
     balance = balance_instructions(history)
     catalog = load_catalog()
 
+    # Progression ledger (v2.1 week 7-9)
+    try:
+        from .workout_progression import build_progression_block
+        progression_block = build_progression_block()
+    except Exception:
+        progression_block = ""
+
+    # Adherence intelligence (v2.1 week 8-10)
+    try:
+        from .workout_adherence import build_adherence_block
+        adherence_block = build_adherence_block(recent_log(14))
+    except Exception:
+        adherence_block = ""
+
     lines: list[str] = []
     lines.append("=" * 60)
     lines.append("ALLOWED MOVEMENT CATALOG (use ONLY movements from this list)")
@@ -343,4 +357,13 @@ def build_memory_block(current_biometrics: dict) -> str:
     lines.append("Hard rule: Every movement you output MUST appear in the catalog above.")
     lines.append("Hard rule: If yesterday's verdict was 'too_much', drop intensity one tier.")
     lines.append("Hard rule: If yesterday's verdict was 'undertrained' two days in a row, push harder today.")
+
+    # Append progression ledger
+    if progression_block:
+        lines.append(progression_block)
+
+    # Append adherence intelligence
+    if adherence_block:
+        lines.append(adherence_block)
+
     return "\n".join(lines)

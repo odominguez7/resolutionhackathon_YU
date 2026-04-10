@@ -296,6 +296,46 @@ Recovery context: {biometrics.get('recovery_context', '')}
             text = text[4:]
 
         workout = json.loads(text.strip())
+
+        # ── POST-GENERATION VALIDATOR (v2.1 week 2-3) ──────────────
+        from .workout_validator import validate_workout, build_retry_prompt, build_fallback_workout
+        from .workout_progression import record_movements
+
+        if session_type not in ("yoga", "rest"):
+            check = validate_workout(workout, required_patterns=lock_patterns)
+            if not check["valid"]:
+                # ONE bounded retry — reprompt with the specific errors
+                retry_text = build_retry_prompt(check["errors"])
+                retry_payload = {
+                    "contents": [
+                        {"role": "user", "parts": [{"text": prompt}]},
+                        {"role": "model", "parts": [{"text": text}]},
+                        {"role": "user", "parts": [{"text": retry_text}]},
+                    ],
+                    "generationConfig": payload["generationConfig"],
+                }
+                try:
+                    async with httpx.AsyncClient(timeout=30.0) as client2:
+                        resp2 = await client2.post(url, json=retry_payload)
+                        resp2.raise_for_status()
+                        data2 = resp2.json()
+                    text2 = data2["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    if text2.startswith("```"):
+                        text2 = text2.split("\n", 1)[1] if "\n" in text2 else text2[3:]
+                    if text2.endswith("```"):
+                        text2 = text2[:-3]
+                    if text2.startswith("json"):
+                        text2 = text2[4:]
+                    workout2 = json.loads(text2.strip())
+                    check2 = validate_workout(workout2, required_patterns=lock_patterns)
+                    if check2["valid"]:
+                        workout = workout2
+                    else:
+                        # Both attempts failed — use fallback
+                        workout = build_fallback_workout(biometrics, session_type)
+                except Exception:
+                    workout = build_fallback_workout(biometrics, session_type)
+
         workout["generated_at"] = now.isoformat()
         workout["biometrics_used"] = {
             "readiness": biometrics.get("readiness"),
@@ -308,6 +348,8 @@ Recovery context: {biometrics.get('recovery_context', '')}
                 entry = log_workout(workout, biometrics, session_type)
                 workout["log_id"] = entry["id"]
                 workout["patterns"] = entry["patterns"]
+                # Record movements into the progression ledger
+                record_movements(workout, completed="yes")
             except Exception as _e:
                 pass
         return workout

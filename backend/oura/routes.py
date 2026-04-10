@@ -1008,8 +1008,9 @@ def workout_feedback(payload: dict):
     target_id = (payload or {}).get("log_id")
     for entry in log:
         if entry["id"] == target_id:
+            completed = (payload or {}).get("completed", "unknown")
             entry["user_feedback"] = {
-                "completed": (payload or {}).get("completed", "unknown"),
+                "completed": completed,
                 "felt": (payload or {}).get("felt"),
                 "soreness": (payload or {}).get("soreness"),
                 "notes": (payload or {}).get("notes", ""),
@@ -1017,8 +1018,31 @@ def workout_feedback(payload: dict):
             }
             _save_log(log)
             _upsert_entry(entry)
+            # Update progression ledger with actual completion status
+            try:
+                from .workout_progression import record_movements
+                full = entry.get("full_workout") or {}
+                if full:
+                    record_movements(full, completed=completed)
+            except Exception:
+                pass
             return {"saved": True, "entry": entry}
     return {"saved": False, "reason": "log_id not found"}
+
+
+@router.get("/workout/progression")
+def workout_progression():
+    """Progressive overload ledger — per-movement load history + next prescribed."""
+    from .workout_progression import get_all_progressions
+    return {"movements": get_all_progressions()}
+
+
+@router.get("/workout/adherence")
+def workout_adherence():
+    """Adherence profile for the last 14 days."""
+    from .workout_adherence import build_adherence_profile
+    from .workout_brain import recent_log
+    return build_adherence_profile(recent_log(14))
 
 
 @router.get("/workout/today")
