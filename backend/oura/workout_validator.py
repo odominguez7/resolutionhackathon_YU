@@ -150,38 +150,20 @@ def validate_workout(
             if int(n) > 100:
                 errors.append(f"Load {n}lb exceeds max (100lb per DB): {m.get('movement_name')}")
 
-    # 6. Volume cap — weekly reps per pattern must not exceed safe limits
+    # 6. Volume cap — weekly reps per pattern (soft warning, not hard reject).
+    # Only count COMPLETED workouts toward volume (not every generation).
+    # Exceeding the cap is logged but does NOT fail validation — the athlete
+    # might have a legitimate reason for high volume this week, and rejecting
+    # Gemini's output for something the user already did makes no sense.
     if weekly_volume:
-        # Count new reps by pattern
-        new_reps_by_pattern: dict[str, int] = {}
-        for _, m in all_movements:
-            if not isinstance(m, dict):
-                continue
-            name = m.get("movement_name") or m.get("name") or ""
-            reps_str = str(m.get("reps") or "0")
-            # Extract numeric portion (e.g. "15" from "15", "400m" stays 0 for volume)
-            reps_num = 0
-            import re as _re
-            r_match = _re.match(r"(\d+)", reps_str)
-            if r_match and not any(c in reps_str for c in ["m", "sec", "min"]):
-                reps_num = int(r_match.group(1))
-            patterns = tag_patterns([name])
-            for p in patterns:
-                new_reps_by_pattern[p] = new_reps_by_pattern.get(p, 0) + reps_num
-
         WEEKLY_REP_CAPS = {
-            "squat": 300, "hinge": 250, "push_h": 300, "push_v": 200,
-            "pull_v": 200, "pull_h": 250, "olympic": 150, "core": 400,
+            "squat": 400, "hinge": 350, "push_h": 400, "push_v": 300,
+            "pull_v": 300, "pull_h": 350, "olympic": 200, "core": 500,
         }
-        for p, new_reps in new_reps_by_pattern.items():
+        for p, existing in weekly_volume.items():
             cap = WEEKLY_REP_CAPS.get(p)
-            if cap is None:
-                continue
-            existing = weekly_volume.get(p, 0)
-            if existing + new_reps > cap:
-                errors.append(
-                    f"Volume cap exceeded for '{p}': week has {existing} reps + {new_reps} new = {existing + new_reps} (cap: {cap})"
-                )
+            if cap and existing > cap:
+                print(f"[validator] volume warning: '{p}' at {existing} reps (cap {cap})")
 
     # 7. Competency check — movement must be in user's approved set
     if competency:

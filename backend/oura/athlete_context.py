@@ -393,9 +393,9 @@ def build_athlete_context(
         import re as _re
         history = recent_log(7)
         balance = balance_instructions(history)
-        # Weekly volume: sum reps per pattern from this week's logged workouts
+        # Weekly volume: sum reps per pattern only from COMPLETED workouts
         weekly_volume: dict[str, int] = {}
-        for entry in history:
+        for entry in [e for e in history if (e.get("user_feedback") or {}).get("completed") == "yes"]:
             full = entry.get("full_workout") or {}
             for bk in ("workout", "strength", "metcon"):
                 block = full.get(bk) or {}

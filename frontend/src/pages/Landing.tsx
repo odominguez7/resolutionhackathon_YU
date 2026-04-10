@@ -132,11 +132,11 @@ const Landing = () => {
                 Start training <ArrowRight className="w-4 h-4" />
               </motion.button>
             </Link>
-            <Link to="/oura" className="no-underline">
+            <Link to="/onboarding" className="no-underline">
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 className="px-6 py-4 rounded-xl font-bold text-sm tracking-wide border-0 cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                See a live workout
+                See how it works
               </motion.button>
             </Link>
           </motion.div>

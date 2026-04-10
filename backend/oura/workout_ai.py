@@ -320,6 +320,8 @@ Recovery context: {biometrics.get('recovery_context', '')}
             ot_risk = (athlete_context or {}).get("overtraining_risk", "none")
             check = validate_workout(workout, required_patterns=lock_patterns, equipment=equip, competency=comp, weekly_volume=wvol, overtraining_risk=ot_risk)
             if not check["valid"]:
+                print(f"[validator] FIRST attempt failed ({len(check['errors'])} errors):")
+                for e in check["errors"]: print(f"[validator]   - {e}")
                 # ONE bounded retry — reprompt with the specific errors
                 retry_text = build_retry_prompt(check["errors"])
                 retry_payload = {
@@ -347,7 +349,8 @@ Recovery context: {biometrics.get('recovery_context', '')}
                     if check2["valid"]:
                         workout = workout2
                     else:
-                        # Both attempts failed — use fallback
+                        print(f"[validator] RETRY also failed ({len(check2['errors'])} errors):")
+                        for e in check2["errors"]: print(f"[validator]   - {e}")
                         workout = build_fallback_workout(biometrics, session_type)
                 except Exception:
                     workout = build_fallback_workout(biometrics, session_type)

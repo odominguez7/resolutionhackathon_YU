@@ -134,16 +134,20 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   };
 
   const [showSkipReasons, setShowSkipReasons] = useState(false);
+  const [skipNote, setSkipNote] = useState("");
+  const [selectedSkipReason, setSelectedSkipReason] = useState<string | null>(null);
 
   const sendWorkoutFeedback = async (completed: "yes" | "partial" | "no", skipReason?: string) => {
     if (!workoutLogId) return;
     setWorkoutFeedback(completed);
     setShowSkipReasons(false);
+    setSelectedSkipReason(null);
     try {
       await fetch(`${API}/api/oura/workout/feedback`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ log_id: workoutLogId, completed, skip_reason: skipReason || null }),
+        body: JSON.stringify({ log_id: workoutLogId, completed, skip_reason: skipReason || null, notes: skipNote || null }),
       });
+      setSkipNote("");
       loadBacklog();
     } catch {}
   };
@@ -174,6 +178,19 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
     setLogForm({ reps: "", load: "", rpe: 7 });
   };
 
+  const playBeep = (freq: number = 880, dur: number = 150) => {
+    try {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      gain.gain.value = 0.3;
+      osc.start(); osc.stop(ctx.currentTime + dur / 1000);
+    } catch {}
+    try { navigator.vibrate?.(200); } catch {}
+  };
+
   const startRest = (seconds: number = 90) => {
     setRestTimer(seconds);
     setRestRunning(true);
@@ -183,8 +200,11 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
         if (prev <= 1) {
           clearInterval(restRef.current);
           setRestRunning(false);
+          playBeep(1046, 300); // C6 — rest over
+          try { navigator.vibrate?.([200, 100, 200]); } catch {}
           return 0;
         }
+        if (prev <= 4) playBeep(660, 80); // countdown beep at 3, 2, 1
         return prev - 1;
       });
     }, 1000);
@@ -1040,13 +1060,38 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                               { key: "low_motivation", label: "Low motivation" },
                             ].map(r => (
                               <button key={r.key}
-                                onClick={() => sendWorkoutFeedback("no", r.key)}
+                                onClick={() => {
+                                  if (selectedSkipReason === r.key) {
+                                    sendWorkoutFeedback("no", r.key);
+                                  } else {
+                                    setSelectedSkipReason(r.key);
+                                  }
+                                }}
                                 className="text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-0"
-                                style={{ background: "rgba(239,68,68,.12)", color: "#FCA5A5" }}>
+                                style={{
+                                  background: selectedSkipReason === r.key ? "rgba(239,68,68,.25)" : "rgba(239,68,68,.12)",
+                                  color: "#FCA5A5",
+                                  border: selectedSkipReason === r.key ? "1px solid rgba(239,68,68,.4)" : "1px solid transparent",
+                                }}>
                                 {r.label}
                               </button>
                             ))}
                           </div>
+                          {selectedSkipReason && (
+                            <div className="flex gap-2 mt-1">
+                              <input
+                                type="text" placeholder="Add a note (optional)" value={skipNote}
+                                onChange={e => setSkipNote(e.target.value)}
+                                className="flex-1 text-[10px] px-3 py-1.5 rounded-lg bg-transparent text-white"
+                                style={{ border: "1px solid rgba(255,255,255,.1)" }} />
+                              <button
+                                onClick={() => sendWorkoutFeedback("no", selectedSkipReason)}
+                                className="text-[10px] font-bold px-3 py-1.5 rounded-lg cursor-pointer border-0"
+                                style={{ background: "rgba(239,68,68,.2)", color: "#FCA5A5" }}>
+                                Submit
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
                       {workoutFeedback && (
@@ -1135,6 +1180,11 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                   </motion.div>
 
                 {/* WORKOUT BACKLOG — last 7 days, with did-it / skipped marks */}
+                {workoutBacklog.length === 0 && workoutType && (
+                  <div className="rounded-2xl p-4 mt-3 text-center" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                    <p className="text-xs text-slate-500">No workout history yet. Complete your first session to start tracking.</p>
+                  </div>
+                )}
                 {workoutBacklog.length > 0 && (
                   <motion.div className="rounded-2xl p-4 mt-3" style={{ background: "rgba(99,102,241,0.03)", border: "1px solid rgba(99,102,241,0.08)" }}
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
