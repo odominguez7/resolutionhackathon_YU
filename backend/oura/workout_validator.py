@@ -85,18 +85,38 @@ def validate_workout(workout: dict, required_patterns: list[str] | None = None) 
             if not name:
                 errors.append(f"Empty movement_name in {block_key}")
                 continue
-            # Fuzzy: check if any catalog entry is a substring or vice versa
+            # Fuzzy matching: multiple strategies, lenient
             matched = False
             for cat in catalog:
+                # Direct substring
                 if cat in name or name in cat:
                     matched = True
                     break
                 # Word-level overlap (e.g. "db front squat" ∩ "front squat")
                 name_words = set(name.split())
                 cat_words = set(cat.split())
-                if len(name_words & cat_words) >= min(2, len(cat_words)):
+                overlap = len(name_words & cat_words)
+                if overlap >= min(2, len(cat_words)):
                     matched = True
                     break
+                # Single-word match for short names (e.g. "burpee" ∩ "burpees")
+                if len(name_words) == 1 or len(cat_words) == 1:
+                    # Stem comparison — strip trailing 's'
+                    n_stem = name.rstrip("s")
+                    c_stem = cat.rstrip("s")
+                    if n_stem in c_stem or c_stem in n_stem:
+                        matched = True
+                        break
+            # Also allow common movement keywords that are clearly gym movements
+            # even if exact catalog entry doesn't match the exact phrasing
+            GYM_KEYWORDS = {"run", "treadmill", "sprint", "burpee", "squat", "press",
+                            "pull-up", "pullup", "deadlift", "push-up", "pushup", "row",
+                            "plank", "lunge", "clean", "snatch", "jerk"}
+            if not matched:
+                for kw in GYM_KEYWORDS:
+                    if kw in name:
+                        matched = True
+                        break
             if not matched:
                 errors.append(f"Movement '{name}' in {block_key} not found in catalog")
 
