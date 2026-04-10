@@ -162,24 +162,79 @@ def _fallback_nudge(assessment: str, bio: dict) -> str:
 
 
 def dispatch(state: AgentState) -> AgentState:
-    """Send the nudge via Telegram."""
+    """Send the nudge via the athlete's preferred channel.
+    Supports Telegram and WhatsApp Business Cloud API."""
     if not state.get("nudge_text"):
         return {**state, "nudge_sent": False}
+
+    # Determine preferred channel from profile
+    ctx = state.get("athlete_context") or {}
+    channel = "telegram"  # default
     try:
-        token = os.getenv("TELEGRAM_BOT_TOKEN", "")
-        chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
-        if not token or not chat_id:
-            return {**state, "nudge_sent": False, "reason": "no telegram credentials"}
+        from backend.identity.service import get_profile
+        profile = get_profile(ctx.get("user_id", "omar"))
+        channel = profile.get("preferred_channel", "telegram")
+    except Exception:
+        pass
+
+    msg = f"*YU Cortex*\n\n{state['nudge_text']}"
+
+    try:
         import httpx
-        msg = f"*YU Cortex*\n\n{state['nudge_text']}"
-        resp = httpx.post(
-            f"https://api.telegram.org/bot{token}/sendMessage",
-            json={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"},
-            timeout=10.0,
-        )
-        return {**state, "nudge_sent": resp.status_code == 200}
+        sent = False
+
+        if channel == "whatsapp":
+            sent = _dispatch_whatsapp(msg)
+
+        if not sent:
+            # Fallback to Telegram (or primary if preferred)
+            sent = _dispatch_telegram(msg)
+
+        return {**state, "nudge_sent": sent, "reason": f"channel={channel}"}
     except Exception as e:
         return {**state, "nudge_sent": False, "reason": f"dispatch failed: {e}"}
+
+
+def _dispatch_telegram(msg: str) -> bool:
+    """Send via Telegram Bot API."""
+    import httpx
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
+    if not token or not chat_id:
+        return False
+    resp = httpx.post(
+        f"https://api.telegram.org/bot{token}/sendMessage",
+        json={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"},
+        timeout=10.0,
+    )
+    return resp.status_code == 200
+
+
+def _dispatch_whatsapp(msg: str) -> bool:
+    """Send via WhatsApp Business Cloud API.
+    Requires WHATSAPP_TOKEN and WHATSAPP_PHONE_ID env vars.
+    Uses the Meta Graph API v18.0 messages endpoint."""
+    import httpx
+    token = os.getenv("WHATSAPP_TOKEN", "")
+    phone_id = os.getenv("WHATSAPP_PHONE_ID", "")
+    recipient = os.getenv("WHATSAPP_RECIPIENT", "")
+    if not all([token, phone_id, recipient]):
+        return False
+    try:
+        resp = httpx.post(
+            f"https://graph.facebook.com/v18.0/{phone_id}/messages",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={
+                "messaging_product": "whatsapp",
+                "to": recipient,
+                "type": "text",
+                "text": {"body": msg.replace("*", "")},  # strip markdown for WhatsApp
+            },
+            timeout=10.0,
+        )
+        return resp.status_code == 200
+    except Exception:
+        return False
 
 
 def observe(state: AgentState) -> AgentState:

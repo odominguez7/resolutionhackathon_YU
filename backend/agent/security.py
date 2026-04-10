@@ -26,6 +26,7 @@ EGRESS_ALLOWLIST = {
     "firestore.googleapis.com",
     "us-east1-firestore.googleapis.com",
     "oauth2.googleapis.com",
+    "graph.facebook.com",             # WhatsApp Business Cloud API
 }
 
 

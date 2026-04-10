@@ -47,6 +47,7 @@ DEFAULT_PROFILE = {
         "bike_erg": False,
     },
     "tone_preference": "coach",
+    "preferred_channel": "telegram",  # telegram | whatsapp
     "created_at": "2026-04-10T00:00:00-04:00",
 }
 
