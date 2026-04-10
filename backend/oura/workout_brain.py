@@ -61,6 +61,11 @@ def load_catalog() -> str:
 FIRESTORE_COLLECTION = "workout_log"
 _db = None
 
+# In-memory cache with TTL to avoid N+1 Firestore reads
+_log_cache: list[dict] | None = None
+_log_cache_ts: float = 0
+LOG_CACHE_TTL = 60  # seconds
+
 
 def _get_db():
     global _db
@@ -73,15 +78,29 @@ def _get_db():
     return _db
 
 
+def _invalidate_log_cache():
+    global _log_cache, _log_cache_ts
+    _log_cache = None
+    _log_cache_ts = 0
+
+
 def _load_log() -> list[dict]:
-    """Load from Firestore first; fall back to local JSON if Firestore is down."""
+    """Load from Firestore with 60s in-memory cache. Falls back to local JSON."""
+    global _log_cache, _log_cache_ts
+    import time
+    now = time.time()
+    if _log_cache is not None and (now - _log_cache_ts) < LOG_CACHE_TTL:
+        return _log_cache
+
     db = _get_db()
     if db:
         try:
             docs = db.collection(FIRESTORE_COLLECTION).order_by("generated_at").stream()
             entries = [doc.to_dict() for doc in docs]
             if entries:
-                return entries[-200:]
+                _log_cache = entries[-200:]
+                _log_cache_ts = now
+                return _log_cache
         except Exception as e:
             print(f"[workout_brain] Firestore load failed: {e}")
     if not os.path.exists(LOG_PATH):
@@ -96,6 +115,7 @@ def _load_log() -> list[dict]:
 def _save_log(entries: list[dict]) -> None:
     """Save full list to local JSON; the Firestore writes happen per-entry
     in _upsert_entry() so we keep the source of truth row-level."""
+    _invalidate_log_cache()
     try:
         with open(LOG_PATH, "w") as f:
             json.dump({"entries": entries[-200:]}, f, indent=2, default=str)
@@ -150,10 +170,17 @@ def log_workout(workout: dict, biometrics: dict, session_type: str) -> dict:
 
 def recent_log(days: int = 7) -> list[dict]:
     cutoff = datetime.now(BOSTON_TZ) - timedelta(days=days)
-    return [
-        e for e in active_log()
-        if datetime.fromisoformat(e["generated_at"]) >= cutoff
-    ]
+    result = []
+    for e in active_log():
+        try:
+            dt = datetime.fromisoformat(e.get("generated_at", ""))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=BOSTON_TZ)
+            if dt >= cutoff:
+                result.append(e)
+        except (ValueError, KeyError):
+            continue
+    return result
 
 
 def _flatten_movements(workout: dict) -> list[str]:
@@ -253,7 +280,13 @@ def closed_loop_review(current_biometrics: dict) -> list[dict]:
             continue
         if entry.get("biometrics_next_morning") is not None:
             continue
-        gen_day = datetime.fromisoformat(entry["generated_at"]).date()
+        try:
+            gen_dt = datetime.fromisoformat(entry["generated_at"])
+            if gen_dt.tzinfo is None:
+                gen_dt = gen_dt.replace(tzinfo=BOSTON_TZ)
+            gen_day = gen_dt.date()
+        except (ValueError, KeyError):
+            continue
         if (today - gen_day).days != 1:
             continue
         # We have an unreviewed yesterday workout. Score it.
@@ -267,7 +300,12 @@ def closed_loop_review(current_biometrics: dict) -> list[dict]:
             drop = pre_hrv - today_hrv
             if drop >= 8 or (today_hrv_bl and today_hrv < today_hrv_bl - 5):
                 verdict = "too_much"
-            elif today_readiness and today_readiness >= 85 and entry.get("intensity") in ("easy", "recovery"):
+            elif (today_readiness and today_readiness >= 85
+                  and entry.get("intensity") in ("easy", "recovery")
+                  and today_hrv_bl and today_hrv > today_hrv_bl):
+                # Only "undertrained" if HRV rebounded ABOVE baseline after
+                # an easy day. High readiness alone after a recovery day is
+                # correct behavior, not a sign of undertraining.
                 verdict = "undertrained"
         entry["load_verdict"] = verdict
         updated.append(entry)

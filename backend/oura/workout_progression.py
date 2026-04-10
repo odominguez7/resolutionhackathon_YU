@@ -59,13 +59,32 @@ def get_progression(movement_name: str) -> dict | None:
         return None
 
 
+_prog_cache: list[dict] | None = None
+_prog_cache_ts: float = 0
+PROG_CACHE_TTL = 60
+
+
+def _invalidate_prog_cache():
+    global _prog_cache, _prog_cache_ts
+    _prog_cache = None
+    _prog_cache_ts = 0
+
+
 def get_all_progressions() -> list[dict]:
-    """Get all progression records."""
+    """Get all progression records with 60s in-memory cache."""
+    global _prog_cache, _prog_cache_ts
+    import time
+    now = time.time()
+    if _prog_cache is not None and (now - _prog_cache_ts) < PROG_CACHE_TTL:
+        return _prog_cache
     db = _get_db()
     if not db:
         return []
     try:
-        return [d.to_dict() for d in db.collection(COLLECTION).stream()]
+        result = [d.to_dict() for d in db.collection(COLLECTION).stream()]
+        _prog_cache = result
+        _prog_cache_ts = now
+        return result
     except Exception:
         return []
 
@@ -73,6 +92,7 @@ def get_all_progressions() -> list[dict]:
 # ── Write ───────────────────────────────────────────────────────────────────
 
 def record_movements(workout: dict, completed: str = "yes") -> list[dict]:
+    _invalidate_prog_cache()
     """After a workout, record each movement's load into the ledger.
     Called when the workout is logged or when user submits feedback.
     completed: 'yes' / 'partial' / 'no'."""

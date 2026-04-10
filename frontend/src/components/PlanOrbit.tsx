@@ -33,6 +33,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const [workoutBacklog, setWorkoutBacklog] = useState<any[]>([]);
   const [showBacklog, setShowBacklog] = useState(false);
   const [regenLoading, setRegenLoading] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
   const [loggedSets, setLoggedSets] = useState<Record<string, any>>({});
   const [activeLog, setActiveLog] = useState<string | null>(null);
   const [logForm, setLogForm] = useState<{ reps: string; load: string; rpe: number }>({ reps: "", load: "", rpe: 7 });
@@ -92,18 +93,24 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   };
 
   const loadWorkout = (type: string) => {
+    // Cancel any in-flight workout generation
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setWorkoutType(type);
     setAiLoading(true);
     setWorkoutFeedback(null);
-    fetch(`${API}/api/oura/workout?session_type=${type}`)
+    fetch(`${API}/api/oura/workout?session_type=${type}`, { signal: controller.signal })
       .then(r => r.json())
       .then((w) => {
+        if (controller.signal.aborted) return; // stale response
         setAiWorkout(w);
         setWorkoutLogId(w?.log_id || null);
         loadBacklog();
       })
-      .catch(() => setAiWorkout({ error: true }))
-      .finally(() => setAiLoading(false));
+      .catch((e) => { if (e.name !== "AbortError") setAiWorkout({ error: true }); })
+      .finally(() => { if (!controller.signal.aborted) setAiLoading(false); });
   };
 
   const loadBacklog = () => {

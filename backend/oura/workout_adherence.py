@@ -44,11 +44,15 @@ def build_adherence_profile(recent_entries: list[dict]) -> dict:
         if day >= cutoff_14d:
             entries_14d.append(e)
 
-    # Count feedback
-    completed_7d = sum(1 for e in entries_7d if (e.get("user_feedback") or {}).get("completed") == "yes")
-    partial_7d = sum(1 for e in entries_7d if (e.get("user_feedback") or {}).get("completed") == "partial")
-    skipped_7d = sum(1 for e in entries_7d if (e.get("user_feedback") or {}).get("completed") == "no")
-    no_feedback_7d = sum(1 for e in entries_7d if not (e.get("user_feedback") or {}).get("completed"))
+    # Count feedback — ONLY count entries that have actual feedback.
+    # Sessions without feedback are "unknown", not skipped.
+    # This prevents new users from triggering streak-rebuild mode
+    # just because they generated workouts without tapping feedback.
+    entries_with_fb_7d = [e for e in entries_7d if (e.get("user_feedback") or {}).get("completed")]
+    completed_7d = sum(1 for e in entries_with_fb_7d if e["user_feedback"]["completed"] == "yes")
+    partial_7d = sum(1 for e in entries_with_fb_7d if e["user_feedback"]["completed"] == "partial")
+    skipped_7d = sum(1 for e in entries_with_fb_7d if e["user_feedback"]["completed"] == "no")
+    no_feedback_7d = len(entries_7d) - len(entries_with_fb_7d)
     total_7d = len(entries_7d)
 
     completed_14d = sum(1 for e in entries_14d if (e.get("user_feedback") or {}).get("completed") == "yes")
@@ -74,8 +78,9 @@ def build_adherence_profile(recent_entries: list[dict]) -> dict:
             reason = fb.get("notes") or fb.get("reason") or "unknown"
             skip_reasons.append(reason)
 
-    # Determine mode
-    streak_rebuild = skipped_7d >= SKIP_THRESHOLD_7D
+    # Determine mode — only trigger streak-rebuild if there are enough
+    # feedback responses to be meaningful (at least 3 sessions with feedback)
+    streak_rebuild = skipped_7d >= SKIP_THRESHOLD_7D and len(entries_with_fb_7d) >= 3
     last_intensity = None
     last_feedback = None
     if entries_7d:
