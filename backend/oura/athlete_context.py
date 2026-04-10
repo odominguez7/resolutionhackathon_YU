@@ -423,6 +423,8 @@ def build_athlete_context(
         "competency": competency,
         "fitness_level": profile.get("fitness_level", "advanced"),
         "goals": profile.get("goals", ["strength", "conditioning", "hybrid"]),
+        "body_weight_lbs": profile.get("body_weight_lbs"),
+        "estimated_1rm": profile.get("estimated_1rm", {}),
 
         # ── Biometrics (v2.1 fields 7-8) ──
         "baseline": {

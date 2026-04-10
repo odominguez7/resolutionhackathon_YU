@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { Calendar, Moon, Heart, Dumbbell, Brain, Zap, MapPin, Coffee, Flame, Sparkles, ChevronRight, Activity, Send, MessageCircle, Target, ArrowRight, Check, Clock, Beaker } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import WorkoutSkeleton from "./WorkoutSkeleton";
 
 const API = typeof window !== "undefined" && window.location.hostname !== "localhost" ? "" : "http://localhost:8000";
 
@@ -238,8 +239,22 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
     } catch {}
   };
 
-  // On mount: restore today's workout if it exists, and load the backlog
+  // On mount: restore today's workout from cache first, then verify with server
   useEffect(() => {
+    const CACHE_KEY = "yu_workout_today";
+    const cached = sessionStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        const c = JSON.parse(cached);
+        if (c.day === new Date().toISOString().slice(0, 10) && c.full_workout) {
+          setWorkoutType(c.session_type || "crossfit");
+          setAiWorkout(c.full_workout);
+          setWorkoutLogId(c.id);
+          if (c.user_feedback?.completed) setWorkoutFeedback(c.user_feedback.completed);
+        }
+      } catch {}
+    }
+    // Then check server for any updates (non-blocking)
     fetch(`${API}/api/oura/workout/today`)
       .then(r => r.json())
       .then((d) => {
@@ -249,6 +264,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
           setAiWorkout(e.full_workout);
           setWorkoutLogId(e.id);
           if (e.user_feedback?.completed) setWorkoutFeedback(e.user_feedback.completed);
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(e));
         }
       })
       .catch(() => {});
@@ -804,11 +820,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                     </div>
 
                   ) : aiLoading ? (
-                    <div className="flex flex-col items-center py-8 gap-2">
-                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}><Sparkles className="w-7 h-7 text-red-400" /></motion.div>
-                      <p className="text-sm text-slate-400">Gemini is building your session...</p>
-                      <p className="text-[10px] text-slate-600">Readiness {readiness} + HRV {hrv}ms + Sleep {sleepScore}</p>
-                    </div>
+                    <WorkoutSkeleton />
                   ) : aiWorkout && !aiWorkout.error ? (
                     (() => {
                       // Staleness check — encourage a refresh if the workout

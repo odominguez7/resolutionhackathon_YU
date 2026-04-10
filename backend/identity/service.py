@@ -48,6 +48,8 @@ DEFAULT_PROFILE = {
     },
     "tone_preference": "coach",
     "preferred_channel": "telegram",  # telegram | whatsapp
+    "body_weight_lbs": None,
+    "estimated_1rm": {},  # {movement_name: weight_lbs}
     "created_at": "2026-04-10T00:00:00-04:00",
 }
 

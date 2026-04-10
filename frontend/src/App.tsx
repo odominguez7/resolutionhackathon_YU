@@ -19,6 +19,7 @@ import Employer from "@/pages/Employer";
 import Settings from "@/pages/Settings";
 import History from "@/pages/History";
 import NotFound from "@/pages/NotFound";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -71,9 +72,11 @@ const App = () => (
       <AuthProvider>
         <PlanProvider>
           <Sonner />
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
+          <ErrorBoundary>
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </ErrorBoundary>
         </PlanProvider>
       </AuthProvider>
     </TooltipProvider>

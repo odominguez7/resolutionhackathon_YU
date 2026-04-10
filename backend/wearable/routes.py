@@ -81,6 +81,51 @@ def list_samples(provider: str = "", sample_type: str = "", days: int = 7):
         return {"samples": [], "error": str(e)[:100]}
 
 
+@router.get("/oura/authorize")
+def oura_authorize(user_id: str = ""):
+    """Start the Oura OAuth2 flow. Returns the authorization URL."""
+    import os
+    client_id = os.getenv("OURA_CLIENT_ID", os.getenv("GOOGLE_CLIENT_ID", ""))
+    redirect_uri = "https://yu-restos-471409463813.us-east1.run.app/api/wearable/oura/callback"
+    scope = "daily+personal+heartrate+workout+session+sleep"
+    url = f"https://cloud.ouraring.com/oauth/authorize?response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&state={user_id}"
+    return {"authorize_url": url, "user_id": user_id}
+
+
+@router.get("/oura/callback")
+async def oura_callback(code: str = "", state: str = ""):
+    """Handle the Oura OAuth2 callback. Exchange code for tokens, store per-user."""
+    import os, httpx
+    from .token_store import store_tokens
+    client_id = os.getenv("OURA_CLIENT_ID", os.getenv("GOOGLE_CLIENT_ID", ""))
+    client_secret = os.getenv("OURA_CLIENT_SECRET", os.getenv("GOOGLE_CLIENT_SECRET", ""))
+    redirect_uri = "https://yu-restos-471409463813.us-east1.run.app/api/wearable/oura/callback"
+    user_id = state or "unknown"
+
+    if not code:
+        return {"error": "No authorization code received"}
+
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post("https://api.ouraring.com/oauth/token", data={
+                "grant_type": "authorization_code",
+                "code": code,
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": redirect_uri,
+            })
+            resp.raise_for_status()
+            tokens = resp.json()
+
+        store_tokens(user_id, "oura", tokens.get("access_token", ""), tokens.get("refresh_token", ""))
+
+        # Redirect to settings page with success
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/settings?oura=connected")
+    except Exception as e:
+        return {"error": str(e)[:200]}
+
+
 @router.get("/providers")
 def list_providers():
     """List available wearable providers and their adapter status."""

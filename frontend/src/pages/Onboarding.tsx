@@ -36,6 +36,8 @@ export default function Onboarding() {
   const [dbWeights, setDbWeights] = useState<number[]>([35, 40, 45, 50]);
   const [fitnessLevel, setFitnessLevel] = useState("");
   const [goals, setGoals] = useState<string[]>([]);
+  const [bodyWeight, setBodyWeight] = useState("");
+  const [rm, setRm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
   const toggleEquip = (key: string) => {
@@ -57,12 +59,18 @@ export default function Onboarding() {
         equipMap[opt.key] = !!equipment[opt.key];
       }
     }
+    const est1rm: Record<string, number> = {};
+    for (const [k, v] of Object.entries(rm)) {
+      if (v) est1rm[k] = parseInt(v) || 0;
+    }
     await api.post("/api/identity/register", {
       user_id: user.uid,
       display_name: user.displayName || user.email?.split("@")[0] || "Athlete",
       equipment: equipMap,
       fitness_level: fitnessLevel || "intermediate",
       goals: goals.length ? goals : ["hybrid"],
+      body_weight_lbs: bodyWeight ? parseInt(bodyWeight) : null,
+      estimated_1rm: est1rm,
     });
     await refreshProfile();
     setSaving(false);
@@ -191,11 +199,59 @@ export default function Onboarding() {
                 );
               })}
             </div>
-            <button onClick={save} disabled={saving}
-              className="w-full py-3.5 rounded-xl text-sm font-black cursor-pointer border-0 flex items-center justify-center gap-2"
+            <button onClick={() => setStep(3.5 as any)}
+              className="w-full py-3 rounded-xl text-sm font-bold cursor-pointer border-0 flex items-center justify-center gap-2"
               style={{ background: "#FF5C35", color: "#fff" }}>
-              {saving ? "Setting up..." : "Build my first workout"}
+              Next <ChevronRight className="w-4 h-4" />
             </button>
+          </motion.div>
+        )}
+
+        {/* Step 3.5: Body weight + strength baseline */}
+        {step === 3.5 && (
+          <motion.div key="strength" className="w-full max-w-md space-y-5"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ ease }}>
+            <div>
+              <h2 className="text-xl font-black text-white">Calibrate your loads</h2>
+              <p className="text-xs text-slate-500 mt-1">Optional but makes your first workout way more accurate. Skip if unsure.</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 mb-2">Your body weight (lbs)</p>
+              <input type="number" placeholder="e.g. 180" value={bodyWeight}
+                onChange={e => setBodyWeight(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl text-sm bg-transparent text-white"
+                style={{ border: "1px solid rgba(255,255,255,0.1)" }} />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 mb-2">Heaviest dumbbell you can do 5 reps with (lbs per hand)</p>
+              <div className="space-y-2">
+                {[
+                  { key: "db_front_squat", label: "Front squat" },
+                  { key: "db_press", label: "Overhead press" },
+                  { key: "db_row", label: "Bent-over row" },
+                ].map(m => (
+                  <div key={m.key} className="flex items-center gap-3">
+                    <p className="text-xs text-slate-300 w-28">{m.label}</p>
+                    <input type="number" placeholder="lbs" value={rm[m.key] || ""}
+                      onChange={e => setRm(prev => ({ ...prev, [m.key]: e.target.value }))}
+                      className="flex-1 px-3 py-2 rounded-lg text-sm bg-transparent text-white"
+                      style={{ border: "1px solid rgba(255,255,255,0.1)" }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={save} disabled={saving}
+                className="flex-1 py-3.5 rounded-xl text-sm font-black cursor-pointer border-0"
+                style={{ background: "#FF5C35", color: "#fff" }}>
+                {saving ? "Setting up..." : "Build my first workout"}
+              </button>
+              <button onClick={() => { setStep(4); save(); }}
+                className="px-4 py-3.5 rounded-xl text-sm cursor-pointer border-0"
+                style={{ background: "rgba(255,255,255,0.04)", color: "#64748B", border: "1px solid rgba(255,255,255,0.06)" }}>
+                Skip
+              </button>
+            </div>
           </motion.div>
         )}
 

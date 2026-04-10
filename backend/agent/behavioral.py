@@ -237,6 +237,26 @@ def _dispatch_whatsapp(msg: str) -> bool:
         return False
 
 
+def pre_generate(state: AgentState) -> AgentState:
+    """Pre-generate today's workout so it's ready when the user opens the app.
+    This is the 'wow moment' fix — zero wait time on first open."""
+    if state.get("action") == "no_op":
+        return state
+    try:
+        import asyncio
+        from backend.oura.workout_ai import generate_workout
+        ctx = state.get("athlete_context") or {}
+        bio = ctx.get("biometrics") or {}
+        if bio:
+            result = asyncio.get_event_loop().run_until_complete(
+                generate_workout("crossfit", bio, athlete_context=ctx)
+            )
+            return {**state, "reason": (state.get("reason") or "") + f" | pre-generated: {result.get('title', '?')}"}
+    except Exception as e:
+        return {**state, "reason": (state.get("reason") or "") + f" | pre-gen failed: {e}"}
+    return state
+
+
 def observe(state: AgentState) -> AgentState:
     """Log the decision to episodic memory for future reference."""
     try:
@@ -278,7 +298,9 @@ def build_behavioral_graph():
     graph.add_edge("perceive", "assess")
     graph.add_conditional_edges("assess", should_compose, {"compose": "compose", "observe": "observe"})
     graph.add_edge("compose", "dispatch")
-    graph.add_edge("dispatch", "observe")
+    graph.add_node("pre_generate", pre_generate)
+    graph.add_edge("dispatch", "pre_generate")
+    graph.add_edge("pre_generate", "observe")
     graph.add_edge("observe", END)
 
     return graph.compile()

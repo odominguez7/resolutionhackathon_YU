@@ -858,19 +858,23 @@ async def list_webhooks():
 
 
 @router.get("/workout")
-async def get_workout(session_type: str = "crossfit", travel: bool = False):
+async def get_workout(session_type: str = "crossfit", travel: bool = False, user_id: str = "omar"):
     """Generate AI-powered workout based on real biometrics.
-    Uses the typed AthleteContext — single assembly point for all state."""
+    Uses the typed AthleteContext — single assembly point for all state.
+    Reads from per-user biometric data (Firestore) or Omar's global cache."""
     from .workout_ai import generate_workout
     from .athlete_context import build_athlete_context
+    from backend.wearable.user_data import load_user_biometrics
 
+    data = load_user_biometrics(user_id)
     ctx = build_athlete_context(
-        sleep_by_day=_sleep_by_day,
-        score_by_day=_score_by_day,
-        readiness_by_day=_readiness_by_day,
-        stress_by_day=_stress_by_day,
+        sleep_by_day=data["sleep_by_day"],
+        score_by_day=data["score_by_day"],
+        readiness_by_day=data["readiness_by_day"],
+        stress_by_day=data["stress_by_day"],
         session_type=session_type,
         travel_mode=travel,
+        user_id=user_id,
     )
     result = await generate_workout(session_type, ctx["biometrics"], athlete_context=ctx)
     return result
