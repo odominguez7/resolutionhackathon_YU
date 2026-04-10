@@ -45,6 +45,7 @@ def validate_workout(
     equipment: dict | None = None,
     competency: dict | None = None,
     weekly_volume: dict | None = None,
+    overtraining_risk: str = "none",
 ) -> dict:
     """Validate a generated workout. Returns:
     {
@@ -207,7 +208,16 @@ def validate_workout(
             if err:
                 errors.append(f"Equipment violation in {block_key}: {err}")
 
-    # 9. Description leak check — no block should have a description field
+    # 9. Overtraining veto — if risk is elevated/veto, only easy/recovery allowed
+    if overtraining_risk in ("elevated", "veto"):
+        workout_intensity = (workout.get("intensity") or "").lower()
+        if workout_intensity in ("push", "work"):
+            errors.append(
+                f"Overtraining risk is '{overtraining_risk}' but workout intensity is '{workout_intensity}'. "
+                f"Must be 'easy' or 'recovery'."
+            )
+
+    # 10. Description leak check — no block should have a description field
     for block_key in ("workout", "strength", "metcon"):
         block = workout.get(block_key)
         if block and block.get("description"):

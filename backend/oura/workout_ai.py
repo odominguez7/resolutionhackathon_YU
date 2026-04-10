@@ -317,7 +317,8 @@ Recovery context: {biometrics.get('recovery_context', '')}
             equip = (athlete_context or {}).get("equipment")
             comp = (athlete_context or {}).get("competency")
             wvol = (athlete_context or {}).get("weekly_volume")
-            check = validate_workout(workout, required_patterns=lock_patterns, equipment=equip, competency=comp, weekly_volume=wvol)
+            ot_risk = (athlete_context or {}).get("overtraining_risk", "none")
+            check = validate_workout(workout, required_patterns=lock_patterns, equipment=equip, competency=comp, weekly_volume=wvol, overtraining_risk=ot_risk)
             if not check["valid"]:
                 # ONE bounded retry — reprompt with the specific errors
                 retry_text = build_retry_prompt(check["errors"])
@@ -342,7 +343,7 @@ Recovery context: {biometrics.get('recovery_context', '')}
                     if text2.startswith("json"):
                         text2 = text2[4:]
                     workout2 = json.loads(text2.strip())
-                    check2 = validate_workout(workout2, required_patterns=lock_patterns, equipment=equip, competency=comp, weekly_volume=wvol)
+                    check2 = validate_workout(workout2, required_patterns=lock_patterns, equipment=equip, competency=comp, weekly_volume=wvol, overtraining_risk=ot_risk)
                     if check2["valid"]:
                         workout = workout2
                     else:

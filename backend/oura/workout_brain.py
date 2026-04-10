@@ -157,11 +157,18 @@ def recent_log(days: int = 7) -> list[dict]:
 
 
 def _flatten_movements(workout: dict) -> list[str]:
+    """Extract movement names from all blocks. Handles both structured
+    objects {reps, movement_name, load} and legacy strings."""
     out: list[str] = []
-    w = workout.get("workout") or {}
-    for m in (w.get("movements") or []):
-        if isinstance(m, str):
-            out.append(m)
+    for block_key in ("workout", "strength", "metcon"):
+        block = workout.get(block_key) or {}
+        for m in (block.get("movements") or []):
+            if isinstance(m, dict):
+                name = m.get("movement_name") or m.get("name") or ""
+                if name:
+                    out.append(name)
+            elif isinstance(m, str):
+                out.append(m)
     return out
 
 

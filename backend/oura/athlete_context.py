@@ -421,8 +421,8 @@ def build_athlete_context(
         "tone_preference": "coach",  # TODO: learn from feedback
         "requested_format": None,
         "requested_type": session_type,
-        "avoid_movements": set(avoid_movements or []),
-        "lock_patterns": set(lock_patterns or []),
+        "avoid_movements": list(avoid_movements or []),
+        "lock_patterns": list(lock_patterns or []),
 
         # ── Raw biometrics (for prompt injection + logging) ──
         "biometrics": {
