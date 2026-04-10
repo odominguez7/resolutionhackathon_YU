@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import WearableConnect from "@/components/WearableConnect";
 import { LogOut, Dumbbell, Target, Check } from "lucide-react";
+import InjuryFlag from "@/components/InjuryFlag";
 import { api } from "@/lib/api";
 
 const EQUIPMENT_OPTIONS = [
@@ -124,6 +125,11 @@ export default function Settings() {
       {/* Wearables */}
       <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
         <WearableConnect />
+      </div>
+
+      {/* Injury flags */}
+      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <InjuryFlag />
       </div>
 
       {/* Sign out */}

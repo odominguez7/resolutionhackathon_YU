@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Bot, MessageSquare, Activity, Users, Settings } from "lucide-react";
+import { Menu, X, Bot, MessageSquare, Activity, Users, Settings, Clock } from "lucide-react";
 
 const YU = {
   bg: "rgba(255,255,255,0.92)",
@@ -15,6 +15,7 @@ const mainLinks = [
   { path: "/agent", label: "Agent", icon: Bot },
   { path: "/ask", label: "Ask YU", icon: MessageSquare },
   { path: "/oura", label: "My Health", icon: Activity },
+  { path: "/history", label: "History", icon: Clock },
   { path: "/settings", label: "Settings", icon: Settings },
 ];
 

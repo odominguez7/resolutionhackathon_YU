@@ -1122,39 +1122,42 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                           disabled={shareStatus === "sending"}
                           onClick={async () => {
                             setShareStatus("sending");
-                            const workoutText = [
-                              aiWorkout.title || aiWorkout.session_name || "Workout",
+                            // Build clean share text from structured data
+                            const fmtMov = (m: any) => typeof m === "object" ? `${m.reps || ""} ${m.movement_name || ""} ${m.load ? `(${m.load})` : ""}`.trim() : String(m);
+                            const lines: string[] = [
+                              `${aiWorkout.title || "Workout"} — ${aiWorkout.format || ""} — ${aiWorkout.duration_min || ""}min`,
+                              `${aiWorkout.intensity?.toUpperCase() || ""} DAY`,
                               "",
-                              ...(aiWorkout.warmup?.movements || []).map((m: string) => `Warmup: ${m}`),
-                              "",
-                              aiWorkout.workout?.description || aiWorkout.main_set?.description || "",
-                              ...(aiWorkout.workout?.movements || aiWorkout.main_set?.movements || []),
-                              "",
-                              ...(aiWorkout.cooldown?.movements || []).map((m: string) => `Cooldown: ${m}`),
-                              "",
-                              aiWorkout.why_this_workout || "",
-                              aiWorkout.mental_challenge ? `Mental challenge: ${aiWorkout.mental_challenge}` : "",
-                            ].filter(Boolean).join("\n");
+                            ];
+                            for (const bk of ["warmup", "strength", "metcon", "workout", "cooldown"]) {
+                              const block = aiWorkout[bk];
+                              if (!block?.movements?.length) continue;
+                              const label = bk.toUpperCase() + (block.duration_min ? ` (${block.duration_min}min)` : block.sets ? ` — ${block.sets} sets` : block.rounds ? ` — ${block.rounds} rounds` : "");
+                              lines.push(label);
+                              block.movements.forEach((m: any) => lines.push(`  • ${fmtMov(m)}`));
+                              if (block.rest) lines.push(`  Rest: ${block.rest}`);
+                              if (block.time_cap) lines.push(`  Time Cap: ${block.time_cap}${typeof block.time_cap === "number" ? " min" : ""}`);
+                              lines.push("");
+                            }
+                            if (aiWorkout.why_this_workout) lines.push(aiWorkout.why_this_workout);
+                            if (aiWorkout.mental_challenge) lines.push(`\nThe hard part: ${aiWorkout.mental_challenge}`);
+                            lines.push(`\nReadiness ${readiness} · HRV ${hrv}ms · Sleep ${sleepScore}`);
+                            lines.push("Programmed by YU");
+                            const workoutText = lines.filter(l => l !== undefined).join("\n");
+
+                            // Try native share, fall back to clipboard
                             try {
-                              const resp = await fetch(`${API}/api/optimize/share-workout`, {
-                                method: "POST", headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                  workout_text: workoutText,
-                                  format: aiWorkout.format || "",
-                                  duration_min: aiWorkout.duration_min || 0,
-                                  note: `Readiness ${readiness}, HRV ${hrv}ms, Sleep ${sleepScore}`,
-                                }),
-                              });
-                              const data = await resp.json();
-                              if (data.status === "sent") {
+                              if (navigator.share) {
+                                await navigator.share({ title: aiWorkout.title || "YU Workout", text: workoutText });
                                 setShareStatus("sent");
                               } else {
-                                const textToCopy = data.message || workoutText;
-                                try { await navigator.clipboard.writeText(textToCopy); } catch { /* mobile fallback */ const ta = document.createElement("textarea"); ta.value = textToCopy; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
+                                await navigator.clipboard.writeText(workoutText);
                                 setShareStatus("copied");
                               }
                             } catch {
-                              try { await navigator.clipboard.writeText(workoutText); } catch { const ta = document.createElement("textarea"); ta.value = workoutText; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
+                              try { await navigator.clipboard.writeText(workoutText); } catch {
+                                const ta = document.createElement("textarea"); ta.value = workoutText; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+                              }
                               setShareStatus("copied");
                             }
                             setTimeout(() => setShareStatus("idle"), 4000);
@@ -1168,7 +1171,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                           ) : (
                             <Send className="w-3 h-3" />
                           )}
-                          {shareStatus === "sent" ? "Sent to Sage" : shareStatus === "copied" ? "Copied!" : shareStatus === "sending" ? "Copying..." : "Copy for Sage"}
+                          {shareStatus === "sent" ? "Shared" : shareStatus === "copied" ? "Copied!" : shareStatus === "sending" ? "Sharing..." : "Share workout"}
                         </motion.button>
                       </div>
                     </div>

@@ -1186,6 +1186,60 @@ def workout_adherence():
     return build_adherence_profile(recent_log(14))
 
 
+@router.get("/workout/weekly-summary")
+def workout_weekly_summary():
+    """Weekly training summary: sessions, patterns, completion rate, intensity distribution, HRV trend."""
+    from .workout_brain import recent_log
+    from .workout_adherence import build_adherence_profile
+    entries = recent_log(7)
+    adherence = build_adherence_profile(recent_log(14))
+
+    completed = [e for e in entries if (e.get("user_feedback") or {}).get("completed") == "yes"]
+    skipped = [e for e in entries if (e.get("user_feedback") or {}).get("completed") == "no"]
+    partial = [e for e in entries if (e.get("user_feedback") or {}).get("completed") == "partial"]
+
+    # Pattern distribution
+    pattern_counts: dict[str, int] = {}
+    for e in completed:
+        for p in (e.get("patterns") or []):
+            pattern_counts[p] = pattern_counts.get(p, 0) + 1
+
+    # Intensity distribution
+    intensity_counts: dict[str, int] = {}
+    for e in entries:
+        i = e.get("intensity", "unknown")
+        intensity_counts[i] = intensity_counts.get(i, 0) + 1
+
+    # HRV trend from last 7 days
+    days = sorted(_sleep_by_day.keys())[-7:]
+    hrvs = [_sleep_by_day[d].get("average_hrv") for d in days if _sleep_by_day[d].get("average_hrv")]
+    hrv_trend = "stable"
+    if len(hrvs) >= 3:
+        first_half = sum(hrvs[:len(hrvs)//2]) / max(1, len(hrvs)//2)
+        second_half = sum(hrvs[len(hrvs)//2:]) / max(1, len(hrvs) - len(hrvs)//2)
+        if second_half > first_half + 2: hrv_trend = "improving"
+        elif second_half < first_half - 2: hrv_trend = "declining"
+
+    # Verdicts
+    too_much = sum(1 for e in entries if e.get("load_verdict") == "too_much")
+    ok = sum(1 for e in entries if e.get("load_verdict") == "ok")
+
+    return {
+        "total_sessions": len(entries),
+        "completed": len(completed),
+        "skipped": len(skipped),
+        "partial": len(partial),
+        "completion_rate": round(len(completed) / max(1, len(entries)) * 100),
+        "pattern_counts": pattern_counts,
+        "intensity_distribution": intensity_counts,
+        "hrv_trend": hrv_trend,
+        "hrv_values": hrvs,
+        "verdicts": {"too_much": too_much, "ok": ok},
+        "streak": adherence.get("streak", 0),
+        "preferred_window": adherence.get("preferred_training_window"),
+    }
+
+
 @router.get("/workout/today")
 def workout_today():
     """Return the most recent non-rejected workout for today, if any.

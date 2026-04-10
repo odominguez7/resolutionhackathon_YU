@@ -1,0 +1,164 @@
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Dumbbell, TrendingUp, Calendar, ChevronDown, ChevronUp, Check, X, Minus, AlertTriangle } from "lucide-react";
+import { api } from "@/lib/api";
+
+const VERDICT_COLORS: Record<string, string> = { ok: "#C2FF4A", too_much: "#FF5D6C", undertrained: "#FFC36B" };
+const FB_COLORS: Record<string, { bg: string; color: string; label: string }> = {
+  yes: { bg: "rgba(194,255,74,.15)", color: "#C2FF4A", label: "Done" },
+  partial: { bg: "rgba(255,195,107,.15)", color: "#FFC36B", label: "Partial" },
+  no: { bg: "rgba(255,93,108,.15)", color: "#FF5D6C", label: "Skipped" },
+};
+
+export default function History() {
+  const [entries, setEntries] = useState<any[]>([]);
+  const [summary, setSummary] = useState<any>(null);
+  const [progressions, setProgressions] = useState<any[]>([]);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [range, setRange] = useState(14);
+
+  useEffect(() => {
+    api.get(`/api/oura/workout/log?days=${range}`).then(d => setEntries((d?.entries || []).slice().reverse())).catch(() => {});
+    api.get("/api/oura/workout/weekly-summary").then(setSummary).catch(() => {});
+    api.get("/api/oura/workout/progression").then(d => setProgressions(d?.movements || [])).catch(() => {});
+  }, [range]);
+
+  return (
+    <div className="min-h-screen px-4 py-6 max-w-2xl mx-auto" style={{ background: "#0a0b0d" }}>
+      <h1 className="text-2xl font-black text-white mb-6">Training History</h1>
+
+      {/* Weekly Summary Card */}
+      {summary && (
+        <motion.div className="rounded-2xl p-5 mb-6" style={{ background: "rgba(255,92,53,0.04)", border: "1px solid rgba(255,92,53,0.1)" }}
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <p className="text-xs font-black uppercase tracking-wider mb-3" style={{ color: "#FF5C35" }}>This Week</p>
+          <div className="grid grid-cols-4 gap-3 mb-3">
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">{summary.completed}</p>
+              <p className="text-[9px] text-slate-500 uppercase">completed</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">{summary.total_sessions}</p>
+              <p className="text-[9px] text-slate-500 uppercase">generated</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">{summary.completion_rate}%</p>
+              <p className="text-[9px] text-slate-500 uppercase">completion</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">{summary.streak}</p>
+              <p className="text-[9px] text-slate-500 uppercase">streak</p>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <span className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: "rgba(110,231,255,.1)", color: "#6EE7FF" }}>
+              HRV {summary.hrv_trend}
+            </span>
+            {Object.entries(summary.intensity_distribution || {}).map(([k, v]) => (
+              <span key={k} className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,.04)", color: "#94A3B8" }}>
+                {k}: {v as number}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Progress Cards */}
+      {progressions.length > 0 && (
+        <motion.div className="rounded-2xl p-5 mb-6" style={{ background: "rgba(194,255,74,0.03)", border: "1px solid rgba(194,255,74,0.08)" }}
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="w-4 h-4" style={{ color: "#C2FF4A" }} />
+            <p className="text-xs font-black uppercase tracking-wider" style={{ color: "#C2FF4A" }}>Progressive Overload</p>
+          </div>
+          <div className="space-y-2">
+            {progressions.filter(p => p.current_load_lbs).slice(0, 8).map((p: any) => {
+              const bumped = p.next_prescribed_lbs > p.current_load_lbs;
+              return (
+                <div key={p.movement_name} className="flex items-center justify-between py-1.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+                  <div>
+                    <p className="text-sm text-white font-bold">{p.movement_name}</p>
+                    <p className="text-[10px] text-slate-500">{p.consecutive_clean} clean hit{p.consecutive_clean !== 1 ? "s" : ""} at {p.current_load_lbs}lb</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-black" style={{ color: bumped ? "#C2FF4A" : "#94A3B8" }}>
+                      {p.next_prescribed_lbs}lb {bumped && <span className="text-[9px]">+{p.next_prescribed_lbs - p.current_load_lbs}</span>}
+                    </p>
+                    {bumped && <p className="text-[9px]" style={{ color: "#C2FF4A" }}>BUMP</p>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Range selector */}
+      <div className="flex gap-2 mb-4">
+        {[7, 14, 30].map(d => (
+          <button key={d} onClick={() => setRange(d)}
+            className="text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer border-0"
+            style={{
+              background: range === d ? "rgba(255,92,53,.15)" : "rgba(255,255,255,.03)",
+              color: range === d ? "#FF5C35" : "#64748B",
+            }}>{d}d</button>
+        ))}
+      </div>
+
+      {/* Timeline */}
+      <div className="space-y-2">
+        {entries.length === 0 && (
+          <p className="text-sm text-slate-500 text-center py-8">No workouts in this period.</p>
+        )}
+        {entries.map((e: any) => {
+          const fb = (e.user_feedback || {}).completed;
+          const fbStyle = FB_COLORS[fb] || { bg: "rgba(148,163,184,.1)", color: "#94A3B8", label: "Pending" };
+          const isExpanded = expanded === e.id;
+          return (
+            <motion.div key={e.id} className="rounded-xl overflow-hidden"
+              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <button onClick={() => setExpanded(isExpanded ? null : e.id)}
+                className="w-full flex items-center gap-3 p-3.5 cursor-pointer border-0 bg-transparent text-left">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-bold text-white truncate">{e.title || "Workout"}</p>
+                    <span className="text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase" style={{ background: fbStyle.bg, color: fbStyle.color }}>{fbStyle.label}</span>
+                    {e.load_verdict && (
+                      <span className="text-[8px] font-bold uppercase" style={{ color: VERDICT_COLORS[e.load_verdict] || "#475569" }}>{e.load_verdict}</span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    {e.day} · {e.intensity || "?"} · {(e.patterns || []).join(", ") || "no patterns"}
+                  </p>
+                </div>
+                {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-600" /> : <ChevronDown className="w-4 h-4 text-slate-600" />}
+              </button>
+              {isExpanded && e.full_workout && (
+                <div className="px-3.5 pb-3.5 space-y-2">
+                  {["warmup", "strength", "metcon", "workout", "cooldown"].map(bk => {
+                    const block = (e.full_workout || {})[bk];
+                    if (!block?.movements?.length) return null;
+                    return (
+                      <div key={bk}>
+                        <p className="text-[9px] font-black uppercase tracking-wider mb-1" style={{ color: "rgba(255,92,53,0.5)" }}>{bk}</p>
+                        {block.movements.map((m: any, i: number) => (
+                          <p key={i} className="text-xs text-slate-300 pl-2">
+                            {typeof m === "object" ? `${m.reps || ""} ${m.movement_name || ""} ${m.load ? `(${m.load})` : ""}`.trim() : m}
+                          </p>
+                        ))}
+                      </div>
+                    );
+                  })}
+                  {e.full_workout?.why_this_workout && (
+                    <p className="text-[10px] text-slate-500 italic mt-1">{e.full_workout.why_this_workout}</p>
+                  )}
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

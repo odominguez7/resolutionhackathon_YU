@@ -262,9 +262,15 @@ Recovery context: {biometrics.get('recovery_context', '')}
         except Exception:
             skeleton_block = ""
 
-    if session_type == "yoga":
+    # If the skeleton determined active_recovery but user requested crossfit,
+    # override to the rest protocol — the body needs recovery, not a WOD
+    effective_type = session_type
+    if skeleton_block and "active_recovery" in skeleton_block.lower() and session_type == "crossfit":
+        effective_type = "rest"
+
+    if effective_type == "yoga":
         prompt = YOGA_PROMPT + "\n\n" + bio_context
-    elif session_type == "rest":
+    elif effective_type == "rest":
         prompt = REST_PROMPT + "\n\n" + bio_context
     else:
         prompt = (

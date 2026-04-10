@@ -17,6 +17,7 @@ import Drift from "@/pages/Drift";
 import Recovery from "@/pages/Recovery";
 import Employer from "@/pages/Employer";
 import Settings from "@/pages/Settings";
+import History from "@/pages/History";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ function AnimatedRoutes() {
         <Route path="/oura" element={<ProtectedRoute><PageTransition><OuraProfile /></PageTransition></ProtectedRoute>} />
         <Route path="/drift" element={<ProtectedRoute><PageTransition><Drift /></PageTransition></ProtectedRoute>} />
         <Route path="/recovery" element={<ProtectedRoute><PageTransition><Recovery /></PageTransition></ProtectedRoute>} />
+        <Route path="/history" element={<ProtectedRoute><PageTransition><History /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
         <Route path="/employer" element={<PageTransition><Employer /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />

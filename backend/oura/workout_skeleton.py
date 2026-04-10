@@ -166,6 +166,41 @@ def build_skeleton(ctx: dict) -> dict:
     skeleton["avoid_patterns"] = avoid
     skeleton["load_hints"] = load_hints
 
+    # Pattern-aware warmup (issue 13): warmup should activate the patterns
+    # that the main session targets
+    all_target_patterns = list(set(
+        (skeleton.get("strength", {}).get("target_patterns") or []) +
+        (skeleton.get("metcon", {}).get("target_patterns") or skeleton.get("main", {}).get("target_patterns") or [])
+    ))
+    WARMUP_MAP = {
+        "squat": "hip circles, bodyweight squats, goblet squat holds",
+        "hinge": "hip hinges, glute bridges, single-leg RDL (bodyweight)",
+        "push_h": "push-up walkouts, scapular push-ups, arm circles",
+        "push_v": "band pull-aparts, shoulder dislocates, light DB press",
+        "pull_v": "dead hangs, scapular pull-ups, band-assisted pull-ups",
+        "pull_h": "band rows, cat-cow, thoracic rotations",
+        "olympic": "muscle clean drill (empty hands), hip pops, front rack stretch",
+        "core": "dead bugs, bird dogs, plank hold",
+        "cardio": "easy treadmill jog, high knees, butt kicks",
+    }
+    warmup_focus = [WARMUP_MAP.get(p, "") for p in all_target_patterns if p in WARMUP_MAP]
+    skeleton["warmup_focus"] = warmup_focus
+
+    # Session-aware cooldown (issue 14): stretch what was just worked
+    COOLDOWN_MAP = {
+        "squat": "pigeon stretch, couch stretch, quad foam roll",
+        "hinge": "seated hamstring stretch, figure-four glute stretch, lower back child's pose",
+        "push_h": "doorway chest stretch, tricep stretch, wrist flexor stretch",
+        "push_v": "lat stretch on rack, cross-body shoulder stretch, neck rolls",
+        "pull_v": "bicep wall stretch, lat foam roll, hang for 30s",
+        "pull_h": "cat-cow, thoracic extension on foam roller, rear delt stretch",
+        "olympic": "wrist stretches, hip flexor stretch, front rack mobility",
+        "core": "cobra stretch, side-lying rotation, diaphragmatic breathing",
+        "cardio": "standing quad stretch, calf stretch, easy walk 2 min",
+    }
+    cooldown_focus = [COOLDOWN_MAP.get(p, "") for p in all_target_patterns if p in COOLDOWN_MAP]
+    skeleton["cooldown_focus"] = cooldown_focus
+
     return skeleton
 
 
@@ -222,6 +257,18 @@ def build_skeleton_prompt_block(skeleton: dict) -> str:
         lines.append(f"  Target patterns: {', '.join(m.get('target_patterns', []))}")
         for p, desc in m.get("pattern_descriptions", {}).items():
             lines.append(f"    {p}: pick {desc}")
+
+    if skeleton.get("warmup_focus"):
+        lines.append("")
+        lines.append("WARMUP must include activation for today's target patterns:")
+        for w in skeleton["warmup_focus"]:
+            if w: lines.append(f"  - {w}")
+
+    if skeleton.get("cooldown_focus"):
+        lines.append("")
+        lines.append("COOLDOWN must stretch the muscles worked in today's session:")
+        for c in skeleton["cooldown_focus"]:
+            if c: lines.append(f"  - {c}")
 
     if skeleton.get("avoid_patterns"):
         lines.append("")
