@@ -83,6 +83,38 @@ def build_adherence_profile(recent_entries: list[dict]) -> dict:
         last_intensity = last.get("intensity")
         last_feedback = (last.get("user_feedback") or {}).get("completed")
 
+    # Skip taxonomy — categorize skip reasons
+    skip_taxonomy: dict[str, int] = {}
+    for e in entries_14d:
+        fb = e.get("user_feedback") or {}
+        if fb.get("completed") == "no":
+            reason = fb.get("skip_reason") or "unknown"
+            skip_taxonomy[reason] = skip_taxonomy.get(reason, 0) + 1
+
+    # Temporal profile — compute preferred training window from feedback timestamps
+    training_times: list[int] = []  # hour of day
+    for e in entries_14d:
+        fb = e.get("user_feedback") or {}
+        tod = fb.get("time_of_day")
+        if tod and fb.get("completed") in ("yes", "partial"):
+            try:
+                hour = int(tod.split(":")[0])
+                training_times.append(hour)
+            except Exception:
+                pass
+
+    preferred_window = None
+    if len(training_times) >= 5:
+        from statistics import mean, stdev
+        avg_hour = round(mean(training_times), 1)
+        spread = round(stdev(training_times), 1) if len(training_times) >= 3 else 2.0
+        preferred_window = {
+            "avg_hour": avg_hour,
+            "spread_hours": spread,
+            "label": f"{int(avg_hour)}:00 - {int(avg_hour + 1)}:00",
+            "n": len(training_times),
+        }
+
     return {
         "total_7d": total_7d,
         "completed_7d": completed_7d,
@@ -92,6 +124,8 @@ def build_adherence_profile(recent_entries: list[dict]) -> dict:
         "completion_rate_14d": completion_rate_14d,
         "streak": streak,
         "skip_reasons": skip_reasons,
+        "skip_taxonomy": skip_taxonomy,
+        "preferred_training_window": preferred_window,
         "streak_rebuild": streak_rebuild,
         "last_intensity": last_intensity,
         "last_feedback": last_feedback,

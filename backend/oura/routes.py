@@ -928,12 +928,15 @@ def workout_feedback(payload: dict):
     for entry in log:
         if entry["id"] == target_id:
             completed = (payload or {}).get("completed", "unknown")
+            skip_reason = (payload or {}).get("skip_reason")  # travel / illness / work_overload / low_motivation
             entry["user_feedback"] = {
                 "completed": completed,
+                "skip_reason": skip_reason,
                 "felt": (payload or {}).get("felt"),
                 "soreness": (payload or {}).get("soreness"),
                 "notes": (payload or {}).get("notes", ""),
                 "recorded_at": datetime.now(BOSTON_TZ).isoformat(),
+                "time_of_day": datetime.now(BOSTON_TZ).strftime("%H:%M"),
             }
             _save_log(log)
             _upsert_entry(entry)
@@ -943,6 +946,20 @@ def workout_feedback(payload: dict):
                 full = entry.get("full_workout") or {}
                 if full:
                     record_movements(full, completed=completed)
+            except Exception:
+                pass
+            # Emit Pub/Sub event
+            try:
+                from .events import publish_workout_event
+                evt = "workout.completed" if completed == "yes" else "session.skipped" if completed == "no" else "session.partial"
+                publish_workout_event(evt, {
+                    "log_id": target_id,
+                    "completed": completed,
+                    "skip_reason": skip_reason,
+                    "day": entry.get("day"),
+                    "intensity": entry.get("intensity"),
+                    "patterns": entry.get("patterns"),
+                })
             except Exception:
                 pass
             return {"saved": True, "entry": entry}
@@ -1051,6 +1068,39 @@ def workout_unblock_movement(payload: dict):
     if not name:
         return {"error": "movement_name required"}
     return unblock_movement(name)
+
+
+@router.post("/catalog/seed")
+def catalog_seed():
+    """Seed the Firestore catalog from CF Movements.md. Run once."""
+    from .catalog_svc import seed_catalog
+    return seed_catalog()
+
+
+@router.get("/catalog")
+def catalog_list():
+    """List all active movements in the catalog."""
+    from .catalog_svc import get_catalog_movements, get_catalog_sha
+    return {"sha": get_catalog_sha(), "movements": get_catalog_movements()}
+
+
+@router.post("/catalog/add")
+def catalog_add(payload: dict):
+    """Add a movement to the catalog. {name, section, notes?}"""
+    from .catalog_svc import add_movement
+    return add_movement(
+        (payload or {}).get("name", ""),
+        (payload or {}).get("section", "Other"),
+        (payload or {}).get("notes", ""),
+    )
+
+
+@router.post("/catalog/deactivate")
+def catalog_deactivate(payload: dict):
+    """Deactivate a movement. {name}"""
+    from .catalog_svc import deactivate_movement
+    name = (payload or {}).get("name", "")
+    return {"deactivated": deactivate_movement(name)}
 
 
 @router.get("/workout/adherence")

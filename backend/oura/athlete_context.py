@@ -146,6 +146,14 @@ def unblock_movement(movement_name: str, user_id: str = "omar") -> dict:
     return comp
 
 
+def _get_catalog_sha() -> str | None:
+    try:
+        from .catalog_svc import get_catalog_sha
+        return get_catalog_sha()
+    except Exception:
+        return None
+
+
 # ── Equipment Model ─────────────────────────────────────────────────────────
 
 # Typed equipment set. Each key is an equipment type, value is a list of
@@ -262,6 +270,7 @@ def build_athlete_context(
     travel_mode: bool = False,
     avoid_movements: list[str] | None = None,
     lock_patterns: list[str] | None = None,
+    user_id: str = "omar",
 ) -> dict:
     """Assemble the full 18-field AthleteContext from raw Oura caches.
     This is the ONLY place biometrics get assembled. Everyone reads from here."""
@@ -330,11 +339,23 @@ def build_athlete_context(
         if rhr_val and rhr_baseline_data.get("ucl") and rhr_val > rhr_baseline_data["ucl"]:
             overtraining_risk = "veto"  # both HRV below LCL AND RHR above UCL
 
-    # Equipment
-    equipment = BODYWEIGHT_EQUIPMENT if travel_mode else DEFAULT_EQUIPMENT
+    # Load user profile from identity service
+    try:
+        from backend.identity.service import get_profile
+        profile = get_profile(user_id)
+    except Exception:
+        profile = {}
+
+    # Equipment — from profile if available, else defaults
+    if travel_mode:
+        equipment = BODYWEIGHT_EQUIPMENT
+    elif profile.get("equipment"):
+        equipment = profile["equipment"]
+    else:
+        equipment = DEFAULT_EQUIPMENT
 
     # Competency
-    competency = load_competency()
+    competency = load_competency(user_id)
 
     # Progression ledger
     try:
@@ -381,12 +402,12 @@ def build_athlete_context(
 
     return {
         # ── Identity (v2.1 fields 1-6) ──
-        "user_id": "omar",
-        "catalog_sha": None,  # no versioning yet
+        "user_id": user_id,
+        "catalog_sha": _get_catalog_sha(),
         "equipment": equipment,
         "competency": competency,
-        "fitness_level": "advanced",
-        "goals": ["strength", "conditioning", "hybrid"],
+        "fitness_level": profile.get("fitness_level", "advanced"),
+        "goals": profile.get("goals", ["strength", "conditioning", "hybrid"]),
 
         # ── Biometrics (v2.1 fields 7-8) ──
         "baseline": {
@@ -418,7 +439,7 @@ def build_athlete_context(
         "adherence_profile": adherence,
 
         # ── Preferences (v2.1 fields 15-18) ──
-        "tone_preference": "coach",  # TODO: learn from feedback
+        "tone_preference": profile.get("tone_preference", "coach"),
         "requested_format": None,
         "requested_type": session_type,
         "avoid_movements": list(avoid_movements or []),

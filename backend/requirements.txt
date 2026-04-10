@@ -8,3 +8,4 @@ google-auth==2.29.0
 google-cloud-storage==2.16.0
 google-cloud-firestore==2.19.0
 langgraph>=1.1.0
+google-cloud-pubsub>=2.21.0

@@ -14,6 +14,8 @@ from backend.oura.routes import router as oura_router
 from backend.optimize.routes import router as optimize_router
 from backend.calendar.routes import router as calendar_router
 from backend.agent.routes import router as agent_router
+from backend.wearable.routes import router as wearable_router
+from backend.identity.routes import router as identity_router
 from backend.agent.mcp_server import router as mcp_router
 from backend.agent.well_known import council_agent_card, specialist_agent_card
 
@@ -67,6 +69,8 @@ app.include_router(oura_router, prefix="/api/oura", tags=["oura"])
 app.include_router(optimize_router, prefix="/api/optimize", tags=["optimize"])
 app.include_router(calendar_router, prefix="/api/calendar", tags=["calendar"])
 app.include_router(agent_router, prefix="/api/agent", tags=["agent"])
+app.include_router(wearable_router, prefix="/api/wearable", tags=["wearable"])
+app.include_router(identity_router, prefix="/api/identity", tags=["identity"])
 app.include_router(mcp_router, prefix="/mcp", tags=["mcp"])
 
 

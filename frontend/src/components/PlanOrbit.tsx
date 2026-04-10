@@ -126,13 +126,16 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
     finally { setRegenLoading(false); }
   };
 
-  const sendWorkoutFeedback = async (completed: "yes" | "partial" | "no") => {
+  const [showSkipReasons, setShowSkipReasons] = useState(false);
+
+  const sendWorkoutFeedback = async (completed: "yes" | "partial" | "no", skipReason?: string) => {
     if (!workoutLogId) return;
     setWorkoutFeedback(completed);
+    setShowSkipReasons(false);
     try {
       await fetch(`${API}/api/oura/workout/feedback`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ log_id: workoutLogId, completed }),
+        body: JSON.stringify({ log_id: workoutLogId, completed, skip_reason: skipReason || null }),
       });
       loadBacklog();
     } catch {}
@@ -839,7 +842,27 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                           <div className="flex gap-2">
                             <button onClick={() => sendWorkoutFeedback("yes")} className="text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer border-0" style={{ background: "rgba(74,222,128,.15)", color: "#4ADE80" }}>Yes, all of it</button>
                             <button onClick={() => sendWorkoutFeedback("partial")} className="text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer border-0" style={{ background: "rgba(245,158,11,.15)", color: "#FBBF24" }}>Partial</button>
-                            <button onClick={() => sendWorkoutFeedback("no")} className="text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer border-0" style={{ background: "rgba(239,68,68,.15)", color: "#F87171" }}>Skipped</button>
+                            <button onClick={() => setShowSkipReasons(true)} className="text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer border-0" style={{ background: "rgba(239,68,68,.15)", color: "#F87171" }}>Skipped</button>
+                          </div>
+                        </div>
+                      )}
+                      {showSkipReasons && !workoutFeedback && (
+                        <div className="rounded-xl p-3 space-y-2" style={{ background: "rgba(239,68,68,.06)", border: "1px solid rgba(239,68,68,.15)" }}>
+                          <p className="text-xs font-bold text-red-300">What got in the way?</p>
+                          <div className="flex gap-2 flex-wrap">
+                            {[
+                              { key: "travel", label: "Travel" },
+                              { key: "illness", label: "Sick / injured" },
+                              { key: "work_overload", label: "Work overload" },
+                              { key: "low_motivation", label: "Low motivation" },
+                            ].map(r => (
+                              <button key={r.key}
+                                onClick={() => sendWorkoutFeedback("no", r.key)}
+                                className="text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-0"
+                                style={{ background: "rgba(239,68,68,.12)", color: "#FCA5A5" }}>
+                                {r.label}
+                              </button>
+                            ))}
                           </div>
                         </div>
                       )}

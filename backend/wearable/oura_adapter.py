@@ -70,6 +70,15 @@ class OuraAdapter(BaseAdapter):
                     recorded_at=ts, ingested_at=now, day=day,
                 ))
 
+            resp_rate = session.get("average_breath")
+            if resp_rate is not None:
+                samples.append(BiometricSample(
+                    user_id=user_id, provider=self.provider,
+                    sample_type=SampleType.RESPIRATORY_RATE,
+                    value=round(float(resp_rate), 1), unit="br/min",
+                    recorded_at=ts, ingested_at=now, day=day,
+                ))
+
             eff = session.get("efficiency")
             if eff is not None:
                 samples.append(BiometricSample(

@@ -311,7 +311,12 @@ def build_memory_block(current_biometrics: dict) -> str:
     closed_loop_review(current_biometrics)
     history = recent_log(7)
     balance = balance_instructions(history)
-    catalog = load_catalog()
+    # Prefer Firestore catalog (single source of truth) over file
+    try:
+        from .catalog_svc import get_catalog_text
+        catalog = get_catalog_text()
+    except Exception:
+        catalog = load_catalog()
 
     # Progression ledger (v2.1 week 7-9)
     try:
