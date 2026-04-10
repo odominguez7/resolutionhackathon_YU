@@ -19,6 +19,133 @@ from zoneinfo import ZoneInfo
 BOSTON_TZ = ZoneInfo("America/New_York")
 
 
+# ── EWMA Baselines ──────────────────────────────────────────────────────────
+
+EWMA_ALPHA = 0.15  # smoothing factor — higher = more reactive to recent data
+PHASE_I_DAYS = 21  # bootstrap period before EWMA kicks in
+
+
+def compute_ewma(values: list[float], alpha: float = EWMA_ALPHA) -> float | None:
+    """Exponentially Weighted Moving Average. More weight on recent values."""
+    if not values:
+        return None
+    ewma = values[0]
+    for v in values[1:]:
+        ewma = alpha * v + (1 - alpha) * ewma
+    return round(ewma, 2)
+
+
+def compute_ewma_std(values: list[float], alpha: float = EWMA_ALPHA) -> float | None:
+    """EWMA standard deviation for control limits."""
+    if len(values) < 5:
+        return None
+    ewma = compute_ewma(values, alpha)
+    if ewma is None:
+        return None
+    # Exponentially-weighted variance
+    var = 0.0
+    weight = 1.0
+    total_w = 0.0
+    for v in reversed(values):
+        var += weight * (v - ewma) ** 2
+        total_w += weight
+        weight *= (1 - alpha)
+    return round((var / total_w) ** 0.5, 2) if total_w > 0 else None
+
+
+def compute_baseline_with_limits(values: list[float]) -> dict:
+    """Phase I/II baseline with EWMA and control limits.
+    Phase I (first 21 days): simple mean + std for bootstrap.
+    Phase II (ongoing): EWMA with ±2σ control limits."""
+    if not values:
+        return {"mean": None, "ewma": None, "std": None, "ucl": None, "lcl": None, "phase": "insufficient"}
+
+    phase = "I" if len(values) <= PHASE_I_DAYS else "II"
+
+    if phase == "I":
+        mean = round(statistics.mean(values), 2)
+        std = round(statistics.stdev(values), 2) if len(values) >= 3 else None
+        return {
+            "mean": mean,
+            "ewma": mean,
+            "std": std,
+            "ucl": round(mean + 2 * std, 2) if std else None,
+            "lcl": round(mean - 2 * std, 2) if std else None,
+            "phase": "I",
+            "n": len(values),
+        }
+
+    ewma = compute_ewma(values)
+    std = compute_ewma_std(values)
+    return {
+        "mean": round(statistics.mean(values), 2),
+        "ewma": ewma,
+        "std": std,
+        "ucl": round(ewma + 2 * std, 2) if ewma and std else None,
+        "lcl": round(ewma - 2 * std, 2) if ewma and std else None,
+        "phase": "II",
+        "n": len(values),
+    }
+
+
+# ── Competency Matrix ───────────────────────────────────────────────────────
+
+# Per-user approved/blocked movements. Stored in Firestore for multi-user;
+# for now, defaults for Omar. Blocked movements are rejected by the validator.
+
+COMPETENCY_COLLECTION = "competency"
+
+
+def load_competency(user_id: str = "omar") -> dict:
+    """Load the user's competency matrix from Firestore.
+    Returns {blocked: [str], blocked_reasons: {str: str}}."""
+    try:
+        from google.cloud import firestore
+        db = firestore.Client(project="resolution-hack")
+        doc = db.collection(COMPETENCY_COLLECTION).document(user_id).get()
+        if doc.exists:
+            return doc.to_dict()
+    except Exception:
+        pass
+    # Default: nothing blocked
+    return {"blocked": [], "blocked_reasons": {}}
+
+
+def block_movement(movement_name: str, reason: str = "injury", user_id: str = "omar") -> dict:
+    """Block a movement for a user."""
+    comp = load_competency(user_id)
+    blocked = comp.get("blocked", [])
+    reasons = comp.get("blocked_reasons", {})
+    name = movement_name.strip().lower()
+    if name not in blocked:
+        blocked.append(name)
+    reasons[name] = reason
+    comp["blocked"] = blocked
+    comp["blocked_reasons"] = reasons
+    try:
+        from google.cloud import firestore
+        db = firestore.Client(project="resolution-hack")
+        db.collection(COMPETENCY_COLLECTION).document(user_id).set(comp)
+    except Exception:
+        pass
+    return comp
+
+
+def unblock_movement(movement_name: str, user_id: str = "omar") -> dict:
+    """Unblock a movement for a user."""
+    comp = load_competency(user_id)
+    name = movement_name.strip().lower()
+    comp["blocked"] = [b for b in comp.get("blocked", []) if b != name]
+    comp.get("blocked_reasons", {}).pop(name, None)
+    try:
+        from google.cloud import firestore
+        db = firestore.Client(project="resolution-hack")
+        db.collection(COMPETENCY_COLLECTION).document(user_id).set(comp)
+    except Exception:
+        pass
+    return comp
+
+
 # ── Equipment Model ─────────────────────────────────────────────────────────
 
 # Typed equipment set. Each key is an equipment type, value is a list of
@@ -173,9 +300,11 @@ def build_athlete_context(
         })
 
     hrv_val = sleep_session.get("average_hrv")
-    hrv_bl = round(statistics.mean(last_30_hrvs), 1) if last_30_hrvs else None
+    hrv_baseline_data = compute_baseline_with_limits(last_30_hrvs)
+    rhr_baseline_data = compute_baseline_with_limits(last_30_rhrs)
+    hrv_bl = hrv_baseline_data.get("ewma") or (round(statistics.mean(last_30_hrvs), 1) if last_30_hrvs else None)
     rhr_val = round(sleep_session.get("average_heart_rate", 0), 1) if sleep_session.get("average_heart_rate") else None
-    rhr_bl = round(statistics.mean(last_30_rhrs), 1) if last_30_rhrs else None
+    rhr_bl = rhr_baseline_data.get("ewma") or (round(statistics.mean(last_30_rhrs), 1) if last_30_rhrs else None)
     readiness_score = readiness_data.get("score", 0)
     sleep_score = score_by_day.get(latest_day)
     stress_min = round((stress_data.get("stress_high", 0) or 0) / 60)
@@ -193,8 +322,19 @@ def build_athlete_context(
     else:
         recovery_context = "Low recovery. Active recovery only."
 
+    # Overtraining risk from EWMA control limits
+    overtraining_risk = "none"
+    if hrv_val and hrv_baseline_data.get("lcl"):
+        if hrv_val < hrv_baseline_data["lcl"]:
+            overtraining_risk = "elevated"
+        if rhr_val and rhr_baseline_data.get("ucl") and rhr_val > rhr_baseline_data["ucl"]:
+            overtraining_risk = "veto"  # both HRV below LCL AND RHR above UCL
+
     # Equipment
     equipment = BODYWEIGHT_EQUIPMENT if travel_mode else DEFAULT_EQUIPMENT
+
+    # Competency
+    competency = load_competency()
 
     # Progression ledger
     try:
@@ -211,32 +351,52 @@ def build_athlete_context(
     except Exception:
         adherence = {}
 
-    # Weekly pattern counts + balance
+    # Weekly pattern counts + balance + volume
     try:
-        from .workout_brain import recent_log, balance_instructions
+        from .workout_brain import recent_log, balance_instructions, tag_patterns as _tag
+        import re as _re
         history = recent_log(7)
         balance = balance_instructions(history)
+        # Weekly volume: sum reps per pattern from this week's logged workouts
+        weekly_volume: dict[str, int] = {}
+        for entry in history:
+            full = entry.get("full_workout") or {}
+            for bk in ("workout", "strength", "metcon"):
+                block = full.get(bk) or {}
+                for m in (block.get("movements") or []):
+                    if not isinstance(m, dict):
+                        continue
+                    name = m.get("movement_name") or m.get("name") or ""
+                    reps_str = str(m.get("reps") or "0")
+                    reps_num = 0
+                    r_match = _re.match(r"(\d+)", reps_str)
+                    if r_match and not any(c in reps_str for c in ["m", "sec", "min"]):
+                        reps_num = int(r_match.group(1))
+                    pats = _tag([name])
+                    for p in pats:
+                        weekly_volume[p] = weekly_volume.get(p, 0) + reps_num
     except Exception:
         balance = {"must_include": [], "avoid": [], "week_counts": {}}
+        weekly_volume = {}
 
     return {
         # ── Identity (v2.1 fields 1-6) ──
         "user_id": "omar",
         "catalog_sha": None,  # no versioning yet
         "equipment": equipment,
-        "competency": None,   # no competency matrix yet — all movements assumed OK
+        "competency": competency,
         "fitness_level": "advanced",
         "goals": ["strength", "conditioning", "hybrid"],
 
         # ── Biometrics (v2.1 fields 7-8) ──
         "baseline": {
-            "hrv": hrv_bl,
-            "rhr": rhr_bl,
+            "hrv": hrv_baseline_data,
+            "rhr": rhr_baseline_data,
         },
         "readiness": readiness_score,
 
         # ── Risk (v2.1 field 9-10) ──
-        "overtraining_risk": "none",  # TODO: multi-signal guardian
+        "overtraining_risk": overtraining_risk,
         "load_tolerance": None,       # TODO: load-to-response model
 
         # ── History (v2.1 fields 11-12) ──
@@ -285,6 +445,7 @@ def build_athlete_context(
             "must_include": balance.get("must_include", []),
             "avoid": balance.get("avoid", []),
         },
+        "weekly_volume": weekly_volume,
         "travel_mode": travel_mode,
         "generated_at": now.isoformat(),
     }

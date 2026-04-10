@@ -39,7 +39,13 @@ def _normalize(name: str) -> str:
     return re.sub(r"\s+", " ", name.strip().lower())
 
 
-def validate_workout(workout: dict, required_patterns: list[str] | None = None, equipment: dict | None = None) -> dict:
+def validate_workout(
+    workout: dict,
+    required_patterns: list[str] | None = None,
+    equipment: dict | None = None,
+    competency: dict | None = None,
+    weekly_volume: dict | None = None,
+) -> dict:
     """Validate a generated workout. Returns:
     {
         "valid": bool,
@@ -143,7 +149,52 @@ def validate_workout(workout: dict, required_patterns: list[str] | None = None, 
             if int(n) > 100:
                 errors.append(f"Load {n}lb exceeds max (100lb per DB): {m.get('movement_name')}")
 
-    # 6. Equipment check — every movement's required gear must be in the set
+    # 6. Volume cap — weekly reps per pattern must not exceed safe limits
+    if weekly_volume:
+        # Count new reps by pattern
+        new_reps_by_pattern: dict[str, int] = {}
+        for _, m in all_movements:
+            if not isinstance(m, dict):
+                continue
+            name = m.get("movement_name") or m.get("name") or ""
+            reps_str = str(m.get("reps") or "0")
+            # Extract numeric portion (e.g. "15" from "15", "400m" stays 0 for volume)
+            reps_num = 0
+            import re as _re
+            r_match = _re.match(r"(\d+)", reps_str)
+            if r_match and not any(c in reps_str for c in ["m", "sec", "min"]):
+                reps_num = int(r_match.group(1))
+            patterns = tag_patterns([name])
+            for p in patterns:
+                new_reps_by_pattern[p] = new_reps_by_pattern.get(p, 0) + reps_num
+
+        WEEKLY_REP_CAPS = {
+            "squat": 300, "hinge": 250, "push_h": 300, "push_v": 200,
+            "pull_v": 200, "pull_h": 250, "olympic": 150, "core": 400,
+        }
+        for p, new_reps in new_reps_by_pattern.items():
+            cap = WEEKLY_REP_CAPS.get(p)
+            if cap is None:
+                continue
+            existing = weekly_volume.get(p, 0)
+            if existing + new_reps > cap:
+                errors.append(
+                    f"Volume cap exceeded for '{p}': week has {existing} reps + {new_reps} new = {existing + new_reps} (cap: {cap})"
+                )
+
+    # 7. Competency check — movement must be in user's approved set
+    if competency:
+        blocked = competency.get("blocked", [])
+        for block_key, m in all_movements:
+            if not isinstance(m, dict):
+                continue
+            name = _normalize(m.get("movement_name") or m.get("name") or "")
+            for b in blocked:
+                if b.lower() in name or name in b.lower():
+                    reason = competency.get("blocked_reasons", {}).get(b, "blocked by user/injury")
+                    errors.append(f"Competency block in {block_key}: '{name}' is blocked ({reason})")
+
+    # 8. Equipment check — every movement's required gear must be in the set
     if equipment:
         for block_key, m in all_movements:
             if not isinstance(m, dict):
@@ -156,7 +207,7 @@ def validate_workout(workout: dict, required_patterns: list[str] | None = None, 
             if err:
                 errors.append(f"Equipment violation in {block_key}: {err}")
 
-    # 7. Description leak check — no block should have a description field
+    # 9. Description leak check — no block should have a description field
     for block_key in ("workout", "strength", "metcon"):
         block = workout.get(block_key)
         if block and block.get("description"):

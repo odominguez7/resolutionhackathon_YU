@@ -949,11 +949,108 @@ def workout_feedback(payload: dict):
     return {"saved": False, "reason": "log_id not found"}
 
 
+@router.post("/workout/rpe")
+def workout_rpe(payload: dict):
+    """Per-set RPE tracking. Accepts:
+    {log_id, movement_name, set_number, reps_actual, load_actual, rpe (1-10)}
+    Stores in Firestore. RPE <= 8 counts as 'clean' for progression bumps.
+    RPE 9-10 resets the consecutive_clean counter."""
+    from .workout_progression import _normalize_name, _get_db
+    db = _get_db()
+    if not db:
+        return {"saved": False, "reason": "Firestore unavailable"}
+
+    log_id = (payload or {}).get("log_id", "")
+    movement = (payload or {}).get("movement_name", "")
+    set_num = int((payload or {}).get("set_number", 0))
+    reps = (payload or {}).get("reps_actual")
+    load = (payload or {}).get("load_actual")
+    rpe = float((payload or {}).get("rpe", 5))
+
+    if not movement:
+        return {"saved": False, "reason": "movement_name required"}
+
+    # Store the RPE entry
+    doc_id = _normalize_name(movement)
+    try:
+        ref = db.collection("rpe_log").document(f"{log_id}_{doc_id}_s{set_num}")
+        entry = {
+            "log_id": log_id,
+            "movement_name": movement,
+            "set_number": set_num,
+            "reps_actual": reps,
+            "load_actual": load,
+            "rpe": rpe,
+            "recorded_at": datetime.now(BOSTON_TZ).isoformat(),
+        }
+        ref.set(entry)
+
+        # Update progression ledger based on RPE
+        prog_ref = db.collection("progression").document(doc_id)
+        prog_doc = prog_ref.get()
+        if prog_doc.exists:
+            rec = prog_doc.to_dict()
+            if rpe <= 8:
+                # Clean set — counts toward progression bump
+                pass  # progression already counted on generation; RPE confirms
+            else:
+                # Hard set — reset consecutive_clean (shouldn't bump)
+                rec["consecutive_clean"] = 0
+                rec["next_prescribed_lbs"] = rec.get("current_load_lbs")
+                prog_ref.set(rec)
+
+        return {"saved": True, **entry}
+    except Exception as e:
+        return {"saved": False, "reason": str(e)[:100]}
+
+
+@router.get("/workout/rpe/{log_id}")
+def workout_rpe_history(log_id: str):
+    """Get all RPE entries for a specific workout."""
+    from .workout_progression import _get_db
+    db = _get_db()
+    if not db:
+        return {"entries": []}
+    try:
+        docs = db.collection("rpe_log").where("log_id", "==", log_id).stream()
+        return {"entries": [d.to_dict() for d in docs]}
+    except Exception:
+        return {"entries": []}
+
+
 @router.get("/workout/progression")
 def workout_progression():
     """Progressive overload ledger — per-movement load history + next prescribed."""
     from .workout_progression import get_all_progressions
     return {"movements": get_all_progressions()}
+
+
+@router.get("/workout/competency")
+def workout_competency():
+    """Get the user's movement competency matrix (blocked movements + reasons)."""
+    from .athlete_context import load_competency
+    return load_competency()
+
+
+@router.post("/workout/competency/block")
+def workout_block_movement(payload: dict):
+    """Block a movement (e.g. due to injury). {movement_name, reason}"""
+    from .athlete_context import block_movement
+    name = (payload or {}).get("movement_name", "")
+    reason = (payload or {}).get("reason", "injury")
+    if not name:
+        return {"error": "movement_name required"}
+    return block_movement(name, reason)
+
+
+@router.post("/workout/competency/unblock")
+def workout_unblock_movement(payload: dict):
+    """Unblock a previously blocked movement. {movement_name}"""
+    from .athlete_context import unblock_movement
+    name = (payload or {}).get("movement_name", "")
+    if not name:
+        return {"error": "movement_name required"}
+    return unblock_movement(name)
 
 
 @router.get("/workout/adherence")
