@@ -20,7 +20,7 @@ const COLOR_MAP: Record<string, string> = {
 type Props = { todayData: any; calendarEvents: any[]; stats: any; sleepHistory?: any[]; stressData?: any[] };
 
 export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHistory = [], stressData = [] }: Props) {
-  const [phase, setPhase] = useState<"idle" | "scanning" | "goal" | "plan">("idle");
+  const [phase, setPhase] = useState<"idle" | "scanning" | "goal" | "plan">("plan");
   const [scanStep, setScanStep] = useState(0);
   const [goal, setGoal] = useState("");
   const [selectedDay, setSelectedDay] = useState(0); // 0 = today, 1 = tomorrow, etc.
