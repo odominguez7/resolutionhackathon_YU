@@ -896,12 +896,29 @@ async def get_daily_action(request: Request):
     )
     ctx["calendar_cognitive_load"] = calendar_load
 
+    # Build universal normalized context (hardware-agnostic)
+    from .normalize import build_universal_context
+    from .workout_brain import recent_log as _recent
+    all_log = _recent(28)  # 28 days for ACWR
+    universal = build_universal_context(ctx, all_log)
+
+    # ACWR-based throttling: if danger zone, force recovery
+    acwr = universal.get("load_ledger", {}).get("acwr", {})
+    if acwr.get("zone") == "danger_zone":
+        ctx["overtraining_risk"] = "veto"
+    elif acwr.get("zone") == "elevated_risk":
+        ctx["overtraining_risk"] = max(ctx.get("overtraining_risk", "none"), "elevated")
+
+    # Confidence-based degradation: low confidence → safe defaults
+    confidence = universal.get("meta", {}).get("data_confidence_score", 0.5)
+    if confidence < 0.4:
+        ctx["intensity_tier"] = "easy"  # don't push when data is unreliable
+
     # Agent picks the action
     action = pick_daily_action(ctx)
     action = adapt_for_time_of_day(action)
 
     # Check if a workout is already generated today
-    from .workout_brain import recent_log as _recent
     entries = _recent(2)
     today_str = datetime.now(BOSTON_TZ).strftime("%Y-%m-%d")
     todays = [e for e in entries if e.get("day") == today_str and not e.get("rejected")]
@@ -931,6 +948,7 @@ async def get_daily_action(request: Request):
             "total": total_7d,
         },
         "calendar_cognitive_load": calendar_load,
+        "universal_context": universal,
         "user_id": user_id,
     }
 
@@ -1152,6 +1170,25 @@ def workout_unblock_movement(payload: dict):
     if not name:
         return {"error": "movement_name required"}
     return unblock_movement(name)
+
+
+@router.get("/universal-context")
+async def get_universal_context(request: Request):
+    """The full normalized AthleteContext — hardware-agnostic, 0-1 scales.
+    This is what the THINK layer reads. Good for debugging and demos."""
+    from .athlete_context import build_athlete_context
+    from backend.wearable.user_data import load_user_biometrics
+    from .normalize import build_universal_context
+    from .workout_brain import recent_log
+
+    user_id = getattr(request.state, "user_id", "omar")
+    data = load_user_biometrics(user_id)
+    ctx = build_athlete_context(
+        sleep_by_day=data["sleep_by_day"], score_by_day=data["score_by_day"],
+        readiness_by_day=data["readiness_by_day"], stress_by_day=data["stress_by_day"],
+        user_id=user_id,
+    )
+    return build_universal_context(ctx, recent_log(28))
 
 
 @router.get("/ml/readiness")
