@@ -668,8 +668,8 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                   className="text-[10px] md:text-xs text-slate-600 cursor-pointer border-0 bg-transparent hover:text-slate-400 px-2 py-1 md:px-3 md:py-1.5 rounded-lg flex-shrink-0" style={{ background: "rgba(255,255,255,0.02)" }}>Reset</button>
               </div>
 
-              {/* TWO COLUMN LAYOUT */}
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4">
+              {/* SINGLE COLUMN — Ask YU sidebar removed */}
+              <div className="max-w-2xl mx-auto w-full">
 
                 {/* LEFT */}
                 <div className="space-y-3">
@@ -1427,8 +1427,8 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
 
                 </div>
 
-                {/* RIGHT COLUMN: Ask YU */}
-                <div className="md:sticky md:top-4 md:self-start">
+                {/* Ask YU sidebar removed — chat functionality available at /ask */}
+                {false && <div className="md:sticky md:top-4 md:self-start">
                   <motion.div className="rounded-2xl p-4 md:p-5 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(16,185,129,0.05), rgba(59,130,246,0.03))", border: "1.5px solid rgba(16,185,129,0.1)" }}
                     initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
                     <div className="flex items-center gap-2 mb-3">
@@ -1511,7 +1511,7 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                       </button>
                     </div>
                   </motion.div>
-                </div>
+                </div>}
 
               </div>
               </>
