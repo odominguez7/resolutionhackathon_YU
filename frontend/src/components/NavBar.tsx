@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Bot, MessageSquare, Activity, Users, Settings, Clock } from "lucide-react";
+import { Menu, X, Bot, MessageSquare, Activity, Settings, Clock } from "lucide-react";
 
 const YU = {
   bg: "rgba(255,255,255,0.92)",
@@ -66,24 +66,7 @@ const NavBar = () => {
               {l.label}
             </Link>
           ))}
-          <div style={{ width: 1, height: 18, background: YU.line, margin: "0 8px" }} />
-          <Link
-            to="/employer"
-            className="flex items-center gap-1.5 px-3 py-1.5 transition-all duration-200"
-            style={{
-              color: isActive("/employer") ? YU.ink : YU.label,
-              fontSize: 11,
-              fontWeight: 600,
-              textTransform: "uppercase",
-              letterSpacing: "1.5px",
-              textDecoration: "none",
-              borderRadius: 999,
-              background: isActive("/employer") ? `${YU.teal}08` : "transparent",
-            }}
-          >
-            <Users className="w-3.5 h-3.5" />
-            Employer
-          </Link>
+          {/* Employer link removed */}
         </div>
 
         <button onClick={() => setOpen(!open)} className="md:hidden border-0 bg-transparent cursor-pointer p-1" style={{ color: YU.muted }}>

@@ -17,9 +17,7 @@ const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const Agent = lazy(() => import("@/pages/Agent"));
 const AskYU = lazy(() => import("@/pages/AskYU"));
 const OuraProfile = lazy(() => import("@/pages/OuraProfile"));
-const Drift = lazy(() => import("@/pages/Drift"));
-const Recovery = lazy(() => import("@/pages/Recovery"));
-const Employer = lazy(() => import("@/pages/Employer"));
+// Removed: Drift, Recovery, Employer — functionality absorbed into workout pipeline
 const Settings = lazy(() => import("@/pages/Settings"));
 const History = lazy(() => import("@/pages/History"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -51,11 +49,8 @@ function AnimatedRoutes() {
         <Route path="/agent" element={<ProtectedRoute><PageTransition><Agent /></PageTransition></ProtectedRoute>} />
         <Route path="/ask" element={<ProtectedRoute><PageTransition><AskYU /></PageTransition></ProtectedRoute>} />
         <Route path="/oura" element={<ProtectedRoute><PageTransition><OuraProfile /></PageTransition></ProtectedRoute>} />
-        <Route path="/drift" element={<ProtectedRoute><PageTransition><Drift /></PageTransition></ProtectedRoute>} />
-        <Route path="/recovery" element={<ProtectedRoute><PageTransition><Recovery /></PageTransition></ProtectedRoute>} />
         <Route path="/history" element={<ProtectedRoute><PageTransition><History /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
-        <Route path="/employer" element={<PageTransition><Employer /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>

@@ -1356,19 +1356,7 @@ const OuraProfile = () => {
           )}
         </Glass>
 
-        {/* ═══════ NEXT STEP: DRIFT DETECTION ═══════ */}
-        <div className="flex flex-col items-center gap-3 pt-6 pb-12"
-          style={{ animation: "oura-fade-up .7s ease-out 1000ms both" }}>
-          <p className="text-[10px] text-slate-600 uppercase tracking-wider font-semibold">But what if something is wrong and you don't feel it yet?</p>
-          <Link to="/drift">
-            <button className="px-12 py-4 rounded-2xl text-base font-extrabold text-white cursor-pointer border-0 gap-2"
-              style={{ background: "linear-gradient(135deg, #ef4444, #f59e0b)", boxShadow: "0 4px 24px rgba(239,68,68,.3)", transition: "transform .2s,box-shadow .2s" }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(239,68,68,.45)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(239,68,68,.3)"; }}>
-              Check for burnout signals &rarr;
-            </button>
-          </Link>
-        </div>
+        {/* Drift link removed — overtraining guardian handles this in the workout pipeline */}
         </div>
         )}
 
