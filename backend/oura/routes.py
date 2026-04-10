@@ -865,7 +865,7 @@ async def list_webhooks():
 
 @router.post("/workout/generate")
 @router.get("/workout")  # keep GET for backwards compat, prefer POST
-async def get_workout(session_type: str = "crossfit", travel: bool = False, user_id: str = "omar"):
+async def get_workout(request: Request, session_type: str = "crossfit", travel: bool = False):
     """Generate AI-powered workout based on real biometrics.
     Uses the typed AthleteContext — single assembly point for all state.
     Reads from per-user biometric data (Firestore) or Omar's global cache."""
@@ -873,6 +873,7 @@ async def get_workout(session_type: str = "crossfit", travel: bool = False, user
     from .athlete_context import build_athlete_context
     from backend.wearable.user_data import load_user_biometrics
 
+    user_id = getattr(request.state, "user_id", "omar")
     data = load_user_biometrics(user_id)
     ctx = build_athlete_context(
         sleep_by_day=data["sleep_by_day"],

@@ -16,6 +16,7 @@ from backend.calendar.routes import router as calendar_router
 from backend.agent.routes import router as agent_router
 from backend.wearable.routes import router as wearable_router
 from backend.identity.routes import router as identity_router
+from backend.auth_middleware import FirebaseAuthMiddleware
 from backend.agent.mcp_server import router as mcp_router
 from backend.agent.well_known import council_agent_card, specialist_agent_card
 
@@ -59,6 +60,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+app.add_middleware(FirebaseAuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
