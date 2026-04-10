@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Bot, Activity, Settings, Clock } from "lucide-react";
+import { Menu, X, Zap, Bot, Activity, Settings, Clock } from "lucide-react";
 
 const YU = {
   bg: "rgba(255,255,255,0.92)",
@@ -12,8 +12,8 @@ const YU = {
 };
 
 const mainLinks = [
+  { path: "/today", label: "Today", icon: Zap },
   { path: "/agent", label: "Agent", icon: Bot },
-  { path: "/oura", label: "My Health", icon: Activity },
   { path: "/history", label: "History", icon: Clock },
   { path: "/settings", label: "Settings", icon: Settings },
 ];

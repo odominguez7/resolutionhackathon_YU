@@ -14,6 +14,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 // Lazy-loaded pages — code split into separate chunks
 const Landing = lazy(() => import("@/pages/Landing"));
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
+const Today = lazy(() => import("@/pages/Today"));
 const Agent = lazy(() => import("@/pages/Agent"));
 const AskYU = lazy(() => import("@/pages/AskYU"));
 const OuraProfile = lazy(() => import("@/pages/OuraProfile"));
@@ -46,8 +47,8 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Landing />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/today" element={<ProtectedRoute><PageTransition><Today /></PageTransition></ProtectedRoute>} />
         <Route path="/agent" element={<ProtectedRoute><PageTransition><Agent /></PageTransition></ProtectedRoute>} />
-        <Route path="/ask" element={<ProtectedRoute><PageTransition><AskYU /></PageTransition></ProtectedRoute>} />
         <Route path="/oura" element={<ProtectedRoute><PageTransition><OuraProfile /></PageTransition></ProtectedRoute>} />
         <Route path="/history" element={<ProtectedRoute><PageTransition><History /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />

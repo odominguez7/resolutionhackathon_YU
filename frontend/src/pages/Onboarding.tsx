@@ -265,7 +265,7 @@ export default function Onboarding() {
             <h2 className="text-2xl font-black text-white">You're in.</h2>
             <p className="text-sm text-slate-400">Your first workout is being built from your body data right now.</p>
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}>
-              <a href="/oura">
+              <a href="/today">
                 <button className="px-8 py-3.5 rounded-xl text-sm font-black cursor-pointer border-0"
                   style={{ background: "#FF5C35", color: "#fff" }}>
                   See your workout

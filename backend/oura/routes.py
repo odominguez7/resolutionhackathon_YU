@@ -863,6 +863,75 @@ async def list_webhooks():
         return resp.json()
 
 
+@router.get("/today")
+async def get_today(request: Request):
+    """THE endpoint. Returns today's agent-chosen action + workout if applicable.
+    Adapts based on time of day (silent intervention)."""
+    from .athlete_context import build_athlete_context
+    from backend.wearable.user_data import load_user_biometrics
+    from backend.agent.daily_action import pick_daily_action, adapt_for_time_of_day, compute_calendar_cognitive_load
+    from .workout_brain import recent_log
+
+    user_id = getattr(request.state, "user_id", "omar")
+    data = load_user_biometrics(user_id)
+
+    # Get calendar events for cognitive load scoring
+    try:
+        from backend.calendar.routes import get_today_events
+        events = get_today_events() or []
+    except Exception:
+        events = []
+
+    calendar_load = compute_calendar_cognitive_load(events)
+
+    ctx = build_athlete_context(
+        sleep_by_day=data["sleep_by_day"],
+        score_by_day=data["score_by_day"],
+        readiness_by_day=data["readiness_by_day"],
+        stress_by_day=data["stress_by_day"],
+        user_id=user_id,
+    )
+    ctx["calendar_cognitive_load"] = calendar_load
+
+    # Agent picks the action
+    action = pick_daily_action(ctx)
+    action = adapt_for_time_of_day(action)
+
+    # Check if a workout is already generated today
+    from .workout_brain import recent_log as _recent
+    entries = _recent(2)
+    today_str = datetime.now(BOSTON_TZ).strftime("%Y-%m-%d")
+    todays = [e for e in entries if e.get("day") == today_str and not e.get("rejected")]
+    existing_workout = None
+    if todays:
+        latest = sorted(todays, key=lambda e: e.get("generated_at", ""))[-1]
+        existing_workout = latest
+
+    # Weekly summary
+    completed_7d = ctx.get("adherence_profile", {}).get("completed_7d", 0)
+    streak = ctx.get("adherence_profile", {}).get("streak", 0)
+    total_7d = ctx.get("adherence_profile", {}).get("total_7d", 0)
+
+    return {
+        "action": action,
+        "existing_workout": existing_workout,
+        "body": {
+            "readiness": ctx["biometrics"].get("readiness"),
+            "hrv": ctx["biometrics"].get("hrv"),
+            "hrv_baseline": (ctx.get("baseline", {}).get("hrv", {}) or {}).get("ewma"),
+            "sleep_score": ctx["biometrics"].get("sleep_score"),
+            "stress_min": ctx["biometrics"].get("stress_min"),
+        },
+        "week": {
+            "completed": completed_7d,
+            "streak": streak,
+            "total": total_7d,
+        },
+        "calendar_cognitive_load": calendar_load,
+        "user_id": user_id,
+    }
+
+
 @router.post("/workout/generate")
 @router.get("/workout")  # keep GET for backwards compat, prefer POST
 async def get_workout(request: Request, session_type: str = "crossfit", travel: bool = False):
