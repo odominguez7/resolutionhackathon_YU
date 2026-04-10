@@ -22,7 +22,7 @@ export default function Today() {
   const [overriding, setOverriding] = useState(false);
   const [showSkipReasons, setShowSkipReasons] = useState(false);
   const [fuelAnswer, setFuelAnswer] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   // Session mode state
   const [sessionActive, setSessionActive] = useState(false);
