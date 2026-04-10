@@ -35,7 +35,7 @@ export default function Today() {
   const restRef = useRef<any>(null);
 
   useEffect(() => {
-    api.get("/api/oura/today").then(d => {
+    api.get("/api/oura/daily-action").then(d => {
       setTodayData(d);
       if (d?.existing_workout?.full_workout) {
         setWorkout(d.existing_workout.full_workout);

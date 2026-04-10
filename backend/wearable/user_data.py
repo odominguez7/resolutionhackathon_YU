@@ -32,9 +32,23 @@ def load_user_biometrics(user_id: str, days: int = 30) -> dict:
 
     Returns: {sleep_by_day, score_by_day, readiness_by_day, stress_by_day}
     """
-    # For Omar, use the existing global caches (most data, fastest)
+    # For Omar or any user without their own wearable data yet,
+    # use the existing global caches (most data, fastest).
+    # This is the demo/fallback path until the user connects their own Oura.
     if user_id == "omar" or user_id == "":
         return _load_omar_fallback()
+
+    # Check if this user has any biometric samples
+    db = _get_db()
+    if db:
+        try:
+            # Quick existence check — just 1 doc
+            sample = list(db.collection("biometric_samples").where("user_id", "==", user_id).limit(1).stream())
+            if not sample:
+                # No wearable data for this user — fall back to demo data
+                return _load_omar_fallback()
+        except Exception:
+            return _load_omar_fallback()
 
     db = _get_db()
     if not db:

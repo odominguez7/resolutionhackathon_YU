@@ -863,8 +863,8 @@ async def list_webhooks():
         return resp.json()
 
 
-@router.get("/today")
-async def get_today(request: Request):
+@router.get("/daily-action")
+async def get_daily_action(request: Request):
     """THE endpoint. Returns today's agent-chosen action + workout if applicable.
     Adapts based on time of day (silent intervention)."""
     from .athlete_context import build_athlete_context
