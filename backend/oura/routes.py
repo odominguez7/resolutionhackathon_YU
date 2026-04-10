@@ -1070,6 +1070,81 @@ def workout_unblock_movement(payload: dict):
     return unblock_movement(name)
 
 
+@router.get("/ml/readiness")
+def ml_readiness():
+    """ML readiness prediction for current biometrics."""
+    from .athlete_context import build_athlete_context
+    ctx = build_athlete_context(_sleep_by_day, _score_by_day, _readiness_by_day, _stress_by_day)
+    return ctx.get("readiness_ml") or {"score": ctx.get("readiness"), "source": "oura_passthrough"}
+
+
+@router.post("/ml/readiness/train")
+def ml_train_readiness():
+    """Train the readiness model from historical Oura data.
+    Uses each day's biometrics as features and Oura readiness as the label."""
+    from .ml_models import train_readiness_model, _build_readiness_features
+    from .athlete_context import compute_baseline_with_limits
+    days = sorted(_sleep_by_day.keys())
+    if len(days) < 30:
+        return {"error": "Need at least 30 days of data"}
+
+    hrvs = [_sleep_by_day[d].get("average_hrv") for d in days if _sleep_by_day[d].get("average_hrv")]
+    rhrs = [_sleep_by_day[d].get("average_heart_rate") for d in days if _sleep_by_day[d].get("average_heart_rate")]
+    hrv_bl = compute_baseline_with_limits(hrvs)
+    rhr_bl = compute_baseline_with_limits(rhrs)
+
+    training_data = []
+    for d in days:
+        s = _sleep_by_day.get(d, {})
+        r = _readiness_by_day.get(d, {})
+        st = _stress_by_day.get(d, {})
+        readiness = r.get("score") if isinstance(r, dict) else None
+        if readiness is None:
+            continue
+        bio = {
+            "hrv": s.get("average_hrv"),
+            "rhr": s.get("average_heart_rate"),
+            "sleep_score": _score_by_day.get(d),
+            "deep_min": round(s.get("deep_sleep_duration", 0) / 60) if s.get("deep_sleep_duration") else 0,
+            "total_sleep_hrs": round(s.get("total_sleep_duration", 0) / 3600, 1) if s.get("total_sleep_duration") else 7,
+            "stress_min": round((st.get("stress_high", 0) or 0) / 60) if isinstance(st, dict) else 0,
+        }
+        features = _build_readiness_features(bio, {"hrv": hrv_bl, "rhr": rhr_bl})
+        training_data.append({"features": features, "label": float(readiness)})
+
+    return train_readiness_model(training_data)
+
+
+@router.get("/ml/overtraining")
+def ml_overtraining():
+    """Current multi-signal overtraining risk assessment."""
+    from .athlete_context import build_athlete_context
+    ctx = build_athlete_context(_sleep_by_day, _score_by_day, _readiness_by_day, _stress_by_day)
+    return ctx.get("overtraining_detail") or {"level": "none"}
+
+
+@router.get("/ml/dosage")
+def ml_dosage(movement: str = "db_front_squat"):
+    """Get a dosage recommendation for a movement from the LinUCB policy."""
+    from .ml_models import get_dosage_recommendation
+    from .athlete_context import build_athlete_context
+    ctx = build_athlete_context(_sleep_by_day, _score_by_day, _readiness_by_day, _stress_by_day)
+    bio = ctx.get("biometrics") or {}
+    baseline = ctx.get("baseline") or {}
+    hrv_z = 0
+    if bio.get("hrv") and baseline.get("hrv", {}).get("ewma"):
+        std = baseline["hrv"].get("std") or 5
+        hrv_z = (bio["hrv"] - baseline["hrv"]["ewma"]) / max(1, std)
+    # Look up progression for this movement
+    prog = ctx.get("progression_ledger", {}).get(movement, {})
+    return get_dosage_recommendation(
+        readiness=bio.get("readiness", 70),
+        hrv_z=round(hrv_z, 2),
+        days_since_heavy=1,
+        consecutive_clean=prog.get("consecutive_clean", 0),
+    )
+
+
 @router.post("/catalog/seed")
 def catalog_seed():
     """Seed the Firestore catalog from CF Movements.md. Run once."""

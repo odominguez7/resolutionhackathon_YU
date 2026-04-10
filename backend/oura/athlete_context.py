@@ -146,6 +146,14 @@ def unblock_movement(movement_name: str, user_id: str = "omar") -> dict:
     return comp
 
 
+def _get_ml_readiness(bio: dict, baseline: dict) -> dict | None:
+    try:
+        from .ml_models import predict_readiness
+        return predict_readiness(bio, baseline)
+    except Exception:
+        return None
+
+
 def _get_catalog_sha() -> str | None:
     try:
         from .catalog_svc import get_catalog_sha
@@ -331,13 +339,20 @@ def build_athlete_context(
     else:
         recovery_context = "Low recovery. Active recovery only."
 
-    # Overtraining risk from EWMA control limits
-    overtraining_risk = "none"
-    if hrv_val and hrv_baseline_data.get("lcl"):
-        if hrv_val < hrv_baseline_data["lcl"]:
-            overtraining_risk = "elevated"
-        if rhr_val and rhr_baseline_data.get("ucl") and rhr_val > rhr_baseline_data["ucl"]:
-            overtraining_risk = "veto"  # both HRV below LCL AND RHR above UCL
+    # Multi-signal overtraining guardian (v2.1)
+    try:
+        from .ml_models import compute_overtraining_risk
+        deep_ratio = (deep_min / max(1, total_sleep_hrs * 60)) * 100 if total_sleep_hrs else None
+        ot_result = compute_overtraining_risk(
+            hrv=hrv_val, rhr=rhr_val, resp_rate=None,
+            deep_sleep_ratio=deep_ratio,
+            hrv_baseline=hrv_baseline_data, rhr_baseline=rhr_baseline_data,
+        )
+        overtraining_risk = ot_result["level"]
+        overtraining_detail = ot_result
+    except Exception:
+        overtraining_risk = "none"
+        overtraining_detail = {}
 
     # Load user profile from identity service
     try:
@@ -418,7 +433,14 @@ def build_athlete_context(
 
         # ── Risk (v2.1 field 9-10) ──
         "overtraining_risk": overtraining_risk,
+        "overtraining_detail": overtraining_detail,
         "load_tolerance": None,       # TODO: load-to-response model
+
+        # ML readiness scorer (v2.1)
+        "readiness_ml": _get_ml_readiness(bio={
+            "hrv": hrv_val, "rhr": rhr_val, "sleep_score": sleep_score,
+            "deep_min": deep_min, "total_sleep_hrs": total_sleep_hrs, "stress_min": stress_min,
+        }, baseline={"hrv": hrv_baseline_data, "rhr": rhr_baseline_data}),
 
         # ── History (v2.1 fields 11-12) ──
         "last_7_sessions": [

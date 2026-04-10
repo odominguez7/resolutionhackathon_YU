@@ -33,8 +33,15 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
   const [showBacklog, setShowBacklog] = useState(false);
   const [regenLoading, setRegenLoading] = useState(false);
   const [loggedSets, setLoggedSets] = useState<Record<string, any>>({});
-  const [activeLog, setActiveLog] = useState<string | null>(null); // movement key currently being logged
+  const [activeLog, setActiveLog] = useState<string | null>(null);
   const [logForm, setLogForm] = useState<{ reps: string; load: string; rpe: number }>({ reps: "", load: "", rpe: 7 });
+  // In-session mode
+  const [sessionActive, setSessionActive] = useState(false);
+  const [sessionMovIdx, setSessionMovIdx] = useState(0);
+  const [sessionSetNum, setSessionSetNum] = useState(1);
+  const [restTimer, setRestTimer] = useState(0);
+  const [restRunning, setRestRunning] = useState(false);
+  const restRef = useRef<any>(null);
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "yu"; text: string }[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatSending, setChatSending] = useState(false);
@@ -139,6 +146,54 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
       });
       loadBacklog();
     } catch {}
+  };
+
+  // All movements across all blocks for session mode
+  const getAllMovements = () => {
+    if (!aiWorkout) return [];
+    const all: any[] = [];
+    for (const bk of ["warmup", "strength", "metcon", "workout", "cooldown"]) {
+      const block = aiWorkout[bk];
+      if (!block?.movements) continue;
+      for (const m of block.movements) {
+        const name = typeof m === "object" ? (m.movement_name || m.name || "") : String(m);
+        const reps = typeof m === "object" ? (m.reps || "") : "";
+        const load = typeof m === "object" ? (m.load || "") : "";
+        all.push({ name, reps, load, block: bk, raw: m });
+      }
+    }
+    return all;
+  };
+
+  const startSession = () => {
+    setSessionActive(true);
+    setSessionMovIdx(0);
+    setSessionSetNum(1);
+    setRestTimer(0);
+    setRestRunning(false);
+    setLogForm({ reps: "", load: "", rpe: 7 });
+  };
+
+  const startRest = (seconds: number = 90) => {
+    setRestTimer(seconds);
+    setRestRunning(true);
+    if (restRef.current) clearInterval(restRef.current);
+    restRef.current = setInterval(() => {
+      setRestTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(restRef.current);
+          setRestRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const endSession = () => {
+    setSessionActive(false);
+    if (restRef.current) clearInterval(restRef.current);
+    setRestRunning(false);
   };
 
   const logSet = async (movementName: string) => {
@@ -428,6 +483,123 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
 
             return (
             <motion.div key="plan" className="w-full" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+
+              {/* ═══════ IN-SESSION MODE (full-screen overlay) ═══════ */}
+              {sessionActive && (() => {
+                const allMovs = getAllMovements();
+                const current = allMovs[sessionMovIdx];
+                const total = allMovs.length;
+                const setsLogged = current ? Object.keys(loggedSets).filter(k => k.startsWith(current.name + "_")).length : 0;
+                const progress = total > 0 ? Math.round(((sessionMovIdx) / total) * 100) : 0;
+
+                return (
+                  <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0a0b0d" }}>
+                    {/* Top bar */}
+                    <div className="flex items-center justify-between p-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                      <button onClick={endSession} className="text-xs text-slate-500 cursor-pointer border-0 bg-transparent">Exit Session</button>
+                      <p className="text-xs text-slate-400">{sessionMovIdx + 1} / {total}</p>
+                      <p className="text-xs text-slate-500">{aiWorkout?.title}</p>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="h-1 w-full" style={{ background: "rgba(255,255,255,0.04)" }}>
+                      <div className="h-full transition-all duration-300" style={{ width: `${progress}%`, background: "#FF5C35" }} />
+                    </div>
+
+                    {/* Current movement */}
+                    {current ? (
+                      <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6">
+                        <p className="text-[10px] uppercase tracking-wider font-bold" style={{ color: "rgba(255,92,53,0.6)" }}>{current.block}</p>
+                        <div className="text-center">
+                          {current.reps && <p className="text-5xl font-black text-white mb-2">{current.reps}</p>}
+                          <p className="text-xl font-bold text-white">{current.name}</p>
+                          {current.load && <p className="text-sm text-slate-400 mt-1">{current.load}</p>}
+                        </div>
+                        <p className="text-xs text-slate-500">Set {sessionSetNum} {setsLogged > 0 ? `(${setsLogged} logged)` : ""}</p>
+
+                        {/* Rest timer */}
+                        {restRunning && (
+                          <div className="text-center">
+                            <p className="text-4xl font-black" style={{ color: restTimer <= 10 ? "#FF5C35" : "#6EE7FF" }}>{restTimer}s</p>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">Rest</p>
+                          </div>
+                        )}
+
+                        {/* RPE input */}
+                        {!restRunning && (
+                          <div className="w-full max-w-xs space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] text-slate-500">RPE</span>
+                              <div className="flex items-center gap-2">
+                                <input type="range" min={1} max={10} value={logForm.rpe}
+                                  onChange={e => setLogForm(f => ({ ...f, rpe: Number(e.target.value) }))}
+                                  className="w-32 h-1 accent-orange-500" />
+                                <span className="text-sm font-bold w-6 text-center" style={{ color: logForm.rpe >= 9 ? "#FF5C35" : logForm.rpe >= 7 ? "#FBBF24" : "#C2FF4A" }}>{logForm.rpe}</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <input type="text" placeholder="Reps" value={logForm.reps || current.reps}
+                                onChange={e => setLogForm(f => ({ ...f, reps: e.target.value }))}
+                                className="flex-1 text-sm px-3 py-2 rounded-lg bg-transparent text-white text-center"
+                                style={{ border: "1px solid rgba(255,255,255,0.1)" }} />
+                              <input type="text" placeholder="Load" value={logForm.load || current.load}
+                                onChange={e => setLogForm(f => ({ ...f, load: e.target.value }))}
+                                className="flex-1 text-sm px-3 py-2 rounded-lg bg-transparent text-white text-center"
+                                style={{ border: "1px solid rgba(255,255,255,0.1)" }} />
+                            </div>
+
+                            {/* Log + Rest button */}
+                            <button
+                              onClick={async () => {
+                                await logSet(current.name);
+                                setSessionSetNum(prev => prev + 1);
+                                startRest(90);
+                              }}
+                              className="w-full py-3 rounded-xl text-sm font-bold cursor-pointer border-0"
+                              style={{ background: "#FF5C35", color: "#fff" }}>
+                              Log Set + Rest 90s
+                            </button>
+
+                            {/* Navigation */}
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => { setSessionMovIdx(Math.max(0, sessionMovIdx - 1)); setSessionSetNum(1); setLogForm({ reps: "", load: "", rpe: 7 }); }}
+                                disabled={sessionMovIdx === 0}
+                                className="flex-1 py-2 rounded-lg text-xs cursor-pointer border-0"
+                                style={{ background: "rgba(255,255,255,0.04)", color: sessionMovIdx === 0 ? "#333" : "#94A3B8" }}>
+                                Prev
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (sessionMovIdx >= total - 1) { endSession(); sendWorkoutFeedback("yes"); return; }
+                                  setSessionMovIdx(sessionMovIdx + 1); setSessionSetNum(1); setLogForm({ reps: "", load: "", rpe: 7 });
+                                  if (restRef.current) clearInterval(restRef.current);
+                                  setRestRunning(false); setRestTimer(0);
+                                }}
+                                className="flex-1 py-2 rounded-lg text-xs font-bold cursor-pointer border-0"
+                                style={{ background: sessionMovIdx >= total - 1 ? "rgba(74,222,128,0.15)" : "rgba(255,255,255,0.06)", color: sessionMovIdx >= total - 1 ? "#C2FF4A" : "#A5B4FC" }}>
+                                {sessionMovIdx >= total - 1 ? "Finish Workout" : "Next Movement"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Skip rest */}
+                        {restRunning && (
+                          <button onClick={() => { clearInterval(restRef.current); setRestRunning(false); setRestTimer(0); }}
+                            className="text-xs text-slate-500 cursor-pointer border-0 bg-transparent">
+                            Skip rest
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex items-center justify-center">
+                        <p className="text-slate-400">No movements found</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {fullDayLoading ? (
                 <div className="flex flex-col items-center py-20 gap-3">
@@ -834,6 +1006,17 @@ export default function PlanOrbit({ todayData, calendarEvents, stats, sleepHisto
                         <Sparkles className="w-3.5 h-3.5" />
                         {aiLoading ? "Reading your latest data..." : isStale ? "Refresh — your data has changed since this was made" : "Refresh from current data before you start"}
                       </button>
+
+                      {/* START SESSION button */}
+                      {workoutLogId && !sessionActive && (
+                        <button
+                          onClick={startSession}
+                          className="w-full text-sm font-black py-3.5 rounded-xl cursor-pointer border-0 flex items-center justify-center gap-2"
+                          style={{ background: "#FF5C35", color: "#fff" }}>
+                          <Zap className="w-4 h-4" />
+                          Start Session
+                        </button>
+                      )}
 
                       {/* Did you do it? — only ask if not yet answered */}
                       {workoutLogId && !workoutFeedback && (

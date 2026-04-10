@@ -55,10 +55,24 @@ def perceive(state: AgentState) -> AgentState:
 
 
 def assess(state: AgentState) -> AgentState:
-    """Evaluate whether the athlete needs a nudge today."""
+    """Evaluate whether the athlete needs a nudge today.
+    Also checks if the current time is within the athlete's preferred
+    training window — if not, defers the nudge (no-op now, send later)."""
     ctx = state.get("athlete_context") or {}
     bio = ctx.get("biometrics") or {}
     adherence = ctx.get("adherence_profile") or {}
+
+    # Timing check: defer if outside the athlete's preferred window
+    pref_window = adherence.get("preferred_training_window")
+    if pref_window and pref_window.get("avg_hour"):
+        now_hour = datetime.now(BOSTON_TZ).hour
+        ideal = pref_window["avg_hour"]
+        nudge_hour = max(0, ideal - 0.5)  # send 30 min before
+        # If current hour is more than 2 hours before the nudge window,
+        # defer — the scheduler will retry later or the next tick catches it
+        if now_hour < nudge_hour - 2:
+            return {**state, "assessment": f"timing_defer: current {now_hour}h, athlete trains ~{ideal}h, deferring",
+                    "action": "no_op"}
     intensity = ctx.get("intensity_tier", "work")
     readiness = bio.get("readiness", 0)
     hrv = bio.get("hrv")
