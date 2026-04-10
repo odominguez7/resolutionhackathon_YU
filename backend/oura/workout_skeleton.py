@@ -68,9 +68,13 @@ def build_skeleton(ctx: dict) -> dict:
     progression = ctx.get("progression_ledger") or {}
     streak_rebuild = adherence.get("streak_rebuild", False)
 
-    # Pick block template
+    # Pick block template — seeded from today's date so same structure all day,
+    # different tomorrow. This is deterministic, not random.
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    day_seed = int(datetime.now(ZoneInfo("America/New_York")).strftime("%Y%m%d"))
     templates = BLOCK_TEMPLATES.get(intensity, BLOCK_TEMPLATES["work"])
-    template = random.choice(templates)
+    template = templates[day_seed % len(templates)]
     structure = template["structure"]
     total_min = template.get("total_min", 50)
 

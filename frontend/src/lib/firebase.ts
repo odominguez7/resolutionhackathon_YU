@@ -10,13 +10,12 @@ import {
 } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB_69EWVG034sXfa9ukiU4hz_COiykBuLE",
-  authDomain: "resolution-hack.firebaseapp.com",
-  projectId: "resolution-hack",
-  storageBucket: "resolution-hack.firebasestorage.app",
-  messagingSenderId: "471409463813",
-  appId: "1:471409463813:web:e2e2c163dcc6ec40eb026c",
-  measurementId: "G-GJ6HFQ29MX",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyB_69EWVG034sXfa9ukiU4hz_COiykBuLE",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "resolution-hack.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "resolution-hack",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "resolution-hack.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_ID || "471409463813",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:471409463813:web:e2e2c163dcc6ec40eb026c",
 };
 
 const app = initializeApp(firebaseConfig);

@@ -282,7 +282,8 @@ Recovery context: {biometrics.get('recovery_context', '')}
             + "\n\nGenerate today's workout. Return JSON only."
         )
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+    headers = {"x-goog-api-key": GEMINI_API_KEY, "Content-Type": "application/json"}
     payload = {
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -301,7 +302,7 @@ Recovery context: {biometrics.get('recovery_context', '')}
         except Exception:
             pass
         async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(url, json=payload)
+            resp = await client.post(url, json=payload, headers=headers)
             resp.raise_for_status()
             data = resp.json()
         text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
@@ -340,7 +341,7 @@ Recovery context: {biometrics.get('recovery_context', '')}
                 }
                 try:
                     async with httpx.AsyncClient(timeout=30.0) as client2:
-                        resp2 = await client2.post(url, json=retry_payload)
+                        resp2 = await client2.post(url, json=retry_payload, headers=headers)
                         resp2.raise_for_status()
                         data2 = resp2.json()
                     text2 = data2["candidates"][0]["content"]["parts"][0]["text"].strip()
@@ -368,15 +369,16 @@ Recovery context: {biometrics.get('recovery_context', '')}
             "sleep_score": biometrics.get("sleep_score"),
         }
         # Persist to log so memory + closed-loop work tomorrow.
+        # NOTE: progression ledger is ONLY updated on user feedback
+        # (routes.py /workout/feedback), NOT at generation time.
+        # This prevents double-counting and premature load bumps.
         if session_type not in ("yoga", "rest"):
             try:
                 entry = log_workout(workout, biometrics, session_type)
                 workout["log_id"] = entry["id"]
                 workout["patterns"] = entry["patterns"]
-                # Record movements into the progression ledger
-                record_movements(workout, completed="yes")
-            except Exception as _e:
-                pass
+            except Exception as e:
+                print(f"[workout_ai] log failed: {e}")
         return workout
 
     except json.JSONDecodeError as e:

@@ -41,20 +41,27 @@ async def startup_refresh():
     import asyncio
     async def _auto_loop():
         while True:
-            await asyncio.sleep(86400)  # 24 hours
             try:
                 from backend.agent.loop import agent_tick
                 result = await agent_tick()
                 print(f"[YU Cortex] Auto-tick #{result.get('tick_number', '?')} completed in {result.get('duration_ms', '?')}ms")
             except Exception as e:
                 print(f"[YU Cortex] Auto-tick failed: {e}")
+            await asyncio.sleep(86400)  # 24 hours
 
     asyncio.create_task(_auto_loop())
     print("[YU Cortex] 24h autonomous loop scheduled")
 
+ALLOWED_ORIGINS = [
+    "https://yu-restos-471409463813.us-east1.run.app",
+    "https://yu.boston",
+    "http://localhost:8080",
+    "http://localhost:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

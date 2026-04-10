@@ -239,18 +239,22 @@ def _dispatch_whatsapp(msg: str) -> bool:
 
 def pre_generate(state: AgentState) -> AgentState:
     """Pre-generate today's workout so it's ready when the user opens the app.
-    This is the 'wow moment' fix — zero wait time on first open."""
+    This is the 'wow moment' fix — zero wait time on first open.
+    Uses httpx.AsyncClient in a sync context via a new event loop in a thread."""
     if state.get("action") == "no_op":
         return state
     try:
         import asyncio
+        import concurrent.futures
         from backend.oura.workout_ai import generate_workout
         ctx = state.get("athlete_context") or {}
         bio = ctx.get("biometrics") or {}
         if bio:
-            result = asyncio.get_event_loop().run_until_complete(
-                generate_workout("crossfit", bio, athlete_context=ctx)
-            )
+            # Run async generation in a new thread with its own event loop
+            # to avoid "event loop already running" error
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                future = pool.submit(asyncio.run, generate_workout("crossfit", bio, athlete_context=ctx))
+                result = future.result(timeout=45)
             return {**state, "reason": (state.get("reason") or "") + f" | pre-generated: {result.get('title', '?')}"}
     except Exception as e:
         return {**state, "reason": (state.get("reason") or "") + f" | pre-gen failed: {e}"}

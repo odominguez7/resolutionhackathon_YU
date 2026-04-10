@@ -652,19 +652,25 @@ async def refresh_from_oura():
     heartrate = await fetch_heartrate_live()
     cardio_age = await fetch_cardiovascular_age_live()
 
+    # Atomic swap pattern: build new dicts, then assign in one step.
+    # Prevents concurrent reads from seeing empty state between clear+update.
     if sleep:
         SLEEP_SESSIONS = sleep
-        _sleep_by_day.clear()
+        new_sleep = {}
         for s in sleep:
-            if s.get("type") == "long_sleep" or s["day"] not in _sleep_by_day:
-                _sleep_by_day[s["day"]] = s
+            if s.get("type") == "long_sleep" or s["day"] not in new_sleep:
+                new_sleep[s["day"]] = s
+        _sleep_by_day.clear()
+        _sleep_by_day.update(new_sleep)
 
     if daily_sleep:
         DAILY_SLEEP = daily_sleep
+        new_scores = {d["day"]: d.get("score", 0) for d in daily_sleep}
+        new_daily = {d["day"]: d for d in daily_sleep}
         _score_by_day.clear()
-        _score_by_day.update({d["day"]: d.get("score", 0) for d in daily_sleep})
+        _score_by_day.update(new_scores)
         _daily_sleep_by_day.clear()
-        _daily_sleep_by_day.update({d["day"]: d for d in daily_sleep})
+        _daily_sleep_by_day.update(new_daily)
 
     if daily_stress:
         DAILY_STRESS = daily_stress
@@ -857,7 +863,8 @@ async def list_webhooks():
         return resp.json()
 
 
-@router.get("/workout")
+@router.post("/workout/generate")
+@router.get("/workout")  # keep GET for backwards compat, prefer POST
 async def get_workout(session_type: str = "crossfit", travel: bool = False, user_id: str = "omar"):
     """Generate AI-powered workout based on real biometrics.
     Uses the typed AthleteContext — single assembly point for all state.
