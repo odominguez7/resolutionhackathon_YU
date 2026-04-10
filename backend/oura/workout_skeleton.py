@@ -101,12 +101,17 @@ def build_skeleton(ctx: dict) -> dict:
         strength_patterns = []
         metcon_patterns = must_include[:4] or ["squat", "pull_v", "cardio"]
 
-    # Build load prescriptions from progression ledger
+    # Build load prescriptions from progression ledger, capped to available DBs
+    equipment = ctx.get("equipment") or {}
+    db_weights = equipment.get("dumbbells", [])
+    max_db = max(db_weights) if isinstance(db_weights, list) and db_weights else 50
+
     load_hints = {}
     for name, rec in progression.items():
         nxt = rec.get("next_lbs")
         if nxt:
-            load_hints[name.lower()] = f"{int(nxt)}lb"
+            capped = min(int(nxt), max_db)  # never exceed heaviest available DB
+            load_hints[name.lower()] = f"{capped}lb"
 
     skeleton = {
         "structure": structure,
@@ -167,6 +172,7 @@ def build_skeleton(ctx: dict) -> dict:
             "pattern_descriptions": {"cardio": "Zone 2 treadmill walk or easy jog"},
         }
 
+    skeleton["available_db_weights"] = sorted(db_weights) if db_weights else [35, 40, 45, 50]
     skeleton["avoid_patterns"] = avoid
     skeleton["load_hints"] = load_hints
 
@@ -278,9 +284,15 @@ def build_skeleton_prompt_block(skeleton: dict) -> str:
         lines.append("")
         lines.append(f"AVOID these patterns (worked yesterday): {', '.join(skeleton['avoid_patterns'])}")
 
+    # Available dumbbell weights — Gemini must NEVER prescribe a weight not in this list
+    if skeleton.get("available_db_weights"):
+        lines.append("")
+        lines.append(f"AVAILABLE DUMBBELL WEIGHTS (lbs per hand): {skeleton['available_db_weights']}")
+        lines.append("HARD RULE: NEVER prescribe a dumbbell weight that is not in this list. If the progression ledger suggests a weight you don't have, round DOWN to the nearest available weight.")
+
     if skeleton.get("load_hints"):
         lines.append("")
-        lines.append("PRESCRIBED LOADS (from progression ledger — use these EXACT weights):")
+        lines.append("PRESCRIBED LOADS (from progression ledger, capped to available DBs):")
         for name, load in skeleton["load_hints"].items():
             lines.append(f"  {name}: {load}")
 

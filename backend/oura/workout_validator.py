@@ -140,15 +140,17 @@ def validate_workout(
             if rp not in actual_patterns:
                 errors.append(f"Required pattern '{rp}' not covered by any movement")
 
-    # 5. Load sanity — weights shouldn't exceed 100lb per dumbbell
+    # 5. Load sanity — weights shouldn't exceed available dumbbells
+    db_weights = (equipment or {}).get("dumbbells", [])
+    max_db = max(db_weights) if isinstance(db_weights, list) and db_weights else 100
     for _, m in all_movements:
         if not isinstance(m, dict):
             continue
         load = (m.get("load") or "").lower()
         nums = re.findall(r"(\d+)\s*lb", load)
         for n in nums:
-            if int(n) > 100:
-                errors.append(f"Load {n}lb exceeds max (100lb per DB): {m.get('movement_name')}")
+            if int(n) > max_db:
+                errors.append(f"Load {n}lb exceeds heaviest available dumbbell ({max_db}lb): {m.get('movement_name')}")
 
     # 6. Volume cap — weekly reps per pattern (soft warning, not hard reject).
     # Only count COMPLETED workouts toward volume (not every generation).
@@ -178,15 +180,17 @@ def validate_workout(
                     errors.append(f"Competency block in {block_key}: '{name}' is blocked ({reason})")
 
     # 8. Equipment check — every movement's required gear must be in the set
+    # AND prescribed load must not exceed available dumbbell weights
     if equipment:
+        from .athlete_context import check_equipment
         for block_key, m in all_movements:
             if not isinstance(m, dict):
                 continue
             name = m.get("movement_name") or m.get("name") or ""
+            load = m.get("load") or ""
             if not name:
                 continue
-            from .athlete_context import check_equipment
-            err = check_equipment(name, equipment)
+            err = check_equipment(name, equipment, load_str=str(load))
             if err:
                 errors.append(f"Equipment violation in {block_key}: {err}")
 

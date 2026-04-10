@@ -29,7 +29,7 @@ WORKOUT_PROMPT = """You are an elite CrossFit and functional fitness programmer.
 ATHLETE CONTEXT:
 - Startup founder, high daily cognitive stress, no alcohol
 - Trains 1 session per day, ~60 minutes (adjust based on recovery state)
-- Equipment ONLY: Pair of dumbbells (35/40/45/50 lb), treadmill, strict pull-up bar. NO box, NO bench, NO barbell, NO rings, NO ropes, NO kettlebells.
+- Equipment: see the SKELETON section below for the exact list of available dumbbell weights. NEVER prescribe a weight not in that list. Also has treadmill and strict pull-up bar. NO box, NO bench, NO barbell, NO rings, NO ropes, NO kettlebells.
 - Goals: strength, great physical shape, lean body composition, low body fat
 - MENTAL TOUGHNESS IS A CORE GOAL. Every workout should have a moment where the athlete wants to quit and has to push through. This builds the same discipline that runs a startup. Include a "dark place" segment — the part of the workout designed to break you mentally so you come out stronger.
 - Even on easy days, include one small challenge that tests willpower (a 2-min plank hold, a final sprint, an extra round). The body may need rest but the mind always needs to grow.

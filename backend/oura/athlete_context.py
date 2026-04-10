@@ -241,15 +241,27 @@ MOVEMENT_EQUIPMENT = {
 }
 
 
-def check_equipment(movement_name: str, equipment: dict) -> str | None:
+def check_equipment(movement_name: str, equipment: dict, load_str: str = "") -> str | None:
     """Return an error string if the movement requires equipment the athlete
-    doesn't have. None if OK."""
+    doesn't have, or if the prescribed weight exceeds available dumbbells. None if OK."""
+    import re
     name_lower = movement_name.lower()
     for keyword, equip_key in MOVEMENT_EQUIPMENT.items():
         if keyword in name_lower:
             val = equipment.get(equip_key)
             if val is False or val is None or val == []:
                 return f"Movement '{movement_name}' requires {equip_key} which is not available"
+
+    # Check if prescribed dumbbell weight is in the available set
+    if load_str:
+        db_weights = equipment.get("dumbbells", [])
+        if isinstance(db_weights, list) and db_weights:
+            max_db = max(db_weights)
+            nums = re.findall(r"(\d+)\s*lb", load_str.lower())
+            for n in nums:
+                weight = int(n)
+                if weight > max_db:
+                    return f"Prescribed {weight}lb exceeds heaviest available dumbbell ({max_db}lb)"
     return None
 
 
