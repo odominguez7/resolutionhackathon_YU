@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Bot, MessageSquare, Activity, Users } from "lucide-react";
+import { Menu, X, Bot, MessageSquare, Activity, Users, Settings } from "lucide-react";
 
 const YU = {
   bg: "rgba(255,255,255,0.92)",
@@ -15,13 +15,14 @@ const mainLinks = [
   { path: "/agent", label: "Agent", icon: Bot },
   { path: "/ask", label: "Ask YU", icon: MessageSquare },
   { path: "/oura", label: "My Health", icon: Activity },
+  { path: "/settings", label: "Settings", icon: Settings },
 ];
 
 const NavBar = () => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
-  if (location.pathname === "/") return null;
+  if (location.pathname === "/" || location.pathname === "/onboarding") return null;
   const isActive = (path: string) => location.pathname === path;
 
   return (
