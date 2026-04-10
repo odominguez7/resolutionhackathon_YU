@@ -10,9 +10,13 @@ import {
 } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD6TIcW8cjXK3rtZ0t2PFwh-bnm1F4N2A4",
+  apiKey: "AIzaSyB_69EWVG034sXfa9ukiU4hz_COiykBuLE",
   authDomain: "resolution-hack.firebaseapp.com",
   projectId: "resolution-hack",
+  storageBucket: "resolution-hack.firebasestorage.app",
+  messagingSenderId: "471409463813",
+  appId: "1:471409463813:web:e2e2c163dcc6ec40eb026c",
+  measurementId: "G-GJ6HFQ29MX",
 };
 
 const app = initializeApp(firebaseConfig);
