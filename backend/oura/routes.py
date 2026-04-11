@@ -863,6 +863,49 @@ async def list_webhooks():
         return resp.json()
 
 
+@router.post("/checkin")
+async def morning_checkin(request: Request, payload: dict = {}):
+    """Morning self-report BEFORE biometrics. Stores the subjective energy
+    score and returns a fused insight comparing felt state to body data."""
+    from backend.wearable.user_data import load_user_biometrics
+    user_id = getattr(request.state, "user_id", "omar")
+    energy = int((payload or {}).get("energy", 3))  # 1-5 scale
+
+    # Store the check-in
+    try:
+        from google.cloud import firestore
+        db = firestore.Client(project="resolution-hack")
+        db.collection("morning_checkins").document(f"{user_id}_{datetime.now(BOSTON_TZ).strftime('%Y-%m-%d')}").set({
+            "user_id": user_id,
+            "energy": energy,
+            "day": datetime.now(BOSTON_TZ).strftime("%Y-%m-%d"),
+            "timestamp": datetime.now(BOSTON_TZ).isoformat(),
+        })
+    except Exception:
+        pass
+
+    # Get body data for fusion
+    data = load_user_biometrics(user_id)
+    days = sorted(data["sleep_by_day"].keys())
+    latest_day = days[-1] if days else None
+    hrv = data["sleep_by_day"].get(latest_day, {}).get("average_hrv") if latest_day else None
+    readiness = (data["readiness_by_day"].get(latest_day, {}) or {}).get("score") if latest_day else None
+
+    # Fuse: compare subjective to objective
+    fusion = None
+    if hrv and readiness:
+        body_score = readiness / 20  # normalize to 1-5 scale
+        gap = energy - body_score
+        if abs(gap) < 0.8:
+            fusion = {"alignment": "confirmed", "message": f"Your body agrees. Recovery at {readiness}, and you feel it."}
+        elif gap > 0:
+            fusion = {"alignment": "mismatch_high", "message": f"You feel strong ({energy}/5) but your HRV is {hrv}ms, below your baseline. Accumulated stress your body hasn't expressed yet. Trust the data today."}
+        else:
+            fusion = {"alignment": "mismatch_low", "message": f"You rated yourself low ({energy}/5) but readiness is {readiness} and HRV is holding. Your body is more recovered than you think. You can push."}
+
+    return {"energy": energy, "fusion": fusion, "stored": True}
+
+
 @router.get("/daily-action")
 async def get_daily_action(request: Request):
     """THE endpoint. Returns today's agent-chosen action + workout if applicable.

@@ -17,6 +17,11 @@ export default function Today() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  // Morning check-in state (self-report BEFORE biometrics)
+  const [phase, setPhase] = useState<"checkin" | "reveal" | "action">("checkin");
+  const [energy, setEnergy] = useState<number | null>(null);
+  const [fusion, setFusion] = useState<any>(null);
+  const [isAnomaly, setIsAnomaly] = useState(false);
   const [rpe, setRpe] = useState(7);
   const [showRpe, setShowRpe] = useState(false);
   const [overriding, setOverriding] = useState(false);
@@ -35,21 +40,24 @@ export default function Today() {
   const restRef = useRef<any>(null);
 
   useEffect(() => {
-    // Oura refresh already happens in AuthContext on app load.
-    // This just loads the daily action with the fresh data.
     api.get("/api/oura/daily-action").then(d => {
       setTodayData(d);
       const actionType = d?.action?.action;
-      // Only restore a cached workout if the action type is "workout".
-      // If the agent says stretch/walk/rest, don't show a stale crossfit workout.
       if (actionType === "workout" && d?.existing_workout?.full_workout) {
         setWorkout(d.existing_workout.full_workout);
         if (d.existing_workout.user_feedback?.completed) {
           setFeedback(d.existing_workout.user_feedback.completed);
+          setPhase("action"); // already completed today — skip check-in
         }
       } else {
-        setWorkout(null);  // clear any stale workout for non-workout actions
+        setWorkout(null);
       }
+      // Detect anomaly for curiosity gap
+      const body = d?.body || {};
+      const bl = body.hrv_baseline;
+      const hrv = body.hrv;
+      if (hrv && bl && Math.abs(hrv - bl) > 5) setIsAnomaly(true);
+      if (d?.strategy?.strategy === "pull_back" || d?.strategy?.strategy === "recover") setIsAnomaly(true);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
@@ -136,6 +144,15 @@ export default function Today() {
     return all;
   };
 
+  const submitCheckin = async (score: number) => {
+    setEnergy(score);
+    try {
+      const res = await api.post("/api/oura/checkin", { energy: score });
+      if (res?.fusion) setFusion(res.fusion);
+    } catch {}
+    setPhase("reveal");
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0b0d" }}><div className="w-3 h-3 rounded-full animate-pulse" style={{ background: "#FF5C35" }} /></div>;
 
   const action = todayData?.action || {};
@@ -200,6 +217,76 @@ export default function Today() {
     );
   }
 
+  // ── PHASE 1: MORNING CHECK-IN (before biometrics) ──
+  if (phase === "checkin" && !feedback) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "#0a0b0d" }}>
+        <motion.div className="w-full max-w-sm text-center space-y-8"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ease }}>
+          <div>
+            <p className="text-2xl font-black text-white mb-2">How are you showing up today?</p>
+            <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>Before we show you the data. Your felt state matters.</p>
+          </div>
+          <div className="flex justify-center gap-3">
+            {[
+              { score: 1, label: "Drained", color: "#FF5D6C" },
+              { score: 2, label: "Low", color: "#FFC36B" },
+              { score: 3, label: "Okay", color: "#94A3B8" },
+              { score: 4, label: "Good", color: "#6EE7FF" },
+              { score: 5, label: "Peak", color: "#C2FF4A" },
+            ].map(e => (
+              <motion.button key={e.score}
+                onClick={() => submitCheckin(e.score)}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl cursor-pointer border-0"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                whileHover={{ scale: 1.05, borderColor: `${e.color}40` }}
+                whileTap={{ scale: 0.95 }}>
+                <span className="text-2xl font-black" style={{ color: e.color }}>{e.score}</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: `${e.color}80` }}>{e.label}</span>
+              </motion.button>
+            ))}
+          </div>
+          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.1)" }}>2 taps. Under 10 seconds.</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── PHASE 2: CURIOSITY GAP + REVEAL ──
+  if (phase === "reveal") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "#0a0b0d" }}>
+        <motion.div className="w-full max-w-sm text-center space-y-6"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ease }}>
+          {/* Fusion insight (if available) */}
+          {fusion && (
+            <motion.div className="rounded-xl p-4 text-left" style={{ background: "rgba(110,231,255,0.04)", border: "1px solid rgba(110,231,255,0.1)" }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+              <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{fusion.message}</p>
+            </motion.div>
+          )}
+
+          {/* Curiosity gap */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+            <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+              {isAnomaly
+                ? "Something shifted in your overnight recovery."
+                : "Your biometrics are within your normal range. Steady as you go."}
+            </p>
+            <motion.button
+              onClick={() => setPhase("action")}
+              className="px-8 py-3.5 rounded-xl text-sm font-black cursor-pointer border-0"
+              style={{ background: isAnomaly ? "#FF5C35" : "rgba(255,255,255,0.06)", color: isAnomaly ? "#fff" : "#94A3B8" }}
+              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              {isAnomaly ? "Reveal your data" : "See today's plan"}
+            </motion.button>
+          </motion.div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── PHASE 3: ACTION (the main /today content) ──
   return (
     <div className="min-h-screen px-4 py-6 max-w-lg mx-auto" style={{ background: "#0a0b0d" }}>
 
@@ -480,18 +567,24 @@ export default function Today() {
         </motion.div>
       )}
 
-      {/* WEEK SUMMARY */}
-      <motion.div className="flex items-center justify-center gap-6 py-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-        <div className="text-center">
-          <p className="text-lg font-black text-white">{week.completed || 0}</p>
-          <p className="text-[8px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.2)" }}>this week</p>
-        </div>
-        <div className="w-px h-8" style={{ background: "rgba(255,255,255,0.06)" }} />
-        <div className="text-center">
-          <p className="text-lg font-black text-white">{week.streak || 0}</p>
-          <p className="text-[8px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.2)" }}>streak</p>
-        </div>
-      </motion.div>
+      {/* COMPETENCE SIGNAL (not streak counter) */}
+      {todayData?.strategy?.hrv_trend && (
+        <motion.div className="py-4 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+          {(() => {
+            const trend = todayData.strategy.hrv_trend;
+            const slope = trend.slope_ms_per_week || 0;
+            const dir = trend.direction;
+            if (dir === "improving" && slope > 0.5) {
+              return <p className="text-xs" style={{ color: "rgba(194,255,74,0.6)" }}>Your HRV improved {slope}ms/week over the last month. Your training is working.</p>;
+            }
+            if (dir === "declining") {
+              return <p className="text-xs" style={{ color: "rgba(255,93,108,0.5)" }}>HRV trending down {Math.abs(slope)}ms/week. The system is adjusting your load.</p>;
+            }
+            // Flat or mild — show nothing. Silence on quiet days is premium.
+            return null;
+          })()}
+        </motion.div>
+      )}
     </div>
   );
 }
