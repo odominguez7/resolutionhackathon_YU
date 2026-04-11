@@ -300,10 +300,84 @@ export default function Today() {
 
         {generating && <WorkoutSkeleton />}
 
-        {/* STRETCH / WALK / REST content */}
-        {action.action !== "workout" && !overriding && (
-          <p className="text-xs text-slate-400 italic">The agent chose this based on where your body is today. Trust the process.</p>
+        {/* STRETCH / WALK / REST — generate a real session via Gemini */}
+        {action.action !== "workout" && !workout && !generating && !overriding && (
+          <button onClick={() => generateWorkout(action.action === "walk" ? "rest" : "rest")}
+            className="w-full py-3.5 rounded-xl text-sm font-black cursor-pointer border-0"
+            style={{ background: color, color: "#fff" }}>
+            Generate my {ACTION_LABELS[action.action] || "session"}
+          </button>
         )}
+
+        {action.action !== "workout" && workout && !generating && (
+          <>
+            <div className="mb-3">
+              <p className="text-sm font-black text-white">{workout.title}</p>
+              <p className="text-[10px] text-slate-500">{workout.session_type || action.action} · {workout.duration_min || action.duration_min}min</p>
+            </div>
+
+            {expanded && (
+              <div className="space-y-3 mb-4">
+                {/* Rest/stretch/walk sessions use different block names */}
+                {workout.micro_interventions && (
+                  <div className="space-y-2">
+                    {workout.micro_interventions.map((item: any, i: number) => (
+                      <div key={i} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2 h-2 rounded-full" style={{ background: item.color || color }} />
+                          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: `${color}90` }}>{item.category || item.title}</p>
+                          {item.duration && <p className="text-[9px] text-slate-500">{item.duration}</p>}
+                        </div>
+                        <p className="text-xs text-slate-300">{item.description || item.title}</p>
+                        {item.science && <p className="text-[9px] text-slate-500 italic mt-1">{item.science}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {workout.why_rest && (
+                  <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: `${color}80` }}>Why this matters</p>
+                    <p className="text-xs text-slate-300">{workout.why_rest}</p>
+                  </div>
+                )}
+                {workout.walk && (
+                  <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: `${color}80` }}>Walk protocol</p>
+                    <p className="text-xs text-slate-300">{workout.walk}</p>
+                  </div>
+                )}
+                {workout.sleep_protocol && (
+                  <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: `${color}80` }}>Tonight</p>
+                    <p className="text-xs text-slate-300">{workout.sleep_protocol}</p>
+                  </div>
+                )}
+                {/* Fallback: show any warmup/workout/cooldown blocks if present */}
+                {["warmup", "workout", "cooldown"].map(bk => {
+                  const block = workout[bk];
+                  if (!block?.movements?.length) return null;
+                  return (
+                    <div key={bk} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+                      <p className="text-[9px] font-black uppercase tracking-wider mb-2" style={{ color: `${color}80` }}>{bk}</p>
+                      {block.movements.map((m: any, i: number) => (
+                        <p key={i} className="text-xs text-slate-300 pl-2">
+                          {typeof m === "object" ? `${m.reps || ""} ${m.movement_name || ""} ${m.load ? `(${m.load})` : ""}`.trim() : m}
+                        </p>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <button onClick={() => setExpanded(!expanded)} className="text-[10px] text-slate-400 cursor-pointer border-0 bg-transparent flex items-center gap-1 mb-2">
+              <ChevronDown className="w-3 h-3" style={{ transform: expanded ? "rotate(180deg)" : "" }} />
+              {expanded ? "Hide details" : "Show full session"}
+            </button>
+          </>
+        )}
+
+        {action.action !== "workout" && generating && <WorkoutSkeleton />}
 
         {/* OVERRIDE */}
         {action.override_warning && !overriding && !feedback && (
