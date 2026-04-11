@@ -891,17 +891,73 @@ async def morning_checkin(request: Request, payload: dict = {}):
     hrv = data["sleep_by_day"].get(latest_day, {}).get("average_hrv") if latest_day else None
     readiness = (data["readiness_by_day"].get(latest_day, {}) or {}).get("score") if latest_day else None
 
-    # Fuse: compare subjective to objective
+    # Fuse: compare subjective energy to readiness using the athlete's OWN
+    # readiness distribution. A 1-5 score maps to percentile ranges of their
+    # personal readiness history, not a fixed /20 formula.
+    #
+    # 1 (Drained) = bottom 20% of YOUR readiness scores
+    # 2 (Low)     = 20-40th percentile
+    # 3 (Okay)    = 40-60th percentile
+    # 4 (Good)    = 60-80th percentile
+    # 5 (Peak)    = top 20% of YOUR readiness scores
     fusion = None
     if hrv and readiness:
-        body_score = readiness / 20  # normalize to 1-5 scale
-        gap = energy - body_score
-        if abs(gap) < 0.8:
-            fusion = {"alignment": "confirmed", "message": f"Your body agrees. Recovery at {readiness}, and you feel it."}
-        elif gap > 0:
-            fusion = {"alignment": "mismatch_high", "message": f"You feel strong ({energy}/5) but your HRV is {hrv}ms, below your baseline. Accumulated stress your body hasn't expressed yet. Trust the data today."}
+        # Build the athlete's readiness distribution
+        all_readiness = sorted([
+            (data["readiness_by_day"].get(d, {}) or {}).get("score", 0)
+            for d in days if (data["readiness_by_day"].get(d, {}) or {}).get("score")
+        ])
+        if len(all_readiness) >= 10:
+            # Compute percentile thresholds
+            n = len(all_readiness)
+            p20 = all_readiness[int(n * 0.2)]
+            p40 = all_readiness[int(n * 0.4)]
+            p60 = all_readiness[int(n * 0.6)]
+            p80 = all_readiness[int(n * 0.8)]
+
+            # Where does today's readiness fall in YOUR distribution?
+            if readiness <= p20: body_zone = 1
+            elif readiness <= p40: body_zone = 2
+            elif readiness <= p60: body_zone = 3
+            elif readiness <= p80: body_zone = 4
+            else: body_zone = 5
+
+            zone_labels = {1: "bottom 20%", 2: "below average", 3: "your middle range", 4: "above average", 5: "top 20%"}
+            body_label = zone_labels[body_zone]
+
+            gap = energy - body_zone
+
+            if abs(gap) <= 1:
+                fusion = {
+                    "alignment": "confirmed",
+                    "message": f"Your body agrees. Readiness {readiness} is {body_label} for you, and you feel it."
+                }
+            elif gap >= 2:
+                fusion = {
+                    "alignment": "mismatch_high",
+                    "message": (
+                        f"You feel strong ({energy}/5) but readiness {readiness} puts you in {body_label} of your personal range. "
+                        f"HRV is {hrv}ms. Your nervous system is carrying load you may not feel yet."
+                    )
+                }
+            else:
+                fusion = {
+                    "alignment": "mismatch_low",
+                    "message": (
+                        f"You rated low ({energy}/5) but readiness {readiness} is {body_label} for you. "
+                        f"HRV {hrv}ms is holding. Your body is more recovered than you think. You can push."
+                    )
+                }
+            fusion["body_zone"] = body_zone
+            fusion["thresholds"] = {"p20": p20, "p40": p40, "p60": p60, "p80": p80}
         else:
-            fusion = {"alignment": "mismatch_low", "message": f"You rated yourself low ({energy}/5) but readiness is {readiness} and HRV is holding. Your body is more recovered than you think. You can push."}
+            # Not enough history — simple comparison
+            if energy >= 4 and readiness >= 75:
+                fusion = {"alignment": "confirmed", "message": f"Recovery at {readiness}, HRV {hrv}ms. You feel good and your body confirms it."}
+            elif energy <= 2 and readiness <= 60:
+                fusion = {"alignment": "confirmed", "message": f"Readiness {readiness}, HRV {hrv}ms. Your body confirms the fatigue. Lighter session today."}
+            else:
+                fusion = {"alignment": "noted", "message": f"Readiness {readiness}, HRV {hrv}ms. Still building your personal baseline — data gets sharper after 14 days."}
 
     return {"energy": energy, "fusion": fusion, "stored": True}
 
