@@ -24,6 +24,36 @@ import numpy as np
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "ml_models")
 os.makedirs(MODEL_DIR, exist_ok=True)
 
+GCS_BUCKET = "resolution-hack-ml-models"
+GCS_PREFIX = "yu-restos/"
+
+
+def _gcs_upload(local_path: str, gcs_name: str):
+    """Upload a model file to GCS for persistence across deploys."""
+    try:
+        from google.cloud import storage
+        client = storage.Client(project="resolution-hack")
+        bucket = client.bucket(GCS_BUCKET)
+        blob = bucket.blob(f"{GCS_PREFIX}{gcs_name}")
+        blob.upload_from_filename(local_path)
+    except Exception as e:
+        print(f"[ml] GCS upload failed: {e}")
+
+
+def _gcs_download(gcs_name: str, local_path: str) -> bool:
+    """Download a model file from GCS. Returns True if successful."""
+    try:
+        from google.cloud import storage
+        client = storage.Client(project="resolution-hack")
+        bucket = client.bucket(GCS_BUCKET)
+        blob = bucket.blob(f"{GCS_PREFIX}{gcs_name}")
+        if blob.exists():
+            blob.download_to_filename(local_path)
+            return True
+    except Exception as e:
+        print(f"[ml] GCS download failed: {e}")
+    return False
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 1. READINESS SCORER (XGBoost)
@@ -73,10 +103,12 @@ def train_readiness_model(training_data: list[dict]) -> dict:
         path = os.path.join(MODEL_DIR, "readiness_xgb.pkl")
         with open(path, "wb") as f:
             pickle.dump(model, f)
+        # Persist to GCS so model survives deploys + scale-to-zero
+        _gcs_upload(path, "readiness_xgb.pkl")
 
         preds = model.predict(X)
         mae = float(np.mean(np.abs(preds - y)))
-        return {"trained": True, "n": len(training_data), "mae": round(mae, 2), "path": path}
+        return {"trained": True, "n": len(training_data), "mae": round(mae, 2), "path": path, "gcs": True}
     except Exception as e:
         return {"error": str(e)[:200]}
 
@@ -85,8 +117,10 @@ def predict_readiness(bio: dict, baseline: dict) -> dict:
     """Predict readiness score. Uses XGBoost if trained, else heuristic."""
     features = _build_readiness_features(bio, baseline)
 
-    # Try trained model
+    # Try trained model: local first, then GCS
     path = os.path.join(MODEL_DIR, "readiness_xgb.pkl")
+    if not os.path.exists(path):
+        _gcs_download("readiness_xgb.pkl", path)
     if os.path.exists(path):
         try:
             with open(path, "rb") as f:
@@ -161,9 +195,12 @@ class LinUCBDosage:
         path = path or os.path.join(MODEL_DIR, "dosage_linucb.pkl")
         with open(path, "wb") as f:
             pickle.dump({"A": self.A, "b": self.b, "arm_labels": self.arm_labels}, f)
+        _gcs_upload(path, "dosage_linucb.pkl")
 
     def load(self, path: str | None = None):
         path = path or os.path.join(MODEL_DIR, "dosage_linucb.pkl")
+        if not os.path.exists(path):
+            _gcs_download("dosage_linucb.pkl", path)
         if os.path.exists(path):
             with open(path, "rb") as f:
                 data = pickle.load(f)
