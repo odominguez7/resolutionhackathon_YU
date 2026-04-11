@@ -28,12 +28,22 @@ export default function Settings() {
   const { user, profile, logout, refreshProfile } = useAuth();
   const [equipment, setEquipment] = useState<Record<string, any>>({});
   const [goals, setGoals] = useState<string[]>([]);
+  const [bodyWeight, setBodyWeight] = useState("");
+  const [rm, setRm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (profile?.equipment) setEquipment(profile.equipment);
     if (profile?.goals) setGoals(profile.goals);
+    if (profile?.body_weight_lbs) setBodyWeight(String(profile.body_weight_lbs));
+    if (profile?.estimated_1rm) {
+      const rmStrings: Record<string, string> = {};
+      for (const [k, v] of Object.entries(profile.estimated_1rm)) {
+        rmStrings[k] = String(v);
+      }
+      setRm(rmStrings);
+    }
   }, [profile]);
 
   const toggleEquip = (key: string) => {
@@ -49,12 +59,18 @@ export default function Settings() {
   const save = async () => {
     if (!user) return;
     setSaving(true);
+    const est1rm: Record<string, number> = {};
+    for (const [k, v] of Object.entries(rm)) {
+      if (v) est1rm[k] = parseInt(v) || 0;
+    }
     await api.post("/api/identity/register", {
       user_id: user.uid,
       display_name: user.displayName || profile?.display_name || "Athlete",
       equipment,
       fitness_level: profile?.fitness_level || "intermediate",
       goals,
+      body_weight_lbs: bodyWeight ? parseInt(bodyWeight) : null,
+      estimated_1rm: est1rm,
     });
     await refreshProfile();
     setSaving(false);
@@ -113,6 +129,35 @@ export default function Settings() {
             );
           })}
         </div>
+      </div>
+
+      {/* Body Weight + Strength */}
+      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Body Weight + Strength Calibration</p>
+        <div className="mb-3">
+          <p className="text-[10px] text-slate-400 mb-1">Body weight (lbs)</p>
+          <input type="number" placeholder="e.g. 180" value={bodyWeight}
+            onChange={e => { setBodyWeight(e.target.value); setSaved(false); }}
+            className="w-full px-3 py-2 rounded-lg text-sm bg-transparent text-white"
+            style={{ border: "1px solid rgba(255,255,255,0.1)" }} />
+        </div>
+        <p className="text-[10px] text-slate-400 mb-2">Heaviest dumbbell for 5 reps (lbs per hand)</p>
+        <div className="space-y-2">
+          {[
+            { key: "db_front_squat", label: "Front squat" },
+            { key: "db_press", label: "Overhead press" },
+            { key: "db_row", label: "Bent-over row" },
+          ].map(m => (
+            <div key={m.key} className="flex items-center gap-3">
+              <p className="text-xs text-slate-300 w-28">{m.label}</p>
+              <input type="number" placeholder="lbs" value={rm[m.key] || ""}
+                onChange={e => { setRm(prev => ({ ...prev, [m.key]: e.target.value })); setSaved(false); }}
+                className="flex-1 px-3 py-2 rounded-lg text-sm bg-transparent text-white"
+                style={{ border: "1px solid rgba(255,255,255,0.1)" }} />
+            </div>
+          ))}
+        </div>
+        <p className="text-[9px] text-slate-600 mt-2">These calibrate your first workout loads. The system adjusts automatically from there.</p>
       </div>
 
       {/* Save */}
