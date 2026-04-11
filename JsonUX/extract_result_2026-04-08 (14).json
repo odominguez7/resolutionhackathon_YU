@@ -1,0 +1,498 @@
+{
+  "job_id": "39d22b7d-e014-4988-9bdd-3ea01ec481dc",
+  "usage": {
+    "num_pages": 16,
+    "num_fields": 331,
+    "credits": 63.1,
+    "extract_mode": "super_agent"
+  },
+  "studio_link": "https://studio.reducto.ai/job/39d22b7d-e014-4988-9bdd-3ea01ec481dc",
+  "result": [
+    {
+      "report_metadata": {
+        "title": "Endurance Athlete UX & Retention: A Research Intelligence Report",
+        "prepared_for": "Omar, Founder - YU Performance Platform",
+        "date": "July 2025",
+        "target_platform": "YU Performance Platform"
+      },
+      "executive_summary": {
+        "athlete_types": [
+          "marathon runners",
+          "triathletes",
+          "cyclists"
+        ],
+        "data_sources": {
+          "strava_dataset": "Strava's 135M-user dataset",
+          "training_peaks_survey": "Training Peaks' 1,400-athlete survey",
+          "garmin_updates": "Garmin's 2025 algorithm updates"
+        },
+        "ux_case_studies": [
+          "WHOOP",
+          "Oxford HCI Lab"
+        ],
+        "key_insight": "endurance athletes don't want more data; they want better meaning from their data, grounded in their own physiology, their own training phase, and their own race goals"
+      },
+      "retention_features": {
+        "section_1_1_training_load": {
+          "title": "1.1 Training Load Tracking - The Highest-Impact Retention Driver",
+          "trainingpeaks_3yr_retention": "55% of survey respondents have used the platform for more than three years",
+          "PMC_metrics": [
+            "Chronic Training Load (CTL)",
+            "Acute Training Load (ATL)",
+            "Training Stress Balance (TSB)"
+          ],
+          "athlete_quote": "I am a stats guy, so Training Peaks motivates me to see my training through the numbers... those numbers that just keep getting better",
+          "behavioral_signal_quote": "more often than they check their work or personal calendars",
+          "daily_workout_email_mechanic": "turning it green — athletes describe as creating 'a second runner's high'",
+          "garmin_2025_update": "The 2025 algorithm update integrated HRV, Training Load composition, and a new Workout Execution Score into Training Status classifications (Productive, Peaking, Overreaching, Maintaining)",
+          "design_implication": "Training load visualization is table stakes - but the PMC model is over 15 years old. The opportunity is to build a training load system that integrates HRV trend, subjective RPE, and race-calendar proximity into a single interpretive view that answers: \"Am I on track for my goal race?\""
+        },
+        "section_1_2_personal_records": {
+          "title": "1.2 Personal Records & Peak Performance Tracking",
+          "trainingpeaks_pr_features": "TrainingPeaks deploys medal icons for all-time bests, 90-day bests, and yearly bests across running, cycling, and mountain biking, with a \"StackUp\" feature that enables percentile comparison with the broader TrainingPeaks user base",
+          "strava_pr_stat_2025": "66% of runners and cyclists achieved a new segment PR in 2025",
+          "boomer_pr_rate": "Boomers achieving PR rates of 80%",
+          "women_kom_stat": "Women were 20% more likely than men to earn KOM/QOM crowns in 2024",
+          "design_implication": "PR tracking must be multi-timeframe (all-time, season, training block) and sport-specific. The StackUp percentile model is powerful because it satisfies competence needs without requiring head-to-head social comparison."
+        },
+        "section_1_3_social_community": {
+          "title": "1.3 Social & Community Features - Moderate Impact, Context-Dependent",
+          "strava_club_participation_increase": "59% increase in running club participation globally in 2024",
+          "kudos_comparison": "group activities receiving twice the kudos of solo activities",
+          "activity_length_group_increase": "activity length increasing 40% when training in groups of 10+ versus alone",
+          "retention_increase_social": "social features increase retention by 30%",
+          "social_comparison_study_225_runners": "A study of 225 club runners found that runners who deleted sessions due to perceived slow pace scored higher on 'other-avoidance goals' (ego-protection motivation)",
+          "social_comparison_study_n114": "Related research (N=114) found that health motives and social recognition amplified negative effects of social comparison rather than buffering them",
+          "design_implication": "Social features should default to opt-in sharing, with granular control over what data is visible. Community value comes from shared training context (same race, same training block), not leaderboard exposure."
+        },
+        "section_1_4_race_countdown": {
+          "title": "1.4 Race Countdown & Goal Event Structures",
+          "race_calendar_backbone": "The race-calendar-to-training-plan pipeline is the structural backbone of endurance athlete engagement. Training Peaks athletes organize their entire platform interaction around race events — the calendar-to-race-day structure is the central engagement loop.",
+          "down_dog_finding": "The Down Dog yoga app found that flexible weekly goals (rather than daily streaks) produced a 20% jump in 90-day retention",
+          "design_implication": "The race event should be the atomic unit of platform engagement — every feature should orient around \"X weeks from race day!\" Weekly compliance (not daily streaks) is the correct feedback cadence."
+        },
+        "section_1_5_personalized_coaching": {
+          "title": "1.5 Personalized Coaching Language",
+          "whoop_coach_launch_year": "2023",
+          "whoop_coaching_description": "incredibly personalized, incredibly specific — grounding every recommendation in the athlete's own biometric trends",
+          "whoop_activity_detection_examples": [
+            "Spin detected",
+            "Hiking/Rucking detected"
+          ],
+          "personalized_content_beta": "0.393",
+          "personalized_content_effect_size": "medium effect",
+          "personalized_content_f2": "0.189",
+          "realtime_feedback_beta": "0.450",
+          "realtime_feedback_effect_size": "large effect",
+          "realtime_feedback_f2": "0.248",
+          "ai_personalization_effects": {
+            "time_on_platform": "increases time on platforms by 20%",
+            "click_through_rate": "click-through rates by 15%",
+            "satisfaction": "satisfaction by 25%",
+            "training_adherence": "personalized training improving adherence by 22%"
+          }
+        }
+      },
+      "retention_benchmarks": {
+        "table_data": {
+          "day_1_general_fitness": "30-35%",
+          "day_1_top_performing": "45%",
+          "day_1_endurance_platforms": "Not reported separately",
+          "day_7_general_fitness": "15-20%",
+          "day_7_top_performing": "Not specified",
+          "day_7_endurance_platforms": "Not reported separately",
+          "day_30_general_fitness": "8-12%",
+          "day_30_top_performing": "25%",
+          "day_30_endurance_platforms": "Not reported separately",
+          "3yr_general_fitness": "Not reported",
+          "3yr_top_performing": "Not reported",
+          "3yr_endurance_platforms": "55% of surveyed users",
+          "retention_weight_loss": "Weight loss: 116 days",
+          "retention_performance_muscle": "Performance/muscle gain: 128-132 days"
+        },
+        "sources": [
+          "Lucid.Now",
+          "PMC fitness app retention study",
+          "TrainingPeaks"
+        ],
+        "critical_finding_intrinsic_goals": "users motivated by intrinsic autonomous goals (muscle gain, performance improvement) retained for 132–128 days versus 116 days for weight-loss-motivated users",
+        "first_week_engagement_stat": "First-week engagement makes users 80% more likely to stay active for six months"
+      },
+      "dropout_triggers": {
+        "study_reference": "Werner & Bischof (2024), published in Frontiers in Sports and Active Living",
+        "total_technostress_factors": "16",
+        "sport_specific_factors": "8",
+        "ranked_triggers": {
+          "rank_1": {
+            "factor": "Measurement Data Fixation",
+            "codes": "113",
+            "core_mechanism": "Movement decisions dictated by data to hit digital goals (round km counts, best times); excessive focus on numbers affects motivation, performance, health, and body perception; inaccuracies cause dissatisfaction",
+            "design_implication": "Separate \"training mode\" from \"data review mode\"; delay detailed metrics until post-activity"
+          },
+          "rank_2": {
+            "factor": "Comparison Pressure",
+            "codes": "100",
+            "core_mechanism": "Urgency to surpass others or past self; evokes envy/jealousy; expanded by platforms like Strava/Garmin (social, temporal, performance comparisons); creates permanent digital competition",
+            "design_implication": "Default to self-referential comparisons (vs. own baseline); make leaderboard exposure opt-in"
+          },
+          "rank_3": {
+            "factor": "Feedback Incorporation",
+            "codes": "89",
+            "core_mechanism": "Tendency to accept device feedback as authoritative, overwriting subjective perceptions (e.g., feeling strong but device says \"high heart rate\" → athlete downgrades session); influences self-perception and identity",
+            "design_implication": "Always present device data alongside subjective RPE; never let device data override athlete's self-assessment without explanation"
+          },
+          "rank_4": {
+            "factor": "Digital Visibility",
+            "codes": "64",
+            "core_mechanism": "Pressure from disclosing data on platforms — intensive engagement with digital self-image requires constant effort for positive performance proof",
+            "design_implication": "Provide granular sharing controls; normalize rest days and recovery in social feeds"
+          },
+          "rank_5": {
+            "factor": "Unreliability",
+            "codes": "21",
+            "core_mechanism": "Battery failure, GPS loss, or system crashes trigger acute frustration and loss of trust",
+            "design_implication": "Graceful degradation design; never lose a workout to a sync failure"
+          },
+          "rank_6": {
+            "factor": "Perception Discrepancy",
+            "codes": "17",
+            "core_mechanism": "Deviation between subjective perception (feeling rested) and objective data (low sleep score) creates uncertainty, conflict, and cognitive strain",
+            "design_implication": "When data contradicts feel, explain possible causes; never present contradictions without context"
+          },
+          "rank_7": {
+            "factor": "Lack of Context",
+            "codes": "15",
+            "core_mechanism": "Devices record only objective data, ignoring subjective circumstances (illness, menstrual cycles, time constraints); performance drops are not legitimized",
+            "design_implication": "Allow athletes to tag context (illness, travel, life stress); adjust expectations accordingly"
+          }
+        },
+        "deep_dive_measurement_fixation": "Measurement Data Fixation (113 codes) is not merely an inconvenience — it represents a fundamental failure mode where the tracking tool becomes the training goal. Athletes begin running for round kilometer counts, chasing pace targets set by algorithms rather than physiology, and experiencing genuine distress when GPS inaccuracies corrupt their data. The Werner & Bischof study describes athletes whose \"movement decisions and intensities are dictated by data to hit digital goals.\" This is the endurance athlete's version of Goodhart's Law: when the metric becomes the target, it ceases to be a good metric.",
+        "deep_dive_feedback_incorporation": "Feedback Incorporation (89 codes) is particularly insidious because it erodes the athlete's most valuable training instrument — their own body awareness. The Oxford HCI study (Postma et al., 2024) documented athletes \"sometimes abandoning their sports watches due to feeling of constant evaluation,\" noting that \"knowing that every aspect of their performance is being tracked can be daunting and may detract the athletes from the joy and spontaneity of sports\"",
+        "deep_dive_strava_load": "Digital Visibility/\"Strava-Load\" extends the comparison pressure into the public performance sphere. The Mountain Tactical Institute coined \"Strava-Load\" to describe the phenomenon where athletes \"overly attach to their numbers day-in and day-out,\" which \"has the potential to hold them back and cause them to forget why they started.\" The \"public nature of shared performance data can create an insidious effect\" (Mountain Tactical Institute).",
+        "deep_dive_perception_discrepancy": "Perception Discrepancy (17 codes) represents the trust-breaking moment: when an athlete feels recovered and ready to train hard, but their app says \"Loss of Form\" or reports a low recovery score, the resulting cognitive conflict either undermines the athlete's self-trust or undermines their trust in the platform. The Amsterdam UMC study reinforces this: cyclists do not always execute the training programme planned by the coach, and the relationship between RPE (perceived exertion) and coach-intended exertion (iRPE) is unique to each individual. Generic advice that ignores this individual perception gap causes adherence failures."
+      },
+      "endurance_vs_general_fitness": {
+        "section_3_1_data_complexity": {
+          "native_metrics": [
+            "TSS",
+            "CTL",
+            "ATL",
+            "TSB",
+            "VO2max",
+            "FTP",
+            "rMSSD",
+            "Functional Threshold Pace/Power",
+            "lactate threshold"
+          ],
+          "trainingpeaks_metrics_count": "6-10 interacting metrics",
+          "club_runners_study_n": "225 club runners",
+          "sports_watch_usage": "98% trained with a sports watch",
+          "garmin_usage": "87% used Garmin",
+          "frontiers_physiology_year": "2016",
+          "frontiers_physiology_finding": "experienced athletes can pace optimally without any device feedback — they have developed interoceptive body literacy"
+        },
+        "section_3_2_complexity_threshold": {
+          "technostress_vulnerability": "The 16 technostress factors identified by Werner & Bischof were found specifically in performance-oriented amateur endurance athletes — not general fitness users. The very athletes most data-hungry are simultaneously the most vulnerable to measurement data fixation and comparison pressure.",
+          "oxford_hci_quote": "Overemphasis on data can lead to a reductionist view of sports performance, leading to an unhealthy obsession with or 'being emotionally invested in' numbers"
+        },
+        "section_3_3_personalization": {
+          "whoop_calibration_phase": "4-7 days",
+          "whoop_calibration_rationale": "They want athletes to trust the data is theirs",
+          "tech_proficiency_effect_generic_beta": "-0.154",
+          "tech_proficiency_effect_generic_p": "0.010",
+          "tech_proficiency_effect_realtime_beta": "0.165",
+          "tech_proficiency_effect_realtime_p": "0.005"
+        },
+        "section_3_4_training_language": {
+          "discipline_specific_metrics": [
+            "TSS for cyclists",
+            "normalized power",
+            "Training Stress Balance",
+            "lactate threshold",
+            "VO2max",
+            "rMSSD trend",
+            "Functional Threshold Pace/Power",
+            "race-specific pacing"
+          ],
+          "generic_language_effect": "Apps that use generic wellness language (\"you're doing great,\" \"stay hydrated\") are immediately credibility-destroying",
+          "amsterdam_umc_finding": "each cyclist's RPE-to-iRPE relationship is unique — the individual perception of training load is fundamentally different from population averages"
+        },
+        "comparison_table": {
+          "preferred_metrics_endurance": "TSS, CTL/ATL/TSB, VO2max, FTP, rMSSD, lactate threshold, normalized power, race pace zones",
+          "preferred_metrics_general": "Steps, calories, active minutes, heart rate zones, streaks",
+          "complexity_tolerance_endurance": "High — engages with 6-10 interacting metrics as native language; 3+ year platform retention (TrainingPeaks)",
+          "complexity_tolerance_general": "Low-to-moderate — prefers single summary scores (e.g., \"Readiness Score\")",
+          "personalization_expectation_endurance": "Demands context: training phase, sport, individual physiology, race calendar; generic content reduces engagement for tech-proficient athletes (PMC)",
+          "personalization_expectation_general": "Accepts population-level personalization (\"people your age...\")",
+          "feedback_type_endurance": "Real-time, sport-specific, data-grounded (ẞ=0.450 on engagement) (PMC)",
+          "feedback_type_general": "Motivational, celebratory, streak-based",
+          "social_comparison_endurance": "Uses competitively (KOM/QOM, segment PRs) but vulnerable to comparison pressure (100 technostress codes) and Strava-Load (Werner & Bischof)",
+          "social_comparison_general": "Lower stakes; social features primarily motivational (+30% retention) (Lucid.Now)",
+          "primary_retention_endurance": "Training load visualization + race calendar structure",
+          "primary_retention_general": "Streaks, social accountability, gamification",
+          "interoceptive_literacy_endurance": "High — can pace optimally without devices (Frontiers in Physiology); uses data to validate body knowledge",
+          "interoceptive_literacy_general": "Variable — often relies on device feedback as primary signal",
+          "technostress_vulnerability_endurance": "High and specific — measurement fixation (113 codes), comparison pressure (100 codes) (Werner & Bischof)",
+          "technostress_vulnerability_general": "Lower — fewer sport-specific stressors documented"
+        }
+      },
+      "motivation_theory": {
+        "frameworks": [
+          "Self-Determination Theory (SDT, Deci & Ryan)",
+          "Achievement Goal Theory (AGT)"
+        ],
+        "section_4_1_sdt": {
+          "sdt_needs": [
+            "Autonomy (sense of volition and choice)",
+            "Competence (sense of mastery and effectiveness)",
+            "Relatedness (sense of connection and belonging)"
+          ],
+          "scientific_reports_2024_competence_effect": "0.39",
+          "scientific_reports_2024_autonomy_effect": "0.23",
+          "scientific_reports_2024_finding": "Both Competence (ad=0.39) and Autonomy (be 0.23) significantly mediate sports behavior activation AND maintenance",
+          "relatedness_finding": "Relatedness does NOT significantly mediate either activation or maintenance (confidence interval includes 0)",
+          "platform_design_implication_sdt": "For long-term retention, design for autonomy and competence — community is valuable but not the primary driver",
+          "mccarthy_2025_enjoyment_increase": "autonomy-supporting environments increase sport enjoyment by 30% and reduce burnout significantly",
+          "mccarthy_2025_intrinsic_engagement": "Athletes driven by intrinsic motivation show 30% higher engagement and more frequent flow states",
+          "mccarthy_2025_performance_drop": "performance drops 50% in competitive settings when athletes lose motivation",
+          "sdt_table": {
+            "autonomy_fostered": "Data-driven workout suggestions, personalization, flexibility in how/when to train",
+            "autonomy_undermined": "Over-rewarding (patronizing badges), enforcing performance norms, controlling choices",
+            "competence_fostered": "Meaningful comparisons (vs. own baseline), optimal challenge (progressive overload aligned to ability)",
+            "competence_undermined": "Criticism about under-performance, deficit-framed feedback",
+            "relatedness_fostered": "Sharing data publicly on own terms, staying connected to training community",
+            "relatedness_undermined": "Social judgment concerns, rumination about perceived inadequacy"
+          },
+          "sdt_source": "Postma et al., 2024"
+        },
+        "section_4_2_agt": {
+          "map_definition": "Mastery-Approach goals (MAP) — focused on task improvement and learning",
+          "pap_definition": "Performance-Approach goals (PAP) — focused on outperforming others or demonstrating competence",
+          "psychologica_belgica_n": "515",
+          "map_autonomous_outcome": "MAP + autonomous motivation → highest perceived goal attainment, satisfaction, and positive affect",
+          "pap_autonomous_outcome": "PAP + autonomous motivation → also positive associations with perceived goal attainment, sport satisfaction, and positive affect — suggesting that even competitive ego goals are healthy when intrinsically motivated",
+          "pap_controlled_outcome": "PAP + controlled motivation → negative affect, lower satisfaction",
+          "design_error": "The design error is nudging athletes toward 'wellness balance' language when they are competitively motivated",
+          "psychology_sport_exercise_2025": "A 2025 study in Psychology of Sport and Exercise found that athletic identity and autonomous motivation are specific predictors of endurance performance. The core endurance challenge is a \"desire-goal conflict\" — the desire to reduce effort versus the distal performance goal. Autonomous motivation sustains the performance goal's motivational value through this conflict."
+        },
+        "section_4_3_design_implications": {
+          "principle_1_competence_building": "\"Providing the recorded and predicted 'personal bests' enhances an athlete's sense of mastery\" (Postma et al., 2024). Feedback must link directly to specific results, come right after performance, and mix recognition of achievement with actionable next steps.",
+          "trainingpeaks_medal_system_example": "The Training Peaks \"Peak Performances\" medal system exemplifies this — it shows athletes they ARE getting better, with proof.",
+          "principle_2_autonomy_preservation": "Never enforce norms. Offer choices. Let athletes choose their metrics, their race goals, their training structure. Streak mechanics that punish breaking sequences undermine autonomy and reduce self-enjoyment (Postma et al., 2024). Down Dog's flexible weekly goals model (Lucid.Now) is the correct paradigm for endurance athletes.",
+          "principle_3_task_vs_ego": "Feedback should be framed as task-involving (progress, improvement, mastery) not ego-involving (comparison, deficit, failure). Research on motivational climate in performance contexts shows that ego-involving feedback environments lead to basic psychological need frustration and dropout (Frontiers in Psychology, 2018).",
+          "principle_4_amotivation_detection": "Athletes lacking motivation show 50% performance declines in competitive settings and significantly higher abandonment rates. The feedback system must actively detect amotivation signals — reduced logging, skipped workouts, declining engagement patterns — and respond with engagement intervention, not more data.",
+          "principle_5_validate_competitive_goals": "Competitive endurance athletes pursue race times, rankings, and KOM/QOM as legitimate goals. The Psychologica Belgica study shows PAP goals produce positive outcomes when autonomously motivated. The platform should celebrate competitive goal pursuit — not pathologize it as unhealthy ego orientation."
+        }
+      },
+      "platform_evolution": {
+        "section_5_1_garmin": {
+          "core_thesis": "From raw numbers to interpretive context",
+          "evolution_period": "2024-2026",
+          "training_status_states": [
+            "Productive",
+            "Peaking",
+            "Overreaching",
+            "Maintaining"
+          ],
+          "training_status_integration": "The 2025 algorithm update integrated HRV specifically into Training Status, which now synthesizes VO2max, Training Load composition, and Workout Execution Score into labeled states",
+          "workout_execution_score_description": "Measuring how well an athlete executed a planned session — represents a shift from 'did you train?' to 'how well did you train against intent?'",
+          "may_2025_features": [
+            "Sleep Breathing Insights",
+            "Rucking Mode (with pack weight input for accurate VO2max and calorie calculation)",
+            "Garmin Trails (a smart trail finder integrated directly into the app)"
+          ],
+          "garmin_connect_plus": "Premium tier signaling Garmin's intent to monetize its most engaged users with advanced analytics",
+          "garmin_coach_update": "Garmin Coach (adaptive training plans) was updated to adapt based on ALL activities — not just the targeted sport — making it truly adaptive for multi-sport athletes",
+          "feb_2026_course_planner": "Enabling course points lists and race-day planning on-device — the most impactful recent feature for endurance athletes planning ultra marathons and long-course events",
+          "body_battery_trueup": "Cross-device energy score syncing, showing Garmin prioritizing a unified interpretive layer over fragmented data points",
+          "key_design_lesson": "Garmin learned that athletes don't want more data — they want better meaning from existing data. The strategy is to surface more interpretive context (labeled Training Status, Workout Execution Score) over raw numbers."
+        },
+        "section_5_2_trainingpeaks": {
+          "core_thesis": "The calendar IS the product",
+          "user_retention_rate": "55%+ of users retained for 3+ years",
+          "survey_size": "1,400-athlete survey",
+          "most_loved_features": [
+            "1. TrainingPeaks Virtual — indoor cycling platform (acquired indieVelo)",
+            "2. Peak Performances — personal records + medal system",
+            "3. StackUp — percentile comparison against other users",
+            "4. PMC fitness/fatigue/form chart (CTL/ATL/TSB)",
+            "5. Daily workout email + calendar compliance — 'turning it green'"
+          ],
+          "coach_athlete_workflow_features": [
+            "Custom Zones (enabling coaches to use their own training language)",
+            "Limited Availability (integrating travel/injury into the training plan)",
+            "Athlete Recovery Metrics dashboard (auto-syncing HRV + RHR from Garmin)",
+            "Group Calendar Planning",
+            "Process Goals — daily non-workout goals for hydration, sleep, and nutrition"
+          ],
+          "process_goals_description": "Daily non-workout goals for hydration, sleep, and nutrition — described as 'the most under-the-radar feature' because they build identity habits beyond just workout compliance",
+          "trajectory_2024_2026": [
+            "Acquisition of indieVelo → Training Peaks Virtual",
+            "AI Bots for indoor racing",
+            "GPX course integration for race-specific training simulation",
+            "HRV auto-sync from Garmin devices feeding a recovery dashboard"
+          ],
+          "key_design_lesson": "The race countdown → daily training structure → compliance feedback loop is the core engagement mechanic. Athletes who check the training calendar more than their work email are retention-locked. The calendar is not a feature of the product — it IS the product."
+        },
+        "section_5_3_strava": {
+          "core_thesis": "Community-first, performance-adjacent",
+          "total_users": "135 million",
+          "year_in_sport_2024_pivot": "Deliberate pivot from pure performance tracking to community-and-social platform",
+          "run_club_participation_increase": "59% increase globally in 2024",
+          "group_kudos_comparison": "Group activities receive twice the kudos of solo efforts with activity length increasing 40% in groups of 10+",
+          "pr_percentage_2025": "66% of runners and cyclists hitting a new PR in 2025",
+          "strava_load_phenomenon": "Segment obsession is a documented dropout driver (the 'Strava-Load' phenomenon)",
+          "recent_feature_evolution": [
+            "Fitness Score (long-term fitness trend)",
+            "Perceived Effort (subjective rating)",
+            "Relative Effort",
+            "Month-by-month fitness trend visualization"
+          ],
+          "marathon_rest_days_stat": "51% of days in 16-week marathon training were rest days",
+          "micro_movements_stat": "Micro-movements (under 20 minutes) accounted for 20% of all workouts",
+          "endurance_events_increase": "Marathons, ultras, and century rides increased by 9%",
+          "social_comparison_double_edge": "Strava users with large networks have higher self-efficacy AND higher comparison anxiety. The same social exposure that builds community also triggers dropout during injury or reduced performance periods.",
+          "key_design_lesson": "Strava learned they need both community AND competitive mechanics but must provide athlete control over social exposure level. Athletes who 'regulate their use' — hiding sessions, limiting interactions — are protecting their motivation. Strava supports this with privacy controls, and this is the right approach."
+        },
+        "section_5_4_whoop": {
+          "core_thesis": "The biometric data is not the product — interpretation is",
+          "founder": "Will Ahmed",
+          "founding_year": "2012",
+          "design_philosophy": "No screen, no visible metrics during activity. Recovery-first design philosophy was a deliberate rejection of the data-fixation paradigm that dominates the wearable market.",
+          "core_ux_loop": "Recovery Score → Strain Coach → Sleep Coach integrated daily loop; every recommendation derived from the athlete's own biometric history — not population norms",
+          "trust_building_mechanic": "Automatic activity detection: recognizing 'Spin detected' or 'Hiking/Rucking detected' without manual input makes athletes feel the device 'knows them' — a form of competence-by-proxy",
+          "daily_journal_feature": "Enables user-selected daily questions that generate a monthly health report correlating behavior to recovery data, creating a bio-behavioral feedback loop bridging objective data and subjective context that causes perception discrepancy",
+          "whoop_coach_description": "Generative AI coach grounded in the athlete's own biometric trends",
+          "whoop_coach_year": "2023",
+          "whoop_4_features": [
+            "Haptic feedback for optimal wake time",
+            "Sensor-enhanced garments",
+            "Health Monitor for baseline deviation tracking"
+          ],
+          "ux_evolution_case_study": "A BASIC/DEPT design case study (2022) reveals WHOOP's UX evolution: the original complex data storytelling failed to communicate WHY WHOOP was different. The redesign principle was progressive disclosure — reducing overwhelming data on each page. As the audience evolved from elite athletes to 'anyone who wants to level up,' the visual language had to evolve without losing credibility with the core audience.",
+          "key_design_lesson": "WHOOP's evolution from data dump to coached experience mirrors the design shift the entire industry needs to make. Their core insight: the biometric data is not the product — the interpretation and coaching that derives from it is the product."
+        },
+        "platform_summary_table": {
+          "garmin_engagement_loop": "Training Status → Workout Execution Recovery",
+          "garmin_2024_2026_shift": "Raw data → interpretive labels + HRV integration",
+          "garmin_primary_lesson": "Athletes want meaning, not more metrics",
+          "trainingpeaks_engagement_loop": "Race calendar → daily plan compliance ('turn it green')",
+          "trainingpeaks_2024_2026_shift": "Indoor simulation (indieVelo) + AI + GPX courses",
+          "trainingpeaks_primary_lesson": "The calendar IS the product",
+          "strava_engagement_loop": "Activity upload → social validation → segment competition",
+          "strava_2024_2026_shift": "Performance tracking → community platform + recovery framing",
+          "strava_primary_lesson": "Social comparison needs athlete-controlled exposure",
+          "whoop_engagement_loop": "Recovery Score → Strain Coach → Sleep Coach (daily loop)",
+          "whoop_2024_2026_shift": "Data visualization → AI-coached interpretation",
+          "whoop_primary_lesson": "Interpretation > raw data; trust through personalization"
+        }
+      },
+      "design_principles": {
+        "principle_1_race_calendar": {
+          "title": "Make the Race Calendar the Structural Spine",
+          "evidence_basis": "Training Peaks' 55% 3+ year retention is built on the race countdown → daily training structure → compliance feedback loop. Flexible deadline-oriented goals produce 20% higher 90-day retention than daily streaks (Lucid.Now). Endurance athletes organize their entire training lives around race events (TrainingPeaks).",
+          "design_implication": "Every screen, every metric, every notification should be contextualizable to 'X weeks from race day.' The race event is the atomic unit of engagement. Training blocks (base, build, peak, taper) should structure the UI's information architecture — what matters in Week 4 of base building is different from what matters in race week."
+        },
+        "principle_2_interpreted_training_load": {
+          "title": "Surface Interpreted Training Load, Not Raw Data",
+          "evidence_basis": "Garmin's 2025 algorithm shift from raw metrics to labeled Training Status (Productive, Peaking, Overreaching). WHOOP's core insight that 'the biometric data is not the product—the interpretation is' (BASIC/DEPT). Measurement data fixation (113 technostress codes) is the #1 dropout trigger (Werner & Bischof).",
+          "design_implication": "Lead with interpreted states ('You're building aerobic fitness on schedule' or 'Your fatigue is elevated — consider an easy day'), with raw metrics available on drill-down. Progressive disclosure is mandatory: summary → interpretation → raw data, in that order."
+        },
+        "principle_3_athlete_baseline": {
+          "title": "Ground Every Insight in the Athlete's Own Baseline",
+          "evidence_basis": "WHOOP's 4-7 day calibration phase that delays coaching features to build trust in individualized data. Higher tech proficiency diminishes the impact of generic personalized content (β=-0.154) but enhances the impact of real-time feedback (p=0.165). Each cyclist's RPE-to-iRPE relationship is unique (Amsterdam UMC).",
+          "design_implication": "Never use population averages as the primary reference frame. Calibrate to the individual. 'Your VO2max is 52' means nothing without '...which is 3 points above your 12-month baseline and puts you on track for your sub-3:30 marathon goal.' The athlete's own history is the only credible benchmark."
+        },
+        "principle_4_autonomy": {
+          "title": "Preserve Autonomy — No Streaks, No Enforced Norms",
+          "evidence_basis": "Autonomy (β=0.23) significantly mediates sport behavior maintenance (Scientific Reports, 2024). Autonomy-supporting environments increase sport enjoyment by 30% (Dr. Paul McCarthy). The Oxford HCI study found autonomy is undermined by 'over-rewarding, enforcing performance norms, controlling choices' (Postma et al., 2024).",
+          "design_implication": "Replace daily streak mechanics with weekly training compliance and block-level progression. Let athletes choose which metrics they see, which alerts they receive, and how their training is structured. The athlete sets the goals; the platform shows progress toward those goals. Never mandate a training philosophy."
+        },
+        "principle_5_competence": {
+          "title": "Build Competence Through Multi-Timeframe Progress Visibility",
+          "evidence_basis": "Competence (α=0.39) is the strongest mediator of sport behavior activation and maintenance (Scientific Reports, 2024). Training Peaks' Peak Performances medal system (all-time, 90-day, yearly bests) is the second-highest retention feature (TrainingPeaks). 66% of Strava athletes achieved a new segment PR in 2025 (Strava).",
+          "design_implication": "Show progress at every timescale: session-to-session, week-over-week, block-over-block, season-over-season. 'Personal bests' should be contextual to the current training phase (base season PRs are different from peak season PRs). The athlete should never have to wonder 'am I getting better?' — the answer should be immediately visible."
+        },
+        "principle_6_subjective_data": {
+          "title": "Pair Device Data with Subjective Perception — Always",
+          "evidence_basis": "Feedback incorporation (89 technostress codes) — athletes accept device feedback as authoritative, overwriting subjective perceptions (Werner & Bischof). Perception discrepancy (17 codes) causes cognitive conflict and trust erosion (Werner & Bischof). WHOOP's Daily Journal bridges objective and subjective data (WHOOP UX evaluation).",
+          "design_implication": "After every session, prompt for RPE alongside device-measured data. When device data and subjective perception conflict, explicitly acknowledge the discrepancy and offer possible explanations ('Your heart rate was elevated, but you reported feeling strong — this could indicate cardiovascular drift in heat, incomplete recovery, or simply a hard effort that felt good'). Never present device data as more 'true' than the athlete's perception."
+        },
+        "principle_7_social_comparison": {
+          "title": "Make Social Comparison Athlete-Controlled",
+          "evidence_basis": "Social features increase retention 30% (Lucid.Now) but comparison pressure is the #2 dropout trigger (100 technostress codes) (Werner & Bischof). Digital visibility (64 codes) creates pressure for constant positive performance proof (Werner & Bischof). Strava users who regulate their use are protecting their motivation (PMC Strava study).",
+          "design_implication": "Default to self-referential comparison (vs. own baseline). Make leaderboards, segment rankings, and social sharing opt-in rather than default. When athletes enter recovery blocks or injury periods, automatically reduce social comparison exposure — don't wait for them to manually hide. Community features should emphasize shared training context (same race, same plan) over performance hierarchy."
+        },
+        "principle_8_competitive_goals": {
+          "title": "Validate Competitive Goals — Don't Pathologize Them",
+          "evidence_basis": "Performance-approach goals (PAP) produce positive outcomes when autonomously motivated (Psychologica Belgica, N=515). Athletic identity and autonomous motivation specifically predict endurance performance (Psychology of Sport and Exercise, 2025). KOM/QOM pursuit is Strava's highest-engagement mechanic (Strava).",
+          "design_implication": "When an athlete sets a race time goal, BQ attempt, or KOM target, the platform should celebrate and support that pursuit — not nudge toward 'balance' or 'wellness' framing. The athlete who wants to qualify for Boston is not the same user as the athlete who wants to 'stay active.' Competitive goal pursuit is healthy when autonomously motivated, and the platform should reflect this."
+        },
+        "principle_9_amotivation": {
+          "title": "Detect Amotivation Before It Becomes Dropout",
+          "evidence_basis": "Athletes lacking motivation show 50% performance declines in competitive settings (Dr. Paul McCarthy). First-week engagement makes users 80% more likely to stay active for six months (Lucid.Now). Intrinsically motivated athletes retain 128-132 days vs. 116 for extrinsically motivated (PMC).",
+          "design_implication": "Build amotivation detection into the engagement model: declining logging frequency, skipped planned workouts, reduced session duration, and absence of subjective feedback (no RPE entries) are all early warning signals. The response should not be more data or more notifications — it should be a coaching-style intervention that reconnects the athlete to their intrinsic motivation ('Your Boston Marathon is 14 weeks away — here's what you've built so far')."
+        },
+        "principle_10_athlete_language": {
+          "title": "Speak the Athlete's Language — Or Lose Credibility Instantly",
+          "evidence_basis": "Endurance athletes use discipline-specific metrics as their native language: TSS, FTP, lactate threshold, VO2max, normalized power, race-specific pacing zones (TrainingPeaks). 98% of studied club runners trained with a sports watch; self-efficacy was 'generally high' (PMC Strava study). Generic wellness language is credibility-destroying for this population.",
+          "design_implication": "The platform must use the correct sport-specific terminology from onboarding. A cyclist should see TSS and normalized power, not 'training score.' A runner should see pace zones and GAP (Grade Adjusted Pace), not 'intensity level.' The tone should be knowledgeable peer, not wellness coach. Omar knows this instinctively as a Boston finisher and Ironman 70.3 finisher."
+        }
+      },
+      "design_anti_patterns": {
+        "daily_streak_mechanics": {
+          "mechanism": "Undermines autonomy; punishes planned rest days; creates guilt during taper/recovery",
+          "evidence": "Autonomy-undermining reduces enjoyment 30% (McCarthy); flexible goals +20% retention (Lucid.Now)",
+          "severity": "High"
+        },
+        "raw_data_without_interpretation": {
+          "mechanism": "Feeds measurement fixation (113 codes); athletes chase numbers instead of training goals",
+          "evidence": "Werner & Bischof; WHOOP redesign away from data dumps (BASIC/DEPT)",
+          "severity": "High"
+        },
+        "default_on_social_leaderboards": {
+          "mechanism": "Triggers comparison pressure (100 codes) and digital visibility stress (64 codes) during injury/recovery",
+          "evidence": "Werner & Bischof; Strava-Load phenomenon (Mountain Tactical Institute)",
+          "severity": "High"
+        },
+        "device_data_as_truth": {
+          "mechanism": "Erodes body awareness and self-trust; causes perception discrepancy distress",
+          "evidence": "Feedback incorporation 89 codes (Werner & Bischof); watch abandonment (Postma et al.)",
+          "severity": "High"
+        },
+        "generic_wellness_language": {
+          "mechanism": "Destroys credibility with data-literate endurance athletes; signals the platform 'doesn't know me'",
+          "evidence": "Tech proficiency moderates away from generic content (B=-0.154) (PMC)",
+          "severity": "Medium-High"
+        },
+        "population_average_benchmarks": {
+          "mechanism": "Violates personalization expectation; endurance athletes expect individual baselines",
+          "evidence": "WHOOP calibration design philosophy (WHOOP UX); individual RPE uniqueness (Amsterdam UMC)",
+          "severity": "Medium-High"
+        },
+        "no_context_input": {
+          "mechanism": "Causes frustration when performance drops are 'not legitimized' by the system",
+          "evidence": "Lack of context 15 codes (Werner & Bischof)",
+          "severity": "Medium"
+        },
+        "ego_involving_feedback": {
+          "mechanism": "'You're falling behind' or deficit-based comparisons → BPN frustration → dropout",
+          "evidence": "Ego-involving climate → BPN frustration (Frontiers in Psychology)",
+          "severity": "Medium"
+        },
+        "data_loss_on_device_failure": {
+          "mechanism": "Battery/GPS/sync failures trigger acute trust destruction; athletes feel betrayed",
+          "evidence": "Unreliability 21 codes; 'catastrophic moments' described (Werner & Bischof)",
+          "severity": "Medium"
+        },
+        "nudging_competitive_athletes": {
+          "mechanism": "Invalidates their autonomous goal orientation; PAP goals are healthy when intrinsically motivated",
+          "evidence": "PAP + autonomous motivation → positive outcomes (Psychologica Belgica)",
+          "severity": "Medium"
+        }
+      },
+      "closing_statement": "This report synthesizes peer-reviewed sport psychology research, platform engagement data, and UX case studies to provide an evidence-based foundation for YU's product strategy. All claims are sourced to specific studies or platform publications. No data points have been fabricated or extrapolated beyond what the cited sources support."
+    }
+  ],
+  "citations": null
+}

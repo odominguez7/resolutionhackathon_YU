@@ -98,7 +98,7 @@ const RingGauge = ({ value, max, label, unit, avg, color, delay = 0 }: {
   return (
     <div className="flex flex-col items-center gap-2" style={{ animation: `oura-fade-up .7s ease-out ${delay}ms both` }}>
       <svg width="140" height="140" viewBox="0 0 128 128">
-        <circle cx="64" cy="64" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+        <circle cx="64" cy="64" r={r} fill="none" stroke="rgba(26,42,74,0.4)" strokeWidth={stroke} />
         <circle cx="64" cy="64" r={r} fill="none" stroke={color} strokeWidth={stroke}
           strokeLinecap="round" transform="rotate(-90 64 64)"
           strokeDasharray={circ} strokeDashoffset={offset}
@@ -153,7 +153,7 @@ const SectionHeader = ({ icon: Icon, title, description }: { icon: any; title: s
 const Tip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0a0b0d]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
+    <div className="rounded-xl border border-white/10 bg-[#0B1120]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
       <p className="text-[10px] text-slate-500 mb-1 font-semibold tracking-wider uppercase">{label}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} className="text-sm font-bold" style={{ color: p.color || p.fill }}>
@@ -304,7 +304,7 @@ const OuraProfile = () => {
 
   /* ── loading / error ── */
   if (loading) return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0a0b0d,#111215)" }}>
+    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0B1120,#111215)" }}>
       <div className="max-w-6xl mx-auto px-5 py-16 space-y-5">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="h-36 rounded-2xl animate-pulse" style={{ background: "rgba(30,41,59,.4)" }} />
@@ -314,7 +314,7 @@ const OuraProfile = () => {
   );
 
   if (error) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0b0d" }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1120" }}>
       <div className="text-center space-y-4">
         <p className="text-xl font-bold text-red-400">Failed to load Oura data</p>
         <p className="text-slate-500 text-sm">{error}</p>
@@ -326,7 +326,7 @@ const OuraProfile = () => {
   const dateRange = allChart.length > 1 ? `${fmtDate(allChart[0].day)} — ${fmtDate(allChart[allChart.length - 1].day)}` : "";
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0a0b0d 0%,#111215 100%)" }}>
+    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0B1120 0%,#111215 100%)" }}>
 
       {/* Live data indicator */}
       <div className="flex items-center justify-center pt-4 pb-1 gap-3 flex-wrap">
@@ -341,7 +341,7 @@ const OuraProfile = () => {
 
       {/* 3-TAB PROGRESSIVE DISCLOSURE BAR */}
       <div className="max-w-6xl mx-auto px-4 md:px-6 pt-4">
-        <div className="flex gap-1 p-1 rounded-2xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex gap-1 p-1 rounded-2xl" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
           {([
             { key: "summary" as const, label: "Summary", desc: "Today's snapshot" },
             { key: "trends" as const, label: "Trends", desc: "Your patterns" },
@@ -350,7 +350,7 @@ const OuraProfile = () => {
             <button key={tab.key} onClick={() => setDataTab(tab.key)}
               className="flex-1 py-3 px-4 rounded-xl text-center cursor-pointer border-0 transition-all duration-200"
               style={{
-                background: dataTab === tab.key ? "rgba(255,255,255,0.06)" : "transparent",
+                background: dataTab === tab.key ? "rgba(26,42,74,0.4)" : "transparent",
                 boxShadow: dataTab === tab.key ? "0 2px 8px rgba(0,0,0,0.2)" : "none",
               }}>
               <p className="text-xs font-bold" style={{ color: dataTab === tab.key ? "#fff" : "rgba(255,255,255,0.35)" }}>{tab.label}</p>
@@ -374,7 +374,7 @@ const OuraProfile = () => {
           const offset = value != null ? circ * (1 - value / 100) : circ;
           return (
             <svg width={size} height={size} className="transform -rotate-90">
-              <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={3} />
+              <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(26,42,74,0.4)" strokeWidth={3} />
               <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={3}
                 strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
                 style={{ transition: "stroke-dashoffset 1s ease-out" }} />
@@ -490,7 +490,7 @@ const OuraProfile = () => {
                 {(["7D", "14D", "30D", "ALL"] as Interval[]).map(r => (
                   <button key={r} onClick={() => setRange(r)}
                     className="px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer border-0 transition-all"
-                    style={{ background: range === r ? "rgba(255,255,255,0.08)" : "transparent", color: range === r ? "#fff" : "rgba(255,255,255,0.3)" }}>
+                    style={{ background: range === r ? "rgba(26,42,74,0.5)" : "transparent", color: range === r ? "#fff" : "rgba(255,255,255,0.3)" }}>
                     {r}
                   </button>
                 ))}
@@ -511,7 +511,7 @@ const OuraProfile = () => {
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={chart}>
                   <defs><linearGradient id="hrvGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#A78BFA" stopOpacity={0.3} /><stop offset="95%" stopColor="#A78BFA" stopOpacity={0} /></linearGradient></defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
                   <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} interval={ti} />
                   <YAxis tick={{ fill: "#475569", fontSize: 10 }} width={35} />
                   <Tooltip content={<Tip />} />
@@ -527,7 +527,7 @@ const OuraProfile = () => {
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={chart}>
                   <defs><linearGradient id="readyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#4ADE80" stopOpacity={0.3} /><stop offset="95%" stopColor="#4ADE80" stopOpacity={0} /></linearGradient></defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
                   <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} interval={ti} />
                   <YAxis tick={{ fill: "#475569", fontSize: 10 }} width={35} domain={[0, 100]} />
                   <Tooltip content={<Tip />} />
@@ -541,7 +541,7 @@ const OuraProfile = () => {
               <SectionHeader icon={Moon} title="Sleep Duration" description="Total hours of sleep per night. Consistency matters more than one great night." />
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={chart}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
                   <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} interval={ti} />
                   <YAxis tick={{ fill: "#475569", fontSize: 10 }} width={35} />
                   <Tooltip content={<Tip />} />
@@ -571,7 +571,7 @@ const OuraProfile = () => {
               {(["7D", "14D", "30D", "ALL"] as Interval[]).map(r => (
                 <button key={r} onClick={() => setRange(r)}
                   className="px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer border-0 transition-all"
-                  style={{ background: range === r ? "rgba(255,255,255,0.08)" : "transparent", color: range === r ? "#fff" : "rgba(255,255,255,0.3)" }}>
+                  style={{ background: range === r ? "rgba(26,42,74,0.5)" : "transparent", color: range === r ? "#fff" : "rgba(255,255,255,0.3)" }}>
                   {r}
                 </button>
               ))}
@@ -724,7 +724,7 @@ const OuraProfile = () => {
                   <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
               <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} interval={ti} />
               <YAxis yAxisId="score" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} domain={[40, 100]} />
               <YAxis yAxisId="hrv" orientation="right" tick={{ fill: "#8B5CF6", fontSize: 10 }} tickLine={false} axisLine={false} />
@@ -735,7 +735,7 @@ const OuraProfile = () => {
                   label={{ value: `Avg ${Math.round(stats.avgSleepScore)}`, fill: "#3B82F666", fontSize: 10, position: "insideTopRight" }} />
               )}
               <Area yAxisId="score" type="monotone" dataKey="sleepScore" stroke="#3B82F6" strokeWidth={2} fill="url(#sleepGrad)"
-                dot={false} activeDot={{ r: 4, fill: "#3B82F6", stroke: "#0a0b0d", strokeWidth: 2 }} name="Sleep Score" />
+                dot={false} activeDot={{ r: 4, fill: "#3B82F6", stroke: "#0B1120", strokeWidth: 2 }} name="Sleep Score" />
               <Area yAxisId="hrv" type="monotone" dataKey="hrv" stroke="#8B5CF6" strokeWidth={1.5} strokeDasharray="4 3"
                 fill="none" dot={false} activeDot={{ r: 3, fill: "#8B5CF6" }} name="HRV (ms)" />
             </AreaChart>
@@ -763,7 +763,7 @@ const OuraProfile = () => {
                   <stop offset="0%" stopColor="#F87171" stopOpacity={0.7} /><stop offset="100%" stopColor="#F87171" stopOpacity={0.2} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
               <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} interval={ti} />
               <YAxis tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} />
               <Tooltip content={<Tip />} />
@@ -790,7 +790,7 @@ const OuraProfile = () => {
               description="Red days = your body was running on fumes. Green days = it was actually recharging. If you see too much red, that's exactly when YU steps in with a plan." />
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={stressChart} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
                 <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} interval={tickInterval(stressChart.length)} />
                 <YAxis tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} />
                 <Tooltip content={<Tip />} />
@@ -846,14 +846,14 @@ const OuraProfile = () => {
                   <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.25} /><stop offset="100%" stopColor="#3B82F6" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
               <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} interval={ti} />
               <YAxis tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} domain={[30, 100]} />
               <Tooltip content={<Tip />} />
               <Area type="monotone" dataKey="readinessScore" stroke="#4ADE80" strokeWidth={2} fill="url(#rdyG)"
-                dot={false} activeDot={{ r: 4, fill: "#4ADE80", stroke: "#0a0b0d", strokeWidth: 2 }} name="Readiness" />
+                dot={false} activeDot={{ r: 4, fill: "#4ADE80", stroke: "#0B1120", strokeWidth: 2 }} name="Readiness" />
               <Area type="monotone" dataKey="activityScore" stroke="#3B82F6" strokeWidth={2} fill="url(#actG)"
-                dot={false} activeDot={{ r: 4, fill: "#3B82F6", stroke: "#0a0b0d", strokeWidth: 2 }} name="Activity" />
+                dot={false} activeDot={{ r: 4, fill: "#3B82F6", stroke: "#0B1120", strokeWidth: 2 }} name="Activity" />
             </AreaChart>
           </ResponsiveContainer>
           <div className="flex items-center justify-center gap-5 mt-2 text-[10px] font-semibold text-slate-500">
@@ -883,7 +883,7 @@ const OuraProfile = () => {
                   <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.3} /><stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
               <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} interval={ti} />
               <YAxis yAxisId="hr" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} />
               <YAxis yAxisId="hrv" orientation="right" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} />
@@ -929,14 +929,14 @@ const OuraProfile = () => {
                     <stop offset="0%" stopColor="#F472B6" stopOpacity={0.3} /><stop offset="100%" stopColor="#F472B6" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
                 <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} interval={tickInterval(cardioChart.length)} />
                 <YAxis tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} domain={[25, 40]} />
                 <Tooltip content={<Tip />} />
                 <ReferenceLine y={stats?.age ?? 36} stroke="#64748b" strokeDasharray="6 4" strokeOpacity={0.4}
                   label={{ value: `Actual Age: ${stats?.age ?? 36}`, fill: "#64748b88", fontSize: 10, position: "insideTopRight" }} />
                 <Area type="monotone" dataKey="vascularAge" stroke="#F472B6" strokeWidth={2} fill="url(#caG)"
-                  dot={false} activeDot={{ r: 4, fill: "#F472B6", stroke: "#0a0b0d", strokeWidth: 2 }} name="Vascular Age" />
+                  dot={false} activeDot={{ r: 4, fill: "#F472B6", stroke: "#0B1120", strokeWidth: 2 }} name="Vascular Age" />
               </AreaChart>
             </ResponsiveContainer>
           </Glass>
@@ -954,7 +954,7 @@ const OuraProfile = () => {
                     <stop offset="0%" stopColor="#818CF8" stopOpacity={0.3} /><stop offset="100%" stopColor="#818CF8" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,26,46,0.5)" />
                 <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} interval={tickInterval(bedtimeData.length)} />
                 <YAxis tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} reversed
                   tickFormatter={(v: number) => {
@@ -967,14 +967,14 @@ const OuraProfile = () => {
                 <Tooltip content={({ active, payload, label }: any) => {
                   if (!active || !payload?.length) return null;
                   return (
-                    <div className="rounded-xl border border-white/10 bg-[#0a0b0d]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
+                    <div className="rounded-xl border border-white/10 bg-[#0B1120]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
                       <p className="text-[10px] text-slate-500 font-semibold uppercase">{label}</p>
                       <p className="text-sm font-bold text-indigo-400">{payload[0]?.payload?.time}</p>
                     </div>
                   );
                 }} />
                 <Area type="monotone" dataKey="mins" stroke="#818CF8" strokeWidth={2} fill="url(#btG)"
-                  dot={false} activeDot={{ r: 4, fill: "#818CF8", stroke: "#0a0b0d", strokeWidth: 2 }} name="Bedtime" />
+                  dot={false} activeDot={{ r: 4, fill: "#818CF8", stroke: "#0B1120", strokeWidth: 2 }} name="Bedtime" />
               </AreaChart>
             </ResponsiveContainer>
           </Glass>

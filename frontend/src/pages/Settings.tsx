@@ -94,14 +94,14 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen px-6 py-8 max-w-md mx-auto" style={{ background: "#0a0b0d" }}>
+    <div className="min-h-screen px-6 py-8 max-w-md mx-auto" style={{ background: "#0B1120" }}>
       <div className="mb-6">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: "rgba(255,92,53,0.5)" }}>Configure</p>
         <h1 className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>Settings</h1>
       </div>
 
       {/* Profile */}
-      <div className="rounded-2xl p-5 mb-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4 relative overflow-hidden" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
         <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none" style={{ background: "radial-gradient(circle at 100% 0%, rgba(255,92,53,0.06), transparent 70%)" }} />
         <p className="text-[9px] uppercase tracking-[0.15em] font-bold mb-3" style={{ color: "rgba(255,92,53,0.5)" }}>Account</p>
         <p className="text-base text-white font-bold">{user?.displayName || user?.email || "Athlete"}</p>
@@ -113,8 +113,54 @@ export default function Settings() {
         <WearableConnect />
       </div>
 
+      {/* Privacy & Data Governance — moved above Equipment/Goals */}
+      <div className="rounded-2xl p-5 mb-4 relative overflow-hidden" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
+        <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none" style={{ background: "radial-gradient(circle at 100% 0%, rgba(110,231,255,0.04), transparent 70%)" }} />
+        <div className="flex items-center gap-2 mb-4">
+          <Shield className="w-4 h-4" style={{ color: "#6EE7FF" }} />
+          <p className="text-[9px] uppercase tracking-[0.15em] font-bold" style={{ color: "#6EE7FF" }}>Privacy & Data</p>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(15,26,46,0.5)" }}>
+            <Database className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-white mb-1">What we collect</p>
+              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
+                Oura biometrics (HRV, sleep, readiness, activity), workout logs, check-in ratings, and hypothesis adherence. No location, contacts, or browsing data.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(15,26,46,0.5)" }}>
+            <Lock className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-white mb-1">Where it lives</p>
+              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
+                All data stored in Google Cloud (US-East1), encrypted at rest. Your biometric data is never shared with third parties or used for advertising.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(15,26,46,0.5)" }}>
+            <Eye className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-white mb-1">AI processing</p>
+              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
+                Gemini generates workout plans and insights from your data. Your biometrics are sent to the model only at the moment of generation and are not retained by Google.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.2)" }}>Data retention</p>
+            <p className="text-[10px] font-bold" style={{ color: "#6EE7FF" }}>Delete account erases all data</p>
+          </div>
+        </div>
+      </div>
+
       {/* Equipment */}
-      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
         <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Equipment</p>
         <div className="grid grid-cols-3 gap-2">
           {EQUIPMENT_OPTIONS.map(opt => {
@@ -123,8 +169,8 @@ export default function Settings() {
               <button key={opt.key} onClick={() => toggleEquip(opt.key)}
                 className="rounded-lg p-3 text-center cursor-pointer border-0 transition-all text-xs font-bold"
                 style={{
-                  background: active ? "rgba(255,92,53,0.12)" : "rgba(255,255,255,0.02)",
-                  border: `1px solid ${active ? "rgba(255,92,53,0.3)" : "rgba(255,255,255,0.06)"}`,
+                  background: active ? "rgba(255,92,53,0.12)" : "rgba(15,26,46,0.6)",
+                  border: `1px solid ${active ? "rgba(255,92,53,0.3)" : "rgba(26,42,74,0.4)"}`,
                   color: active ? "#FF5C35" : "#64748B",
                 }}>
                 {opt.label}
@@ -135,7 +181,7 @@ export default function Settings() {
       </div>
 
       {/* Goals */}
-      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
         <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Goals</p>
         <div className="grid grid-cols-2 gap-2">
           {GOALS.map(g => {
@@ -144,8 +190,8 @@ export default function Settings() {
               <button key={g.key} onClick={() => toggleGoal(g.key)}
                 className="rounded-lg p-3 text-center cursor-pointer border-0 text-xs font-bold"
                 style={{
-                  background: active ? "rgba(255,92,53,0.12)" : "rgba(255,255,255,0.02)",
-                  border: `1px solid ${active ? "rgba(255,92,53,0.3)" : "rgba(255,255,255,0.06)"}`,
+                  background: active ? "rgba(255,92,53,0.12)" : "rgba(15,26,46,0.6)",
+                  border: `1px solid ${active ? "rgba(255,92,53,0.3)" : "rgba(26,42,74,0.4)"}`,
                   color: active ? "#FF5C35" : "#64748B",
                 }}>
                 {g.label}
@@ -156,7 +202,7 @@ export default function Settings() {
       </div>
 
       {/* Body Weight + Strength */}
-      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
         <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Body Weight + Strength Calibration</p>
         <div className="mb-3">
           <p className="text-[10px] text-slate-400 mb-1">Body weight (lbs)</p>
@@ -192,12 +238,12 @@ export default function Settings() {
       </button>
 
       {/* Injury flags */}
-      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
         <InjuryFlag />
       </div>
 
       {/* Alert Thresholds */}
-      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
         <div className="flex items-center gap-2 mb-4">
           <Activity className="w-4 h-4" style={{ color: "#FF5C35" }} />
           <p className="text-[9px] uppercase tracking-[0.15em] font-bold" style={{ color: "#FF5C35" }}>Alert thresholds</p>
@@ -216,7 +262,7 @@ export default function Settings() {
             return (
               <button key={alert.key} onClick={() => toggleAlert(alert.key)}
                 className="flex items-center justify-between py-2 w-full border-0 bg-transparent cursor-pointer"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                style={{ borderBottom: "1px solid rgba(15,26,46,0.5)" }}>
                 <div className="flex items-center gap-3 text-left">
                   <div className="w-2 h-2 rounded-full" style={{ background: alert.color }} />
                   <div>
@@ -225,7 +271,7 @@ export default function Settings() {
                   </div>
                 </div>
                 <div className="w-9 h-5 rounded-full relative transition-all flex-shrink-0" style={{
-                  background: enabled ? `${alert.color}30` : "rgba(255,255,255,0.06)",
+                  background: enabled ? `${alert.color}30` : "rgba(26,42,74,0.4)",
                 }}>
                   <div className="absolute top-0.5 w-4 h-4 rounded-full transition-all" style={{
                     background: enabled ? alert.color : "rgba(255,255,255,0.2)",
@@ -235,52 +281,6 @@ export default function Settings() {
               </button>
             );
           })}
-        </div>
-      </div>
-
-      {/* Privacy & Data Governance */}
-      <div className="rounded-2xl p-5 mb-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none" style={{ background: "radial-gradient(circle at 100% 0%, rgba(110,231,255,0.04), transparent 70%)" }} />
-        <div className="flex items-center gap-2 mb-4">
-          <Shield className="w-4 h-4" style={{ color: "#6EE7FF" }} />
-          <p className="text-[9px] uppercase tracking-[0.15em] font-bold" style={{ color: "#6EE7FF" }}>Privacy & Data</p>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-            <Database className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
-            <div className="flex-1">
-              <p className="text-xs font-bold text-white mb-1">What we collect</p>
-              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
-                Oura biometrics (HRV, sleep, readiness, activity), workout logs, check-in ratings, and hypothesis adherence. No location, contacts, or browsing data.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-            <Lock className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
-            <div className="flex-1">
-              <p className="text-xs font-bold text-white mb-1">Where it lives</p>
-              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
-                All data stored in Google Cloud (US-East1), encrypted at rest. Your biometric data is never shared with third parties or used for advertising.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-            <Eye className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
-            <div className="flex-1">
-              <p className="text-xs font-bold text-white mb-1">AI processing</p>
-              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
-                Gemini generates workout plans and insights from your data. Your biometrics are sent to the model only at the moment of generation and are not retained by Google.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-2">
-            <p className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.2)" }}>Data retention</p>
-            <p className="text-[10px] font-bold" style={{ color: "#6EE7FF" }}>Delete account erases all data</p>
-          </div>
         </div>
       </div>
 

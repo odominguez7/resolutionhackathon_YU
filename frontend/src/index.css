@@ -9,14 +9,14 @@
 
 @layer base {
   :root {
-    /* YU v2.1 Design System — #0a0b0d canvas, #FF5C35 pulse */
-    --background: 220 20% 4%;
+    /* YU v3.0 Design System — Deep Navy Trust Palette */
+    --background: 222 56% 7%;
     --foreground: 210 40% 96%;
 
-    --card: 220 15% 10%;
+    --card: 222 40% 10%;
     --card-foreground: 210 40% 96%;
 
-    --popover: 220 15% 10%;
+    --popover: 222 40% 10%;
     --popover-foreground: 210 40% 96%;
 
     --primary: 14 100% 60%;
@@ -25,10 +25,10 @@
     --secondary: 258 90% 66%;
     --secondary-foreground: 210 40% 96%;
 
-    --muted: 220 15% 10%;
-    --muted-foreground: 215 15% 55%;
+    --muted: 222 35% 12%;
+    --muted-foreground: 215 20% 55%;
 
-    --accent: 220 15% 14%;
+    --accent: 222 30% 16%;
     --accent-foreground: 210 40% 96%;
 
     --destructive: 0 84% 60%;
@@ -38,21 +38,21 @@
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 220 20% 4%;
+    --warning-foreground: 222 56% 7%;
 
-    --border: 220 10% 15%;
-    --input: 220 10% 15%;
+    --border: 222 25% 17%;
+    --input: 222 25% 17%;
     --ring: 14 100% 60%;
 
     --radius: 14px;
 
-    --sidebar-background: 220 20% 4%;
+    --sidebar-background: 222 56% 7%;
     --sidebar-foreground: 210 40% 96%;
     --sidebar-primary: 14 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent: 222 30% 16%;
     --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 220 10% 15%;
+    --sidebar-border: 222 25% 17%;
     --sidebar-ring: 14 100% 60%;
   }
 }
@@ -97,37 +97,53 @@
 
   /* ── Premium Glow System ── */
   .glow-pulse {
-    background: radial-gradient(ellipse 600px 400px at 50% 40%, rgba(255,92,53,0.08) 0%, transparent 70%);
+    background: radial-gradient(ellipse 600px 400px at 50% 40%, rgba(255,92,53,0.06) 0%, transparent 70%);
+  }
+
+  .glow-trust {
+    background: radial-gradient(ellipse 500px 400px at 50% 40%, rgba(37,99,235,0.06) 0%, transparent 70%);
   }
 
   .glow-recovery {
-    background: radial-gradient(ellipse 400px 300px at 50% 50%, rgba(110,231,255,0.06) 0%, transparent 70%);
+    background: radial-gradient(ellipse 400px 300px at 50% 50%, rgba(110,231,255,0.05) 0%, transparent 70%);
   }
 
   .glow-go {
-    background: radial-gradient(ellipse 400px 300px at 50% 50%, rgba(194,255,74,0.06) 0%, transparent 70%);
+    background: radial-gradient(ellipse 400px 300px at 50% 50%, rgba(194,255,74,0.05) 0%, transparent 70%);
   }
 
-  /* ── Glass Card System ── */
-  .card-dark {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
+  /* ── Navy Card System ── */
+  .card-navy {
+    background: rgba(15,26,46,0.6);
+    border: 1px solid rgba(26,42,74,0.4);
+    border-radius: 20px;
+    backdrop-filter: blur(24px);
+  }
+
+  .card-navy-solid {
+    background: rgba(15,26,46,0.8);
+    border: 1px solid rgba(26,42,74,0.5);
     border-radius: 20px;
   }
 
-  .card-dark-hover {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
+  .card-navy-hover {
+    background: rgba(15,26,46,0.6);
+    border: 1px solid rgba(26,42,74,0.4);
     border-radius: 20px;
-    transition: all 0.3s ease;
+    backdrop-filter: blur(24px);
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .card-dark-hover:hover {
-    background: rgba(255,255,255,0.04);
-    border-color: rgba(255,255,255,0.1);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 60px rgba(255,92,53,0.04);
+  .card-navy-hover:hover {
+    background: rgba(15,26,46,0.8);
+    border-color: rgba(37,99,235,0.2);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 80px rgba(37,99,235,0.04);
     transform: translateY(-2px);
   }
+
+  /* Legacy compat */
+  .card-dark { @apply card-navy; }
+  .card-dark-hover { @apply card-navy-hover; }
 
   /* ── Gradient Text ── */
   .text-glow-pulse {

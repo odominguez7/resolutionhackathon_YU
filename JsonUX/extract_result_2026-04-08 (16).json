@@ -1,0 +1,1446 @@
+{
+  "job_id": "97aa8e2c-e8a2-470e-a5fa-297301b505c0",
+  "usage": {
+    "num_pages": 12,
+    "num_fields": 317,
+    "credits": 61.7,
+    "extract_mode": "super_agent"
+  },
+  "studio_link": "https://studio.reducto.ai/job/97aa8e2c-e8a2-470e-a5fa-297301b505c0",
+  "result": {
+    "document_metadata": {
+      "title": {
+        "value": "Framing Biometric Feedback for High-Achieving Populations: Identity, Loss, Process, and Self-Efficacy in Health App Design",
+        "citations": []
+      },
+      "prepared_for": {
+        "value": "YU Behavioral Intelligence Platform",
+        "citations": []
+      },
+      "date": {
+        "value": "July 2025",
+        "citations": []
+      },
+      "classification": {
+        "value": "Strategic Product Design — Behavioral Science Evidence Review",
+        "citations": []
+      }
+    },
+    "executive_summary": {
+      "key_findings": {
+        "identity_framing_correlation": {
+          "value": "r = 0.55 between habit strength and identity across 13,340 participants (Zhu et al., 2025)",
+          "citations": []
+        },
+        "loss_framing_studies_replicated": {
+          "value": "Loss framing outperforms gain framing for high self-efficacy professionals — a pattern replicated across five independent studies (Jensen et al., 2017) — but triggers defensive disengagement when combined with low perceived controllability, consistent with the Extended Parallel Process Model",
+          "citations": []
+        },
+        "bandura_achieved_framing_stat": {
+          "value": "F(1,391) = 4.07, p = .04 (Choe et al., 2013) — achieved framing significantly increases self-efficacy over remaining framing",
+          "citations": []
+        },
+        "whoop_female_subscriber_rise": {
+          "value": "40% rise in female subscribers from Whoop's 'Know Yourself' repositioning (Whoop Marketing Strategy, 2024)",
+          "citations": []
+        },
+        "coping_self_efficacy_finding": {
+          "value": "Coping self-efficacy — not general self-efficacy — is the antidote to data-induced information avoidance (Hua & Howell, 2022)",
+          "citations": []
+        },
+        "framing_architecture_description": {
+          "value": "A three-layer framing architecture for YU's biometric feedback system, synthesizing identity, loss/gain, and process framing evidence",
+          "citations": []
+        }
+      }
+    },
+    "identity_based_framing": {
+      "quantitative_evidence": {
+        "meta_analytic_evidence": {
+          "authors": {
+            "value": "Zhu et al.",
+            "citations": []
+          },
+          "year": {
+            "value": "2025",
+            "citations": []
+          },
+          "study_type": {
+            "value": "Systematic review and three-level meta-analysis",
+            "citations": []
+          },
+          "correlation_r": {
+            "value": "0.55",
+            "citations": []
+          },
+          "confidence_interval": {
+            "value": "95% CI [0.49, 0.74]",
+            "citations": []
+          },
+          "n_participants": {
+            "value": "13,340",
+            "citations": []
+          },
+          "n_articles": {
+            "value": "19",
+            "citations": []
+          },
+          "n_effect_sizes": {
+            "value": "32",
+            "citations": []
+          },
+          "journal": {
+            "value": "Applied Psychology: Health and Well-Being",
+            "citations": []
+          },
+          "finding": {
+            "value": "Large positive correlation between habit strength and identity in health behaviors; effect sizes were larger when identity was measured using explicit self-report instruments; the habit-identity relationship is likely bidirectional rather than unidirectional",
+            "citations": []
+          }
+        },
+        "multilevel_longitudinal_evidence": {
+          "authors": {
+            "value": "Alfrey, Condie, and Rebar",
+            "citations": []
+          },
+          "year": {
+            "value": "2025",
+            "citations": []
+          },
+          "study_type": {
+            "value": "Multilevel longitudinal study",
+            "citations": []
+          },
+          "between_person_coefficient": {
+            "value": "47.48",
+            "citations": []
+          },
+          "between_person_se": {
+            "value": "7.60",
+            "citations": []
+          },
+          "between_person_p_value": {
+            "value": "p < .001",
+            "citations": []
+          },
+          "within_person_coefficient": {
+            "value": "42.20",
+            "citations": []
+          },
+          "within_person_se": {
+            "value": "10.75",
+            "citations": []
+          },
+          "within_person_p_value": {
+            "value": "p < .001",
+            "citations": []
+          },
+          "journal": {
+            "value": "Behavioral Sciences",
+            "citations": []
+          },
+          "finding": {
+            "value": "Identity is both a stable between-person predictor and a within-person predictor of physical activity behavior; the between-person effect of identity persisted after controlling for intention, habit, and self-determined motivation — establishing identity as an independent determinant of behavior",
+            "citations": []
+          }
+        },
+        "identity_self_integration_evidence": {
+          "authors": {
+            "value": "Verplanken and Sui",
+            "citations": []
+          },
+          "year": {
+            "value": "2019",
+            "citations": []
+          },
+          "cognitive_self_integration_r": {
+            "value": "r = 0.34, p < .001",
+            "citations": []
+          },
+          "self_esteem_r": {
+            "value": "r = 0.45, p < .001",
+            "citations": []
+          },
+          "promotion_focus_r": {
+            "value": "r = 0.68, p < .001",
+            "citations": []
+          },
+          "value_affirmation_cohens_d": {
+            "value": "Cohen's d = 0.21–0.23, p < .02",
+            "citations": []
+          },
+          "journal": {
+            "value": "Frontiers in Psychology",
+            "citations": []
+          },
+          "finding": {
+            "value": "When habits relate to feelings of identity ('true self'), the association comes with stronger cognitive self-integration, higher self-esteem, and stronger orientation toward the ideal self; value-affirmation manipulation significantly strengthened habit-identity associations",
+            "citations": []
+          }
+        },
+        "jpsp_2024_secondary_source": {
+          "claimed_finding": {
+            "value": "Framing habits as identity ('I am a person who exercises daily') rather than outcomes ('I want to lose weight') increased habit adherence by 32%",
+            "citations": []
+          },
+          "adherence_uplift_percentage": {
+            "value": "32%",
+            "citations": []
+          },
+          "attributed_to": {
+            "value": "2024 study in the Journal of Personality and Social Psychology, via secondary source (coachpedropinto.com, citing Dr. Maya Rodriguez)",
+            "citations": []
+          },
+          "source_note": {
+            "value": "The original JPSP paper has not been independently retrieved and this specific finding should be treated as sourced through secondary reporting; directionally consistent with meta-analytic and longitudinal evidence",
+            "citations": []
+          }
+        },
+        "bidirectional_identity_behavior_framework": {
+          "authors": {
+            "value": "Rhodes et al. (as cited in Wierts et al., Behavioral Sciences, 2024)",
+            "citations": []
+          },
+          "finding": {
+            "value": "The identity-behavior relationship is mutually reinforcing: a particular identity may instigate behavior and maintain a habit, while the self-perception of habitual behavior feeds back into self-identity; early behavioral engagement (tracked by YU) can be deliberately leveraged to build identity, which in turn sustains behavior over time",
+            "citations": []
+          }
+        }
+      },
+      "high_achiever_implications": {
+        "target_populations": {
+          "value": "PE professionals, executives, elite athletes, first responders",
+          "citations": []
+        },
+        "opportunity": {
+          "value": "Identity framing that reinforces rather than challenges the existing self-concept is exceptionally effective; messaging that says 'you are someone who optimizes recovery' activates an identity that high achievers already hold or aspire to (congruent identity framing)",
+          "citations": []
+        },
+        "risk": {
+          "value": "Identity threat: when biometric feedback signals weakness or failure, it can trigger maladaptive patterns — avoidance, surface-level engagement, and help-rejecting behavior; a low recovery score threatens the performance identity ('I am someone who is always on'), which triggers defensive processing",
+          "citations": []
+        },
+        "yu_design_implication": {
+          "value": "Frame biometric alerts not as 'you are failing' but as 'people like you who recover this well...'; every signal from YU's SPC engine should reinforce the user's identity as a data-driven optimizer, not challenge it",
+          "citations": []
+        }
+      },
+      "frame_types_comparison": {
+        "identity_frame": {
+          "label": {
+            "value": "Identity ('I am...')",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Self-concept reinforcement; habit-identity integration",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Onboarding, streaks, long-term retention",
+            "citations": []
+          },
+          "risk": {
+            "value": "Identity threat if data contradicts self-image",
+            "citations": []
+          },
+          "yu_application": {
+            "value": "\"You recover like an athlete. Here's what elite recovery looks like today!\"",
+            "citations": []
+          }
+        },
+        "outcome_frame": {
+          "label": {
+            "value": "Outcome ('This will improve...')",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Instrumental motivation; expected value calculation",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Acquisition, first-30-days activation",
+            "citations": []
+          },
+          "risk": {
+            "value": "Low persistence when results plateau",
+            "citations": []
+          },
+          "yu_application": {
+            "value": "Use sparingly: \"This approach improved focus scores by 22% in comparable professionals.\"",
+            "citations": []
+          }
+        },
+        "process_frame": {
+          "label": {
+            "value": "Process ('Here's what to do today')",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Implementation intentions; reduces decision friction",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Daily nudges, just-in-time interventions",
+            "citations": []
+          },
+          "risk": {
+            "value": "Can feel prescriptive without autonomy framing",
+            "citations": []
+          },
+          "yu_application": {
+            "value": "\"Your HRV is drifting-one thing that has worked for you before: 20-min walk before your 2pm call!\"",
+            "citations": []
+          }
+        }
+      }
+    },
+    "loss_aversion_vs_gain_framing": {
+      "core_evidence": {
+        "massar_2020": {
+          "authors": {
+            "value": "Massar et al.",
+            "citations": []
+          },
+          "year": {
+            "value": "2020",
+            "citations": []
+          },
+          "n_experiments": {
+            "value": "Three experiments",
+            "citations": []
+          },
+          "finding": {
+            "value": "Loss aversion motivates higher cognitive effort investment in decision-making; participants were willing to invest significantly more effort — in both sustained attention and working memory tasks — to avoid losses than to pursue equivalent gains; effect was robust across cognitive domains and independent of presentation order",
+            "citations": []
+          },
+          "journal": {
+            "value": "Frontiers in Human Neuroscience",
+            "citations": []
+          }
+        },
+        "jensen_2017": {
+          "authors": {
+            "value": "Jensen et al.",
+            "citations": []
+          },
+          "year": {
+            "value": "2017",
+            "citations": []
+          },
+          "finding": {
+            "value": "Self-efficacy significantly moderates the effectiveness of loss vs. gain framing on behavioral intentions; loss-framed messages were more effective for individuals with higher self-efficacy, grit, and consideration of future consequences; gain-framed messages were only more effective for those with very low self-efficacy",
+            "citations": []
+          },
+          "low_self_efficacy_threshold": {
+            "value": "3.54 on a 10-point scale",
+            "citations": []
+          },
+          "low_self_efficacy_percentage": {
+            "value": "approximately 16% of the sample",
+            "citations": []
+          },
+          "replicated_studies_count": {
+            "value": "Five independent studies",
+            "citations": []
+          },
+          "replicated_domains": {
+            "value": "Exercise intentions, smoking cessation, skin cancer detection, salt intake, and health research participation",
+            "citations": []
+          },
+          "journal": {
+            "value": "Communication Monographs",
+            "citations": []
+          }
+        },
+        "rothman_salovey_framework": {
+          "authors": {
+            "value": "Rothman and Salovey",
+            "citations": []
+          },
+          "years": {
+            "value": "1997, 1999",
+            "citations": []
+          },
+          "loss_frame_use": {
+            "value": "More effective for detection behaviors (screening, identifying problems); use for 'your recovery score has dropped' (detection/diagnostic mode)",
+            "citations": []
+          },
+          "gain_frame_use": {
+            "value": "More effective for prevention behaviors (sustaining healthy habits); use for 'here's how to peak by Thursday' (prevention/optimization mode)",
+            "citations": []
+          },
+          "journal": {
+            "value": "Personality and Social Psychology Bulletin",
+            "citations": []
+          }
+        },
+        "beam_credibility": {
+          "authors": {
+            "value": "Beam et al.",
+            "citations": []
+          },
+          "finding": {
+            "value": "Loss framing increased clinic visit rates, but the mechanism was trust rather than loss aversion per se; loss-framed incentives were perceived as more trustworthy and credible than gain-framed alternatives, particularly among participants who lacked pre-existing trust in the provider",
+            "citations": []
+          },
+          "yu_implication": {
+            "value": "Loss-framed alerts from YU's SPC-based anomaly detection system may carry greater perceived credibility among skeptical, analytically minded professionals",
+            "citations": []
+          },
+          "source": {
+            "value": "VoxDev",
+            "citations": []
+          }
+        }
+      },
+      "gain_framing_use_case": {
+        "description": {
+          "value": "Gain framing anchored to a specific near-term, personally meaningful outcome is more actionable and less threatening than abstract loss framing for YU's use case of preparing users for peak performance at a defined moment",
+          "citations": []
+        },
+        "example_message": {
+          "value": "\"You can be at 92% readiness by your board presentation Thursday if you follow this tonight\" is more effective than \"you are losing 8% cognitive capacity.\"",
+          "citations": []
+        },
+        "variant": {
+          "value": "The 'obtain desirable state' variant of gain framing (not 'avoid undesirable state') is the correct frame for optimization-oriented professionals engaged in prevention behavior",
+          "citations": []
+        }
+      },
+      "danger_zone": {
+        "condition": {
+          "value": "When users cannot change the outcome implied by a loss frame — e.g., 'you lost 3 hours of deep sleep last night' with no actionable path",
+          "citations": []
+        },
+        "mechanism": {
+          "value": "Extended Parallel Process Model (EPPM): high perceived threat combined with low perceived efficacy produces defensive avoidance, not adaptive action; triggers anxiety, reactance, and avoidance",
+          "citations": []
+        },
+        "yu_design_rule": {
+          "value": "Never surface a loss-framed biometric signal without pairing it with a specific, achievable response: 'Your HRV dropped 18% below baseline' must be followed immediately by 'here is the one thing that moves it back.'",
+          "citations": []
+        }
+      },
+      "framing_decision_tree": {
+        "detection_diagnostic_mode": {
+          "condition": {
+            "value": "User state: detection/diagnostic mode (SPC deviation detected)",
+            "citations": []
+          },
+          "recommended_frame": {
+            "value": "Loss frame + controllability path",
+            "citations": []
+          },
+          "rationale": {
+            "value": "Loss frames more effective for detection; high-efficacy users respond to threat when paired with response",
+            "citations": []
+          }
+        },
+        "optimization_prevention_mode": {
+          "condition": {
+            "value": "User state: optimization/prevention mode",
+            "citations": []
+          },
+          "recommended_frame": {
+            "value": "Gain frame + temporal anchor",
+            "citations": []
+          },
+          "rationale": {
+            "value": "Gain frames more effective for prevention; 'peak for X at Y time'",
+            "citations": []
+          }
+        },
+        "high_self_efficacy_user": {
+          "condition": {
+            "value": "User self-efficacy: high (determined by baseline engagement, streak data, usage frequency)",
+            "citations": []
+          },
+          "recommended_frame": {
+            "value": "Loss framing tolerated and effective",
+            "citations": []
+          },
+          "rationale": {
+            "value": "Five-study replication: high self-efficacy + loss frame = maximum behavioral impact",
+            "citations": []
+          }
+        },
+        "low_self_efficacy_user": {
+          "condition": {
+            "value": "User self-efficacy: low / new user (first 30 days, low engagement)",
+            "citations": []
+          },
+          "recommended_frame": {
+            "value": "Gain framing exclusively",
+            "citations": []
+          },
+          "rationale": {
+            "value": "Gain frames more effective for low-efficacy individuals; avoids defensive disengagement",
+            "citations": []
+          }
+        },
+        "specific_near_term_event": {
+          "condition": {
+            "value": "Time horizon: specific near-term event (meeting, workout, competition)",
+            "citations": []
+          },
+          "recommended_frame": {
+            "value": "Gain frame + temporal anchor",
+            "citations": []
+          },
+          "rationale": {
+            "value": "\"You can be at 92% readiness by your board presentation Thursday\"",
+            "citations": []
+          }
+        },
+        "no_actionable_path": {
+          "condition": {
+            "value": "No actionable path available",
+            "citations": []
+          },
+          "recommended_frame": {
+            "value": "Neutral awareness framing, no valenced frame",
+            "citations": []
+          },
+          "rationale": {
+            "value": "EPPM: threat without efficacy = avoidance; use informational language only",
+            "citations": []
+          }
+        }
+      }
+    },
+    "bandura_self_efficacy": {
+      "four_sources": {
+        "mastery_experiences": {
+          "rank": {
+            "value": "1 (Most Powerful)",
+            "citations": []
+          },
+          "description": {
+            "value": "Past personal successes are the strongest source of self-efficacy",
+            "citations": []
+          },
+          "wearable_equivalent": {
+            "value": "Showing the user their own best days as the reference point — not population norms. 'On your top 10% recovery days, your HRV baseline was 72ms. Today you're at 68ms—close.' Leverages YU's SPC individual control limits as a mastery reference.",
+            "citations": []
+          }
+        },
+        "vicarious_experiences": {
+          "rank": {
+            "value": "2",
+            "citations": []
+          },
+          "description": {
+            "value": "Observing similar others succeed",
+            "citations": []
+          },
+          "wearable_equivalent": {
+            "value": "Showing what peers with similar profiles (same role, workload, age) achieve; Whoop's team feature operationalizes this; for YU: cohort benchmarking within the same vertical (PE professionals, collegiate athletes) provides vicarious experience without triggering identity threat",
+            "citations": []
+          }
+        },
+        "verbal_persuasion": {
+          "rank": {
+            "value": "3",
+            "citations": []
+          },
+          "description": {
+            "value": "Quality coaching feedback from a credible source",
+            "citations": []
+          },
+          "wearable_equivalent": {
+            "value": "The conversational AI agent's tone — credible, specific, non-patronizing. 'Based on your pattern over 14 days, recovery improves 12% when you sleep before 11pm.' Credibility requires specificity and citation of the user's own data.",
+            "citations": []
+          }
+        },
+        "physiological_emotional_states": {
+          "rank": {
+            "value": "4",
+            "citations": []
+          },
+          "description": {
+            "value": "How users interpret bodily sensations and biometric signals",
+            "citations": []
+          },
+          "wearable_equivalent": {
+            "value": "Reframing low scores as 'your body communicating' rather than 'you failing'; this is the interpretive frame that determines whether physiological data increases or decreases self-efficacy",
+            "citations": []
+          }
+        }
+      },
+      "achieved_vs_remaining_framing": {
+        "authors": {
+          "value": "Choe et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2013",
+          "citations": []
+        },
+        "n_participants": {
+          "value": "400",
+          "citations": []
+        },
+        "f_statistic": {
+          "value": "F(1,391) = 4.07",
+          "citations": []
+        },
+        "p_value": {
+          "value": "p = .04",
+          "citations": []
+        },
+        "finding": {
+          "value": "'Achieved' framing ('you've completed 7,500 steps') produces significantly higher self-efficacy than 'remaining' framing ('2,500 steps remaining')",
+          "citations": []
+        },
+        "design_specification": {
+          "value": "Always show what users have done, not what they haven't",
+          "citations": []
+        },
+        "data_unit_interaction_early_progress": {
+          "progress_level": {
+            "value": "25% complete (early in goal progress)",
+            "citations": []
+          },
+          "finding": {
+            "value": "Raw numbers ('1,875 steps completed') produced significantly higher self-efficacy than percentages ('25% complete')",
+            "citations": []
+          },
+          "f_statistic": {
+            "value": "F(1,391) = 5.72",
+            "citations": []
+          },
+          "p_value": {
+            "value": "p = .02",
+            "citations": []
+          }
+        },
+        "data_unit_interaction_late_progress": {
+          "value": "Late in progress (75% complete), no difference between raw and percentage presentations was observed",
+          "citations": []
+        },
+        "yu_implication": {
+          "value": "In the morning when users are early in their recovery window, show absolute metrics (HRV in ms, sleep in hours); later in the day when they are approaching their recovery target, percentages work equally well",
+          "citations": []
+        }
+      },
+      "coping_self_efficacy": {
+        "authors": {
+          "value": "Hua and Howell",
+          "citations": []
+        },
+        "year": {
+          "value": "2022",
+          "citations": []
+        },
+        "study_design": {
+          "value": "Two-study design",
+          "citations": []
+        },
+        "finding": {
+          "value": "Coping self-efficacy — the belief in one's ability to cope with a health challenge — and not general self-efficacy, predicts health information avoidance; participants who reflected on their positive coping strategies were significantly less likely to avoid learning their disease risk compared to controls",
+          "citations": []
+        },
+        "wearable_design_implication": {
+          "value": "Users do not avoid biometric data because they lack confidence in general — they avoid it because they lack confidence in their ability to respond to what the data might show; the antidote is surfacing coping paths before the threatening information",
+          "citations": []
+        }
+      },
+      "wearable_compliance_evidence": {
+        "authors": {
+          "value": "Lehrer et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2020",
+          "citations": []
+        },
+        "n_participants": {
+          "value": "25 long-term wearable users",
+          "citations": []
+        },
+        "self_efficacy_sources_strengthened": {
+          "value": "Three of Bandura's four sources: (1) personal accomplishment signals (goal feedback, progress tracking, training histories), (2) verbal persuasion/coaching (reminders, streak notifications, inactivity alerts), and (3) vicarious experience via peer comparison",
+          "citations": []
+        },
+        "abandonment_trigger": {
+          "value": "Negative external contexts (bad weather, schedule overload) compound with negative internal states (guilt, frustration) to trigger a cascade that leads to feature deactivation and device abandonment",
+          "citations": []
+        },
+        "source": {
+          "value": "CBS Research",
+          "citations": []
+        }
+      },
+      "defensive_disengagement_cascade": {
+        "step_1": {
+          "value": "User receives low biometric score (e.g., HRV 2 SD below baseline)",
+          "citations": []
+        },
+        "step_2": {
+          "value": "Score threatens performance identity ('I am someone who performs')",
+          "citations": []
+        },
+        "step_3": {
+          "value": "Low coping self-efficacy → user perceives no actionable path",
+          "citations": []
+        },
+        "avoidance_behaviors": {
+          "value": "Don't look at app; Remove device; Disable notifications",
+          "citations": []
+        },
+        "reactance_behaviors": {
+          "value": "'The data is wrong'; 'I feel fine'; Dismiss alert",
+          "citations": []
+        }
+      },
+      "prevention_design_principles": {
+        "principle_1": {
+          "value": "Always pair a negative signal with a specific coping path before the user's defensive processing activates",
+          "citations": []
+        },
+        "principle_2": {
+          "value": "Frame the signal as coming from the user's own baseline (mastery reference), not population norms",
+          "citations": []
+        },
+        "principle_3": {
+          "value": "Use 'your body communicating' language rather than 'you failing' language",
+          "citations": []
+        },
+        "principle_4": {
+          "value": "Offer explicit autonomy: 'here's one option — you decide'",
+          "citations": []
+        },
+        "principle_5": {
+          "value": "For high-streak users, acknowledge their pattern: 'This is unusual for you, which is exactly why it's worth noting'",
+          "citations": []
+        }
+      },
+      "design_checklist": {
+        "mastery_experiences": {
+          "bandura_source": {
+            "value": "Mastery Experiences",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Show user's own best days as benchmark",
+            "citations": []
+          },
+          "yu_product_feature": {
+            "value": "Personal baseline comparison via SPC chart",
+            "citations": []
+          },
+          "example_copy": {
+            "value": "\"This is your best recovery week in 30 days. Here's what drove it!\"",
+            "citations": []
+          }
+        },
+        "vicarious_experience": {
+          "bandura_source": {
+            "value": "Vicarious Experience",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Show similar users' patterns",
+            "citations": []
+          },
+          "yu_product_feature": {
+            "value": "Cohort benchmarking (same vertical, role, workload)",
+            "citations": []
+          },
+          "example_copy": {
+            "value": "\"Finance professionals with your profile average 71ms HRV. You're at 74ms.\"",
+            "citations": []
+          }
+        },
+        "verbal_persuasion": {
+          "bandura_source": {
+            "value": "Verbal Persuasion",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Credible, specific agent coaching with data citation",
+            "citations": []
+          },
+          "yu_product_feature": {
+            "value": "Conversational AI agent referencing user's own trend data",
+            "citations": []
+          },
+          "example_copy": {
+            "value": "\"Based on your 14-day pattern, recovery improves 12% when you sleep before 11pm.\"",
+            "citations": []
+          }
+        },
+        "physiological_reframing": {
+          "bandura_source": {
+            "value": "Physiological Reframing",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Reinterpret arousal/low scores as information",
+            "citations": []
+          },
+          "yu_product_feature": {
+            "value": "Score interpretation framing in dashboard and notifications",
+            "citations": []
+          },
+          "example_copy": {
+            "value": "\"Your body is communicating elevated load. This is data, not a verdict.\"",
+            "citations": []
+          }
+        }
+      }
+    },
+    "competitive_analysis": {
+      "whoop": {
+        "core_identity_tagline": {
+          "value": "Whoop does not sell tracking; it sells a performance identity",
+          "citations": []
+        },
+        "know_yourself_campaign_2020": {
+          "campaign_name": {
+            "value": "Know Yourself",
+            "citations": []
+          },
+          "year": {
+            "value": "2020",
+            "citations": []
+          },
+          "campaign_question": {
+            "value": "\"How much do you know about how your body interacts with your athleticism?\"",
+            "citations": []
+          },
+          "identity_proposition": {
+            "value": "Inviting users to adopt the identity of 'someone who knows their body'; not a feature pitch but an identity proposition",
+            "citations": []
+          },
+          "source": {
+            "value": "iSpot TV, 2020",
+            "citations": []
+          }
+        },
+        "best_obsess_campaign_2023": {
+          "campaign_name": {
+            "value": "The Best Obsess",
+            "citations": []
+          },
+          "year": {
+            "value": "2023",
+            "citations": []
+          },
+          "featured_athletes": {
+            "value": "Michael Phelps, Alex Honnold, Virgil Van Dijk, Melissa Urban, and Steven Bartlett",
+            "citations": []
+          },
+          "campaign_message": {
+            "value": "'Some of the top performers in the world don't view themselves as talented — rather, obsessed and deeply committed to self-improvement'; identity permission: 'if you obsess about performance, you belong here'",
+            "citations": []
+          },
+          "phelps_quote": {
+            "value": "\"I became obsessed with wanting to be the best me that I possibly could be\"",
+            "citations": []
+          },
+          "source": {
+            "value": "Whoop Press Center, 2023",
+            "citations": []
+          }
+        },
+        "repositioning_2023_2025": {
+          "reframe": {
+            "value": "From athlete device to 'recovery and lifestyle coach,' spotlighting invisible stressors — alcohol, travel, everyday stress — and their impact on recovery scores",
+            "citations": []
+          },
+          "female_subscriber_rise": {
+            "value": "40% rise in female subscribers",
+            "citations": []
+          },
+          "age_cohort_growth": {
+            "value": "Significant growth in the 35–50 age cohort",
+            "citations": []
+          },
+          "conversion_rate_improvement": {
+            "value": "Double-digit improvement in conversion rates across paid channels",
+            "citations": []
+          },
+          "source": {
+            "value": "Whoop Marketing Strategy, 2024",
+            "citations": []
+          }
+        },
+        "structural_loss_aversion": {
+          "value": "Whoop's subscription model (no upfront hardware cost) creates a behavioral commitment mechanism: canceling means losing access to accumulated personal data; this is a structural application of prospect theory — the loss of one's own biometric history is a more powerful retention force than the gain of new features",
+          "citations": []
+        },
+        "gamification_approach": {
+          "value": "Deliberately avoids badges, points, and variable reward schedules; by rejecting gamification, Whoop attracts users seeking actionable physiology rather than vanity metrics — improving long-term engagement and monetization potential; identity-based motivation is more durable than extrinsic reward schedules for high-achieving populations",
+          "citations": []
+        }
+      },
+      "oura": {
+        "brand_positioning": {
+          "value": "Positions itself not as a performance optimizer but as a translator between the body and the conscious mind",
+          "citations": []
+        },
+        "core_identity": {
+          "value": "Users see themselves as someone who 'listens to their body' — a sophisticated, attuned, data-literate person; maps better to knowledge workers, wellness-curious professionals, and founders; implicit message: 'Your body is already communicating; we just help you hear it.'",
+          "citations": []
+        },
+        "three_score_architecture": {
+          "value": "Readiness Score, Sleep Score, and Activity Score abstract complex biometrics into identity-legible signals; the Readiness Score functions as a daily identity affirmation: 'You are ready' or 'your body needs restoration' — both framed as wisdom, not failure",
+          "citations": []
+        },
+        "instrument_agency_redesign": {
+          "year": {
+            "value": "2024–2025",
+            "citations": []
+          },
+          "principle_1_progressive_disclosure": {
+            "value": "Progressive disclosure: information layered from at-a-glance indicators to detailed exploratory views",
+            "citations": []
+          },
+          "principle_2_semantic_color_language": {
+            "value": "A unified semantic color language: dynamic color cues that direct attention to what matters most",
+            "citations": []
+          },
+          "principle_3_emotional_resonance": {
+            "value": "Emotional resonance: 'experience feels lighter, faster, more grounded'",
+            "citations": []
+          },
+          "redesign_goal": {
+            "value": "Help 'members understand what's happening today and how their behaviors shape their health over time' — a direct operationalization of temporal self-appraisal theory",
+            "citations": []
+          },
+          "source": {
+            "value": "Instrument Agency, Oura App Redesign, instrument.com",
+            "citations": []
+          }
+        },
+        "influencer_strategy": {
+          "value": "Follows a 'Personal Journey' framework — influencers share their own health transformations, then engage community; leverages Bandura's second source (vicarious experience) at scale; the #OuraRing community functions as an identity community",
+          "citations": []
+        }
+      },
+      "comparative_positioning": {
+        "core_identity_whoop": {
+          "value": "Performance optimizer / obsessive",
+          "citations": []
+        },
+        "core_identity_oura": {
+          "value": "Attuned self-listener / body-reader",
+          "citations": []
+        },
+        "core_identity_yu": {
+          "value": "Behavioral intelligence pioneer / early-warning system",
+          "citations": []
+        },
+        "primary_frame_whoop": {
+          "value": "Achievement (strain, recovery, readiness for performance)",
+          "citations": []
+        },
+        "primary_frame_oura": {
+          "value": "Attunement (understanding, listening, responding)",
+          "citations": []
+        },
+        "primary_frame_yu": {
+          "value": "Predictive mastery (your baseline, your drift, your decision)",
+          "citations": []
+        },
+        "loss_frame_usage_whoop": {
+          "value": "Recovery score below threshold: 'you're not ready'",
+          "citations": []
+        },
+        "loss_frame_usage_oura": {
+          "value": "Rarely; more neutral awareness",
+          "citations": []
+        },
+        "loss_frame_usage_yu": {
+          "value": "SPC control limits: 'your pattern is outside your normal'",
+          "citations": []
+        },
+        "self_efficacy_mechanism_whoop": {
+          "value": "Streaks, green zones, social challenges",
+          "citations": []
+        },
+        "self_efficacy_mechanism_oura": {
+          "value": "Personal trend data, learning over time",
+          "citations": []
+        },
+        "self_efficacy_mechanism_yu": {
+          "value": "Personal baseline comparison, conversational AI explaining the why",
+          "citations": []
+        },
+        "high_achiever_fit_whoop": {
+          "value": "Very high (athlete/executive identity)",
+          "citations": []
+        },
+        "high_achiever_fit_oura": {
+          "value": "High (curious, data-literate professional)",
+          "citations": []
+        },
+        "high_achiever_fit_yu": {
+          "value": "Very high (quantitative, pattern-oriented professional)",
+          "citations": []
+        },
+        "gamification_whoop": {
+          "value": "Rejected; physiology over vanity metrics",
+          "citations": []
+        },
+        "gamification_oura": {
+          "value": "Minimal; scores as guidance not competition",
+          "citations": []
+        },
+        "gamification_yu": {
+          "value": "Rejected; SPC rigor as the value proposition",
+          "citations": []
+        },
+        "data_framing_whoop": {
+          "value": "Your performance vs. your recovery",
+          "citations": []
+        },
+        "data_framing_oura": {
+          "value": "Your body is talking to you",
+          "citations": []
+        },
+        "data_framing_yu": {
+          "value": "Your baseline is your benchmark — deviations are signals, not scores",
+          "citations": []
+        }
+      }
+    },
+    "framing_architecture_for_yu": {
+      "layer_1_identity_foundation": {
+        "name": {
+          "value": "Layer 1 — Identity Foundation (Onboarding, Long-Term Retention)",
+          "citations": []
+        },
+        "tagline": {
+          "value": "\"You are someone who uses data to stay ahead.\"",
+          "citations": []
+        },
+        "description": {
+          "value": "Set this frame at onboarding; every subsequent interaction should reinforce it; never let a data point threaten this identity — frame all signals as information the user is smart enough to act on",
+          "citations": []
+        },
+        "yu_differentiation": {
+          "value": "YU's differentiation from Whoop (performance obsession) and Oura (body attunement) is predictive mastery: the identity of someone who sees patterns before they become problems",
+          "citations": []
+        },
+        "onboarding_copy_example": {
+          "value": "\"YU uses Statistical Process Control — the same methodology used in aerospace and pharmaceuticals — to detect when your body deviates from your personal baseline. You'll see what matters before it becomes a problem\"",
+          "citations": []
+        }
+      },
+      "layer_2_contextual_valence": {
+        "description": {
+          "value": "The framing valence shifts based on user state, time of day, and the nature of the signal",
+          "citations": []
+        },
+        "morning": {
+          "frame": {
+            "value": "Gain frame + temporal anchor",
+            "citations": []
+          },
+          "example": {
+            "value": "\"You're at 87% readiness. By noon you'll be at full capacity - here's why.\"",
+            "citations": []
+          }
+        },
+        "alert_state": {
+          "frame": {
+            "value": "Loss frame + controllability path",
+            "citations": []
+          },
+          "example": {
+            "value": "\"Your HRV has dropped 2 standard deviations below your personal baseline. Here's one thing that moves it!\"",
+            "citations": []
+          }
+        },
+        "recovery_confirmation": {
+          "frame": {
+            "value": "Identity reinforcement",
+            "citations": []
+          },
+          "example": {
+            "value": "\"You recovered like your best self. Pattern consistent with your top 15% days.\"",
+            "citations": []
+          }
+        },
+        "pre_event_optimization": {
+          "frame": {
+            "value": "Gain frame + temporal specificity",
+            "citations": []
+          },
+          "example": {
+            "value": "\"You can be at 94% readiness by your 2pm call. One action: 4-7-8 breathing at 1:45pm!\"",
+            "citations": []
+          }
+        },
+        "negative_signal_no_actionable_path": {
+          "frame": {
+            "value": "Neutral awareness, no valence",
+            "citations": []
+          },
+          "example": {
+            "value": "\"Your sleep architecture shifted last night. We're tracking whether this is a one-night pattern or a trend!\"",
+            "citations": []
+          }
+        }
+      },
+      "layer_3_process_bridge": {
+        "name": {
+          "value": "Layer 3 — Process Bridge (In-Moment Nudges)",
+          "citations": []
+        },
+        "mechanism": {
+          "value": "Implementation intentions — 'If [trigger], then [action]' — are the mechanism that bridges identity and outcome with specific, low-friction behavior",
+          "citations": []
+        },
+        "example_1": {
+          "value": "\"Your next 3 hours look high-load. If you feel your focus dipping before your 2pm call, do 4-7-8 breathing for 90 seconds\"",
+          "citations": []
+        },
+        "example_2": {
+          "value": "\"Your recovery window opens at 9pm. If you're tempted to have a second drink at dinner, remember: your data shows alcohol after 8pm drops tomorrow's HRV by 11%\"",
+          "citations": []
+        },
+        "autonomy_requirement": {
+          "value": "Process framing must always include autonomy language ('here's one option,' 'you decide') to prevent reactance in control-oriented high-achievers",
+          "citations": []
+        }
+      },
+      "non_negotiable_rules": {
+        "rule_1": {
+          "value": "Never surface a loss signal without a paired actionable response. EPPM rule: threat without efficacy produces avoidance, not action.",
+          "citations": []
+        },
+        "rule_2": {
+          "value": "Always use personal baseline (SPC individual control limits), not population norms, as the comparison reference. Mastery experience is more powerful than vicarious experience for people with high achievement identities.",
+          "citations": []
+        },
+        "rule_3": {
+          "value": "Achieved framing always over remaining framing for self-efficacy maintenance. Show what users have done, not what they haven't. F(1,391) = 4.07, p = .04 (Choe et al., 2013).",
+          "citations": []
+        },
+        "rule_4": {
+          "value": "High-efficacy users (engaged, streaked) tolerate and benefit from loss framing. This is supported by five independent replications (Jensen et al., 2017).",
+          "citations": []
+        },
+        "rule_5": {
+          "value": "New users or low-engagement users receive gain framing exclusively for the first 30 days. Build coping self-efficacy before introducing threat frames.",
+          "citations": []
+        },
+        "rule_6": {
+          "value": "Use 'your body communicating' language, not 'you are failing' language. Physiological reframing preserves identity and self-efficacy simultaneously.",
+          "citations": []
+        },
+        "rule_7": {
+          "value": "Autonomy language always preserves engagement. 'Here's one option' outperforms 'you should' for high-control populations. Reactance is the primary engagement killer for executives and high achievers.",
+          "citations": []
+        }
+      }
+    },
+    "literature_gaps_and_research_agenda": {
+      "gap_1": {
+        "title": {
+          "value": "No RCT on Framing Types in High-Achiever Wearable Populations",
+          "citations": []
+        },
+        "description": {
+          "value": "No randomized controlled trial has directly compared identity vs. outcome vs. process framing in professional high-achiever populations using real wearable data; the JPSP 2024 finding (32% adherence uplift for identity framing) is referenced in secondary sources but has not been independently retrieved",
+          "citations": []
+        },
+        "opportunity": {
+          "value": "A within-subjects A/B test comparing framing types on YU's actual user base would be the first such study in this population; this is publishable research",
+          "citations": []
+        }
+      },
+      "gap_2": {
+        "title": {
+          "value": "Self-Efficacy Moderator for Loss/Gain Framing in HRV/Recovery Contexts",
+          "citations": []
+        },
+        "description": {
+          "value": "The five-study replication of the self-efficacy moderator finding for loss/gain framing (Jensen et al., 2017) has been demonstrated for physical activity, smoking cessation, skin cancer detection, salt intake, and health research participation — but not yet in HRV, recovery, or wearable biometric contexts specifically",
+          "citations": []
+        },
+        "opportunity": {
+          "value": "YU could publish the first study extending this finding to continuous biometric monitoring; given YU's access to high-achieving professional cohorts (PE/finance, longevity clinics, collegiate athletics), the sample itself would be novel and of significant interest to the behavioral science community",
+          "citations": []
+        }
+      },
+      "recommended_study_design": {
+        "platform": {
+          "value": "Within the YU platform",
+          "citations": []
+        },
+        "intervention": {
+          "value": "Randomize notification framing (loss vs. gain) for SPC-detected deviations; measure baseline self-efficacy and coping self-efficacy",
+          "citations": []
+        },
+        "outcomes_tracked": {
+          "value": "30-day engagement outcomes: app opens, notification response rate, streak maintenance, device wear time",
+          "citations": []
+        },
+        "preregistration": {
+          "value": "Pre-register the self-efficacy moderation hypothesis",
+          "citations": []
+        },
+        "target_n": {
+          "value": "500",
+          "citations": []
+        }
+      }
+    },
+    "references": {
+      "alfrey_2025": {
+        "authors": {
+          "value": "Alfrey, K.-L. R., Condie, M., & Rebar, A. L.",
+          "citations": []
+        },
+        "year": {
+          "value": "2025",
+          "citations": []
+        },
+        "title": {
+          "value": "The Influence of Identity Within-Person and Between Behaviours",
+          "citations": []
+        },
+        "journal": {
+          "value": "Behavioral Sciences",
+          "citations": []
+        },
+        "pmid_or_pmc": {
+          "value": "PMC12109062",
+          "citations": []
+        }
+      },
+      "beam_et_al": {
+        "authors": {
+          "value": "Beam, E. A., et al.",
+          "citations": []
+        },
+        "title": {
+          "value": "Trust versus loss aversion: Why does loss framing work?",
+          "citations": []
+        },
+        "source": {
+          "value": "VoxDev",
+          "citations": []
+        }
+      },
+      "choe_2013": {
+        "authors": {
+          "value": "Choe, E. K., Lee, B., Munson, S., Pratt, W., & Kientz, J. A.",
+          "citations": []
+        },
+        "year": {
+          "value": "2013",
+          "citations": []
+        },
+        "title": {
+          "value": "Persuasive Performance Feedback: The Effect of Framing on Self-Efficacy",
+          "citations": []
+        },
+        "journal": {
+          "value": "AMIA Annual Symposium Proceedings",
+          "citations": []
+        },
+        "pmid_or_pmc": {
+          "value": "PMC3900219",
+          "citations": []
+        }
+      },
+      "hua_howell_2022": {
+        "authors": {
+          "value": "Hua, J., & Howell, J. L.",
+          "citations": []
+        },
+        "year": {
+          "value": "2022",
+          "citations": []
+        },
+        "title": {
+          "value": "Coping self-efficacy influences health information avoidance",
+          "citations": []
+        },
+        "source": {
+          "value": "PubMed",
+          "citations": []
+        },
+        "pmid": {
+          "value": "33086899",
+          "citations": []
+        }
+      },
+      "instrument_agency": {
+        "name": {
+          "value": "Instrument Agency",
+          "citations": []
+        },
+        "project": {
+          "value": "Oura App Redesign",
+          "citations": []
+        },
+        "url": {
+          "value": "instrument.com",
+          "citations": []
+        }
+      },
+      "jensen_2017": {
+        "authors": {
+          "value": "Jensen, J.D., et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2017",
+          "citations": []
+        },
+        "title": {
+          "value": "Persuasive Impact of Loss and Gain Frames on Intentions to Exercise",
+          "citations": []
+        },
+        "journal": {
+          "value": "Communication Monographs",
+          "citations": []
+        },
+        "pmid_or_pmc": {
+          "value": "PMC12959906",
+          "citations": []
+        }
+      },
+      "lehrer_2020": {
+        "authors": {
+          "value": "Lehrer, C., et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2020",
+          "citations": []
+        },
+        "title": {
+          "value": "Why Users Comply with Wearables",
+          "citations": []
+        },
+        "source": {
+          "value": "CBS Research",
+          "citations": []
+        }
+      },
+      "massar_2020": {
+        "authors": {
+          "value": "Massar, S. A. A., et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2020",
+          "citations": []
+        },
+        "title": {
+          "value": "Losses Motivate Cognitive Effort More Than Gains",
+          "citations": []
+        },
+        "journal": {
+          "value": "Frontiers in Human Neuroscience",
+          "citations": []
+        }
+      },
+      "rothman_1999": {
+        "authors": {
+          "value": "Rothman, A. J., et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "1999",
+          "citations": []
+        },
+        "title": {
+          "value": "The Systematic Influence of Gain- and Loss-Framed Messages",
+          "citations": []
+        },
+        "journal": {
+          "value": "Personality and Social Psychology Bulletin",
+          "citations": []
+        },
+        "publisher": {
+          "value": "Sage Journals",
+          "citations": []
+        }
+      },
+      "verplanken_sui_2019": {
+        "authors": {
+          "value": "Verplanken, B., & Sui, J.",
+          "citations": []
+        },
+        "year": {
+          "value": "2019",
+          "citations": []
+        },
+        "title": {
+          "value": "Habit and Identity",
+          "citations": []
+        },
+        "journal": {
+          "value": "Frontiers in Psychology",
+          "citations": []
+        },
+        "pmid_or_pmc": {
+          "value": "PMC6635880",
+          "citations": []
+        }
+      },
+      "whoop_2023": {
+        "name": {
+          "value": "Whoop",
+          "citations": []
+        },
+        "year": {
+          "value": "2023",
+          "citations": []
+        },
+        "campaign": {
+          "value": "\"The Best Obsess\" Campaign",
+          "citations": []
+        },
+        "source": {
+          "value": "Press Center",
+          "citations": []
+        }
+      },
+      "whoop_marketing_2024": {
+        "name": {
+          "value": "Whoop Marketing Strategy",
+          "citations": []
+        },
+        "year": {
+          "value": "2024",
+          "citations": []
+        },
+        "document": {
+          "value": "Business Model Canvas",
+          "citations": []
+        }
+      },
+      "zhu_2025": {
+        "authors": {
+          "value": "Zhu, L., et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2025",
+          "citations": []
+        },
+        "title": {
+          "value": "The relationship between habit and identity in health behaviors: A systematic review and three-level meta-analysis",
+          "citations": []
+        },
+        "journal": {
+          "value": "Applied Psychology: Health and Well-Being",
+          "citations": []
+        },
+        "publisher": {
+          "value": "Wiley",
+          "citations": []
+        }
+      }
+    }
+  }
+}

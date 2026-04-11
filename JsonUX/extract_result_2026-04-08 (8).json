@@ -1,0 +1,1250 @@
+{
+  "job_id": "7519bb3e-017e-4c55-9379-4df329bb726f",
+  "usage": {
+    "num_pages": 14,
+    "num_fields": 247,
+    "credits": 54.7,
+    "extract_mode": "super_agent"
+  },
+  "studio_link": "https://studio.reducto.ai/job/7519bb3e-017e-4c55-9379-4df329bb726f",
+  "result": {
+    "document_title": {
+      "value": "AI Wellness Agent UX Design: Mental State Check-Ins, Clinical Ethics & Micro-Interventions",
+      "citations": [
+        {
+          "type": "Title",
+          "bbox": {
+            "left": 0.11609137325816403,
+            "top": 0.10037878787878787,
+            "width": 0.6592162181328228,
+            "height": 0.04960317460317461,
+            "page": 1,
+            "original_page": 1
+          },
+          "content": "Title text: 'AI Wellness Agent UX Design: Mental State Check-Ins, Clinical Ethics & Micro-Interventions'",
+          "image_url": null,
+          "chart_data": null,
+          "confidence": null,
+          "granular_confidence": null,
+          "extra": null,
+          "parentBlock": {
+            "type": "Title",
+            "bbox": {
+              "left": 0.11274509803921569,
+              "top": 0.10037878787878787,
+              "width": 0.7401960784313726,
+              "height": 0.04861111111111111,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "AI Wellness Agent UX Design: Mental State Check-Ins, Clinical Ethics & Micro-Interventions",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": "low",
+            "granular_confidence": {
+              "extract_confidence": null,
+              "parse_confidence": null
+            },
+            "extra": null
+          }
+        }
+      ]
+    },
+    "document_subtitle": {
+      "value": "A research brief for designing daily mental state micro-check-ins within a mobile AI health agent targeting high-performing users. Covers agent UX flow, clinical-ethical design guidelines, and the highest-evidence micro-interventions deliverable in under 5 minutes.",
+      "citations": [
+        {
+          "type": "Text",
+          "bbox": {
+            "left": 0.1707516339869281,
+            "top": 0.1691919191919192,
+            "width": 0.6770708283313326,
+            "height": 0.07042648709315376,
+            "page": 1,
+            "original_page": 1
+          },
+          "content": "Full subtitle text beginning 'A research brief for designing daily mental state micro-check-ins within a mobile AI health agent targeting high-performing users...'",
+          "image_url": null,
+          "chart_data": null,
+          "confidence": null,
+          "granular_confidence": null,
+          "extra": null,
+          "parentBlock": {
+            "type": "Text",
+            "bbox": {
+              "left": 0.1707516339869281,
+              "top": 0.1691919191919192,
+              "width": 0.7058823529411765,
+              "height": 0.0707070707070707,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "A research brief for designing daily mental state micro-check-ins within a mobile AI health agent targeting high-performing users. Covers agent UX flow, clinical-ethical design guidelines, and the highest-evidence micro-interventions deliverable in under 5 minutes.",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": "low",
+            "granular_confidence": {
+              "extract_confidence": null,
+              "parse_confidence": null
+            },
+            "extra": null
+          }
+        }
+      ]
+    },
+    "executive_summary": {
+      "value": "Three tightly interlocking design problems define the next frontier of AI wellness agents for high-performers: when and how to ask about mental state without creating friction or pathologizing normal stress; how to respond when biometric and self-report signals suggest deterioration without crossing into clinical territory; and what to actually deliver when a user needs relief in under 5 minutes. The research base is now strong enough to give concrete answers to all three. Cyclic sighing (the physiological sigh) is the single highest-evidence, fastest-acting, mobile-compatible micro-intervention. Morning check-ins with one to two natural-language questions outperform random prompts in both compliance and data quality. And the line between a performance coach and a clinical tool is navigated successfully only when the agent explicitly redirects to human resources at the right threshold-not before, and not after.",
+      "citations": [
+        {
+          "type": "Text",
+          "bbox": {
+            "left": 0.1111111111111111,
+            "top": 0.31502525252525254,
+            "width": 0.7578347578347578,
+            "height": 0.21085858585858586,
+            "page": 1,
+            "original_page": 1
+          },
+          "content": "Full executive summary paragraph beginning 'Three tightly interlocking design problems define the next frontier of AI wellness agents for high-performers...'",
+          "image_url": null,
+          "chart_data": null,
+          "confidence": null,
+          "granular_confidence": null,
+          "extra": null,
+          "parentBlock": {
+            "type": "Text",
+            "bbox": {
+              "left": 0.1111111111111111,
+              "top": 0.31502525252525254,
+              "width": 0.7777777777777778,
+              "height": 0.21085858585858586,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "Three tightly interlocking design problems define the next frontier of AI wellness agents for high-performers: when and how to ask about mental state without creating friction or pathologizing normal stress; how to respond when biometric and self-report signals suggest deterioration without crossing into clinical territory; and what to actually deliver when a user needs relief in under 5 minutes. The research base is now strong enough to give concrete answers to all three. Cyclic sighing (the physiological sigh) is the single highest-evidence, fastest-acting, mobile-compatible micro-intervention. Morning check-ins with one to two natural-language questions outperform random prompts in both compliance and data quality. And the line between a performance coach and a clinical tool is navigated successfully only when the agent explicitly redirects to human resources at the right threshold-not before, and not after.",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": "low",
+            "granular_confidence": {
+              "extract_confidence": null,
+              "parse_confidence": null
+            },
+            "extra": null
+          }
+        }
+      ]
+    },
+    "part_1_micro_checkin_ux_design": {
+      "section_1_1_optimal_placement": {
+        "key_finding": {
+          "value": "Evidence strongly supports asking the check-in question before showing biometric scores. When users see their HRV readiness score, sleep score, or stress level first, they anchor their self-report to it — a form of measurement-induced bias that reduces the signal value of the self-report data.",
+          "citations": []
+        },
+        "recommended_sequence": {
+          "step_1": {
+            "value": "Morning greeting card (≤2 natural-language questions, one tap or voice-response)",
+            "citations": []
+          },
+          "step_2": {
+            "value": "Biometric summary (readiness, sleep, HRV, daytime stress trend)",
+            "citations": []
+          },
+          "step_3": {
+            "value": "Fused insight card — a single synthesized output that merges the self-report with the biometric data",
+            "citations": []
+          }
+        },
+        "oura_ring_implementation": {
+          "value": "The Oura Ring's 2025 redesign operationalizes this directionally: the Today tab presents 'one big thing' — the most important insight anchored to personal baselines — before drilling into granular metrics, using color coding to signal body states at a glance. Critically, Oura's Daytime Stress feature validates biometric readings against user surveys of subjective estimation, confirming that self-report and physiological signal regularly diverge in meaningful ways.",
+          "citations": []
+        },
+        "jitai_finding": {
+          "value": "An alternative architecture using Just-in-Time Adaptive Interventions (JITAIs): support delivered at the moment of need is substantially more effective than scheduled prompts because it matches the state of vulnerability or opportunity precisely.",
+          "citations": []
+        },
+        "placement_options_table": {
+          "check_in_before_biometric_morning": {
+            "best_for": {
+              "value": "Unanchored, genuine self-report",
+              "citations": []
+            },
+            "risk": {
+              "value": "User fatigue if repeated daily",
+              "citations": []
+            }
+          },
+          "check_in_contextual_midday": {
+            "best_for": {
+              "value": "Real-time, high-relevance state",
+              "citations": []
+            },
+            "risk": {
+              "value": "Intrusive if not timed well",
+              "citations": []
+            }
+          },
+          "check_in_after_biometric": {
+            "best_for": {
+              "value": "Explaining anomalies to user",
+              "citations": []
+            },
+            "risk": {
+              "value": "Anchoring bias on the readout",
+              "citations": []
+            }
+          },
+          "separate_card_standalone": {
+            "best_for": {
+              "value": "Users who prefer explicit reflection",
+              "citations": []
+            },
+            "risk": {
+              "value": "Lower integration with biometrics",
+              "citations": []
+            }
+          }
+        }
+      },
+      "section_1_2_question_wording": {
+        "key_finding": {
+          "value": "The research consensus points to a middle path: conversational, affect-positive language that invites reflection without labeling or pathologizing. Clinical wording creates aversion in high-performing, stigma-aware populations. Overly casual wording generates low-signal data.",
+          "citations": []
+        },
+        "ema_completion_rate_threshold": {
+          "value": "Above 70% completion rates when questions are brief and personally relevant",
+          "citations": []
+        },
+        "max_completion_time_for_best_compliance": {
+          "value": "Under 60 seconds",
+          "citations": []
+        },
+        "daylio_model": {
+          "value": "Single emoji/mood tap followed by optional activity tagging; most entries take under 5 seconds. Achieved strong retention precisely because it requires near-zero cognitive effort.",
+          "citations": []
+        },
+        "clinical_vs_performance_wording_table": {
+          "example_1": {
+            "clinical_avoid": {
+              "value": "How depressed do you feel today?",
+              "citations": []
+            },
+            "performance_use": {
+              "value": "How ready do you feel to take on the day?",
+              "citations": []
+            }
+          },
+          "example_2": {
+            "clinical_avoid": {
+              "value": "Rate your anxiety (0-10)",
+              "citations": []
+            },
+            "performance_use": {
+              "value": "What's your mental energy right now?",
+              "citations": []
+            }
+          },
+          "example_3": {
+            "clinical_avoid": {
+              "value": "Are you experiencing negative affect?",
+              "citations": []
+            },
+            "performance_use": {
+              "value": "One word: how are you showing up today?",
+              "citations": []
+            }
+          },
+          "example_4": {
+            "clinical_avoid": {
+              "value": "Do you have symptoms of burnout?",
+              "citations": []
+            },
+            "performance_use": {
+              "value": "How are you managing your load this week?",
+              "citations": []
+            }
+          }
+        },
+        "recommended_morning_question": {
+          "value": "How are you showing up today?",
+          "citations": []
+        },
+        "response_options": [
+          {
+            "value": "Sharp",
+            "citations": []
+          },
+          {
+            "value": "Steady",
+            "citations": []
+          },
+          {
+            "value": "Low",
+            "citations": []
+          },
+          {
+            "value": "Running on empty",
+            "citations": []
+          }
+        ],
+        "follow_on_prompt_trigger": {
+          "value": "Surfaced only if the user selects 'Low' or 'Running on empty'",
+          "citations": []
+        },
+        "follow_on_prompt_text": {
+          "value": "What's weighing on you most right now?",
+          "citations": []
+        },
+        "app_abandonment_rate_30_days": {
+          "value": "Approximately 70% of users abandon mental health apps within 30 days",
+          "citations": []
+        },
+        "primary_abandonment_driver": {
+          "value": "Interface complexity rather than lack of motivation",
+          "citations": []
+        }
+      },
+      "section_1_3_voluntary_vs_prompted": {
+        "scheduled_morning_completion_rate_baseline": {
+          "value": "86%",
+          "citations": []
+        },
+        "random_triggered_completion_rate": {
+          "value": "58%",
+          "citations": []
+        },
+        "morning_prompt_decline_rate_per_week": {
+          "value": "~2% per week",
+          "citations": []
+        },
+        "random_assessment_decline_rate_per_week": {
+          "value": "~1% per week",
+          "citations": []
+        },
+        "highest_sustained_compliance_threshold": {
+          "value": "Above 84%",
+          "citations": []
+        },
+        "optimal_prompts_per_day_for_high_compliance": {
+          "value": "3 to 6 prompts per day",
+          "citations": []
+        },
+        "optimal_study_duration_for_high_compliance": {
+          "value": "7 to 14 days",
+          "citations": []
+        },
+        "long_study_completion_rate": {
+          "value": "50% for studies lasting 30 days or more",
+          "citations": []
+        },
+        "woebot_efficient_engagers_finding": {
+          "value": "Users labeled 'Efficient Engagers' — those with low behavioral engagement but high therapeutic alliance — achieved greater reductions in depressive symptoms and stress than high-frequency users, suggesting quality of engagement matters more than frequency.",
+          "citations": []
+        },
+        "recommended_hybrid_model": {
+          "morning_prompt": {
+            "value": "One fixed morning prompt (within 30 minutes of wake time, user-configured): scheduled, framed around readiness, kept to ≤2 questions",
+            "citations": []
+          },
+          "evening_prompt": {
+            "value": "One contextual evening prompt (30-60 min before typical sleep, user-configured): voluntary trigger unless biometric anomaly was detected that day — in which case the agent proactively asks a second light check-in",
+            "citations": []
+          },
+          "mid_day_approach": {
+            "value": "Zero random mid-day prompts by default: replace with passive monitoring + a contextual card when HRV or daytime stress signals cross an anomaly threshold",
+            "citations": []
+          }
+        },
+        "headspace_notification_session_completion_increase": {
+          "value": "32% increase in session completion rates",
+          "citations": []
+        },
+        "headspace_notification_dau_increase": {
+          "value": "15% increase in daily active users compared to generic scheduled reminders",
+          "citations": []
+        },
+        "passive_data_study_sample_size": {
+          "value": "342 office workers",
+          "citations": []
+        }
+      },
+      "section_1_4_fusing_biometric_self_report": {
+        "key_failure_mode": {
+          "value": "Presenting too much data leads to choice paralysis and cognitive overload, undermining recovery the app aims to promote",
+          "citations": []
+        },
+        "recommended_design_pattern": {
+          "value": "The single actionable insight card — a synthesis layer that translates the multimodal signal into one directive",
+          "citations": []
+        },
+        "insight_card_elements": {
+          "element_1": {
+            "value": "Acknowledge what the data shows (2-3 words, not a paragraph)",
+            "citations": []
+          },
+          "element_2": {
+            "value": "Name the state without over-labeling (e.g., 'Your body's in recovery mode today')",
+            "citations": []
+          },
+          "element_3": {
+            "value": "Offer one specific next action — not a menu of options",
+            "citations": []
+          }
+        },
+        "visual_representation_principles": {
+          "data_sources_limit": {
+            "value": "≤2 on the primary card (e.g., sleep quality + mood)",
+            "citations": []
+          },
+          "color_coding": {
+            "value": "Use low-saturation colors for distress states; high-saturation only for positive states",
+            "citations": []
+          },
+          "trend_vs_snapshot": {
+            "value": "Show trend for HRV (7-day rolling) + daily for mood to avoid over-reaction to noise",
+            "citations": []
+          },
+          "action_cta": {
+            "value": "Single primary action, tappable — not text instructions",
+            "citations": []
+          },
+          "progressive_disclosure": {
+            "value": "Full biometric breakdown available on tap-through, not on the primary card",
+            "citations": []
+          }
+        },
+        "example_fused_card_message": {
+          "value": "Your HRV is 12% below your baseline, and you flagged low mental energy this morning. Your body is asking for recovery, not performance, today. Here's a 5-minute reset.",
+          "citations": []
+        }
+      },
+      "section_1_5_app_case_studies": {
+        "oura_ring": {
+          "check_in_design": {
+            "value": "Morning readiness score + passive daytime stress graph; contextual self-tagging",
+            "citations": []
+          },
+          "retention_data": {
+            "value": "Strong daily habit formation; 'strong habit loop with daily check-ins' noted in UX audit (Oura Case Study)",
+            "citations": []
+          },
+          "key_lesson": {
+            "value": "Biometric-first with passive check-in creates low-effort ritual",
+            "citations": []
+          }
+        },
+        "woebot": {
+          "check_in_design": {
+            "value": "Conversational CBT check-in; mood spectrum entry; daily prompts",
+            "citations": []
+          },
+          "retention_data": {
+            "value": "8-week study: significant reductions in stress, burnout, resilience improvements for both clinical and non-clinical users; 'Efficient Engagers' had best outcomes with fewer sessions",
+            "citations": []
+          },
+          "key_lesson": {
+            "value": "Quality of therapeutic alliance > quantity of check-ins",
+            "citations": []
+          }
+        },
+        "headspace": {
+          "check_in_design": {
+            "value": "Daily meditation prompt; mood pre/post session",
+            "citations": []
+          },
+          "retention_data": {
+            "value": "32% session completion increase with personalized push notifications; 12 days average use over 30-day period with no active prompting; 74% continued use past 30 days among those who started (JMIR)",
+            "citations": []
+          },
+          "key_lesson": {
+            "value": "Habit formed by getting user to start once; timing personalization critical",
+            "citations": []
+          }
+        },
+        "daylio": {
+          "check_in_design": {
+            "value": "Emoji mood tap + activity tags; no text required",
+            "citations": []
+          },
+          "retention_data": {
+            "value": "6+ year community retention; strong pattern identification value (PMC)",
+            "citations": []
+          },
+          "key_lesson": {
+            "value": "Near-zero friction check-in enables consistent long-term data",
+            "citations": []
+          }
+        },
+        "insight_timer": {
+          "check_in_design": {
+            "value": "No mandatory check-in; fully voluntary",
+            "citations": []
+          },
+          "retention_data": {
+            "value": "16% Day-30 retention vs. Headspace/Calm at <8.5% (Strive Cloud)",
+            "citations": []
+          },
+          "key_lesson": {
+            "value": "Minimal pressure + community = highest retention in meditation category",
+            "citations": []
+          }
+        },
+        "insight_timer_observation": {
+          "value": "The app with the fewest mandatory check-ins achieves nearly double the 30-day retention of Headspace and Calm. Perceived autonomy over engagement strongly predicts sustained use in mental wellness populations.",
+          "citations": []
+        }
+      }
+    },
+    "part_2_clinical_ethical_design": {
+      "section_2_1_threshold_model": {
+        "key_finding": {
+          "value": "No universal threshold has been established for when an AI wellness agent should shift tone; the evidence base supports a multi-signal, multi-day threshold model rather than a single biometric trigger.",
+          "citations": []
+        },
+        "response_pattern_window": {
+          "value": "Patterns across 3-5 days, using a convergence model",
+          "citations": []
+        },
+        "tier_1_performance_framing": {
+          "description": {
+            "value": "Tier 1 — Performance Framing (default): standard performance coaching mode",
+            "citations": []
+          },
+          "hrv_criterion": {
+            "value": "HRV within 15% of personal baseline",
+            "citations": []
+          },
+          "sleep_criterion": {
+            "value": "Sleep score ≥ baseline - 10 points",
+            "citations": []
+          },
+          "self_report_criterion": {
+            "value": "No consecutive days of low/negative self-report",
+            "citations": []
+          },
+          "response": {
+            "value": "Standard readiness recommendations, performance-focused coaching",
+            "citations": []
+          }
+        },
+        "tier_2_supportive_checkin": {
+          "description": {
+            "value": "Tier 2 — Supportive Check-In (soft shift)",
+            "citations": []
+          },
+          "hrv_criterion": {
+            "value": "HRV 15-25% below baseline for 2+ consecutive days",
+            "citations": []
+          },
+          "sleep_criterion": {
+            "value": "Sleep score ≥ 20% below baseline for 2+ nights",
+            "citations": []
+          },
+          "self_report_criterion": {
+            "value": "2+ consecutive days of 'Low' or 'Running on empty' self-report",
+            "citations": []
+          },
+          "response": {
+            "value": "Shift tone to warmth-first; offer optional deeper reflection; surface recovery-focused content; do not label or diagnose",
+            "citations": []
+          }
+        },
+        "tier_3_explicit_referral": {
+          "description": {
+            "value": "Tier 3 — Explicit Resource Referral (required)",
+            "citations": []
+          },
+          "hrv_criterion": {
+            "value": "HRV sustained 25%+ below baseline for 5+ days",
+            "citations": []
+          },
+          "self_report_criterion": {
+            "value": "Self-report consistently negative for 5+ days",
+            "citations": []
+          },
+          "language_criterion": {
+            "value": "User voluntarily discloses language indicating significant distress, overwhelm, hopelessness",
+            "citations": []
+          },
+          "response": {
+            "value": "Acknowledge directly, name what you observe, offer specific external resources (therapist referral, crisis line, peer support); do not attempt to resolve via in-app intervention alone",
+            "citations": []
+          }
+        },
+        "jmir_ethics_requirement": {
+          "value": "The JMIR Mental Health ethics framework specifically requires developers to restrict the bot's involvement when user interactions indicate mental health difficulties or emotional distress — the 5-day multi-signal threshold operationalizes this obligation.",
+          "citations": []
+        },
+        "morning_stress_forecast_validity": {
+          "value": "Morning cognitive appraisal of expected stress predicts actual EMA-measured stress levels later that day, creating a biologically plausible rationale for the morning check-in as an early warning signal.",
+          "citations": []
+        }
+      },
+      "section_2_2_language_tone": {
+        "key_principle": {
+          "value": "When the agent detects a stress streak, burnout pattern, or mood deterioration, the tone must shift before the content does. High-performing users are acutely sensitive to being pathologized. The framing must be observational, non-diagnostic, and non-judgmental.",
+          "citations": []
+        },
+        "language_principles": {
+          "principle_1_lead_with_observation": {
+            "value": "Lead with observation, not interpretation. Say 'I'm noticing your body has been in high-stress mode for four days in a row' rather than 'You may be experiencing burnout!'",
+            "citations": []
+          },
+          "principle_2_normalize_without_minimizing": {
+            "value": "Normalize without minimizing. 'This kind of sustained load is common for people running hard—and it has a real physiological cost' preserves both dignity and urgency.",
+            "citations": []
+          },
+          "principle_3_offer_dont_prescribe": {
+            "value": "Offer, don't prescribe. 'Would it help to slow things down a bit today?' outperforms 'You should rest!' Autonomy language is associated with better user response in wellness apps.",
+            "citations": []
+          },
+          "principle_4_avoid_clinical_language": {
+            "avoid": [
+              {
+                "value": "symptoms",
+                "citations": []
+              },
+              {
+                "value": "depression",
+                "citations": []
+              },
+              {
+                "value": "anxiety disorder",
+                "citations": []
+              },
+              {
+                "value": "mental health crisis",
+                "citations": []
+              },
+              {
+                "value": "mood disorder",
+                "citations": []
+              }
+            ],
+            "use_instead": [
+              {
+                "value": "load",
+                "citations": []
+              },
+              {
+                "value": "strain",
+                "citations": []
+              },
+              {
+                "value": "recovery deficit",
+                "citations": []
+              },
+              {
+                "value": "what you're carrying",
+                "citations": []
+              }
+            ]
+          },
+          "principle_5_use_and_not_but": {
+            "value": "Use 'and' not 'but.' Example: 'You're performing well AND your body is sending signals worth paying attention to' vs. 'You're performing well BUT your HRV is down.' The latter triggers defensiveness in achievement-oriented users.",
+            "citations": []
+          }
+        },
+        "woebot_language_model": {
+          "value": "Language detection occurs on a spectrum; upon detecting concerning language the bot asks whether the user wants resources (not a diagnosis), then offers tools to address upsetting emotions in the moment. The agent explicitly declines to provide crisis counseling.",
+          "citations": []
+        },
+        "example_tier_2_message": {
+          "value": "Your recovery data has been running low for a few days, and you mentioned feeling stretched this morning. That's worth noticing. You don't need to push through everything—sometimes the highest-performance move is a real reset. Want a short reset now, or would you rather talk through what's on your plate?",
+          "citations": []
+        }
+      },
+      "section_2_3_ethical_boundaries": {
+        "what_agent_can_do": [
+          {
+            "value": "Detect patterns in biometric + self-report data and surface them to the user",
+            "citations": []
+          },
+          {
+            "value": "Provide psychoeducation about stress, HRV, recovery, burnout mechanisms",
+            "citations": []
+          },
+          {
+            "value": "Deliver evidence-based micro-interventions (breathing, brief mindfulness, affect labeling)",
+            "citations": []
+          },
+          {
+            "value": "Offer a warm, empathic conversational experience around emotional state",
+            "citations": []
+          },
+          {
+            "value": "Prompt users to seek professional help when patterns warrant it",
+            "citations": []
+          }
+        ],
+        "what_agent_cannot_do": [
+          {
+            "value": "Diagnose any mental health condition, including burnout (a clinical occupational syndrome), depression, or anxiety disorders",
+            "citations": []
+          },
+          {
+            "value": "Claim to provide therapy, clinical counseling, or crisis intervention",
+            "citations": []
+          },
+          {
+            "value": "Engage as a substitute for professional care during a crisis",
+            "citations": []
+          },
+          {
+            "value": "Infer future emotional states solely from past expressions",
+            "citations": []
+          },
+          {
+            "value": "Store or share identifiable mental health data beyond what is strictly necessary",
+            "citations": []
+          }
+        ],
+        "woebot_approach": {
+          "value": "Uses CBT-structured conversations written by conversational designers with clinical training; has an explicit 'language detection protocol' that identifies crisis language and routes to external resources but does not provide crisis counseling itself; positioned as a 'relational agent,' not a therapist; FDA Breakthrough Device designation for its clinical product.",
+          "citations": []
+        },
+        "wysa_approach": {
+          "value": "FDA Breakthrough Device designation; GDPR and NHS DCB1029 compliant; scored 100% on ORCHA clinical safety evaluation. Positioned as addressing 'subclinical or clinical symptoms' only; explicitly not for crisis situations or severe and enduring mental health problems. Uses human coaches as a back-layer for escalation.",
+          "citations": []
+        },
+        "calm_coach_approach": {
+          "value": "No clinical validation pathway; purely wellness-positioned; relies on safe messaging guidelines and explicit scope disclaimers.",
+          "citations": []
+        },
+        "brown_university_study": {
+          "date": {
+            "value": "October 2025",
+            "citations": []
+          },
+          "finding": {
+            "value": "Identified 15 ethical risk categories for AI mental health tools, including deceptive empathy, lack of crisis management, and reinforcing negative beliefs — all more likely when agents attempt to go beyond their design scope. Finding that general LLMs systematically violate mental health ethics when prompted to act as therapists.",
+            "citations": []
+          },
+          "risk_categories_count": {
+            "value": "15",
+            "citations": []
+          }
+        },
+        "jmir_ai_regulation_obligations": {
+          "value": "Developers of AI mental health tools carry an obligation of care that requires: incorporating the option for human communication at all times; restricting the bot when emotional distress is detected; and never diagnosing, assessing likelihood of conditions, or prescribing treatment without a licensed therapist.",
+          "citations": []
+        }
+      },
+      "section_2_4_safe_messaging": {
+        "origin_of_guidelines": {
+          "value": "Safe messaging guidelines were originally developed for suicide and self-harm communication, but their principles apply broadly to any AI tool that surfaces and responds to emotional distress content.",
+          "citations": []
+        },
+        "safe_messaging_principles": {
+          "principle_1": {
+            "value": "Communicate a positive narrative: messages should promote help-seeking, resources, hope, support, resilience, and recovery — not just flag problems",
+            "citations": []
+          },
+          "principle_2": {
+            "value": "Avoid sensational or alarming language: do not use phrases like 'burnout epidemic,' 'crisis,' or 'skyrocketing stress levels' in agent communication",
+            "citations": []
+          },
+          "principle_3": {
+            "value": "Provide concrete, realistic action steps: every supportive check-in should close with a specific, accessible action (not 'seek help' but 'here's who to talk to and how to reach them')",
+            "citations": []
+          },
+          "principle_4": {
+            "value": "Never portray distress as hopeless or inevitable: language implying that stress patterns are fixed or irreversible is contraindicated",
+            "citations": []
+          },
+          "principle_5": {
+            "value": "Resources always present at Tier 3: any interaction where Tier 3 signals are detected must surface the 988 Lifeline (US), relevant employee assistance program, or equivalent — not as an alarm but as a visible, easily accessible option",
+            "citations": []
+          }
+        },
+        "tier_3_crisis_resource": {
+          "value": "988 Lifeline (US), relevant employee assistance program (EAP), or equivalent — always surfaced matter-of-fact, never with alarm",
+          "citations": []
+        },
+        "high_performer_guidance": {
+          "guidance_1": {
+            "value": "Do not imply failure or weakness in detecting a stress pattern",
+            "citations": []
+          },
+          "guidance_2": {
+            "value": "Always pair the signal with the possibility of recovery",
+            "citations": []
+          },
+          "guidance_3": {
+            "value": "Frame professional support as a performance tool, not an admission of dysfunction: 'Elite performers work with performance psychologists — this is the same idea'",
+            "citations": []
+          }
+        },
+        "consent_forward_paradigm": {
+          "value": "Requiring affirmative consent before any data is used for pattern detection, and giving users ongoing control over what is monitored and how it is used — increasingly the standard for ethical digital mental health design.",
+          "citations": []
+        }
+      }
+    },
+    "part_3_highest_evidence_micro_intervention": {
+      "section_3_1_intervention_comparison": {
+        "interventions": {
+          "cyclic_sighing": {
+            "speed_of_effect": {
+              "value": "Immediate (1-5 min)",
+              "citations": []
+            },
+            "effect_size_d": {
+              "value": "~0.72*",
+              "citations": []
+            },
+            "hrv_impact": {
+              "value": "Acute increase in HRV RMSSD (PubMed BMM)",
+              "citations": []
+            },
+            "cortisol_impact": {
+              "value": "Not measured in 5-min protocols",
+              "citations": []
+            },
+            "mobile_delivery_fit": {
+              "value": "Excellent — audio/animation guide",
+              "citations": []
+            },
+            "evidence_quality": {
+              "value": "High (Stanford RCT, n=111)",
+              "citations": []
+            }
+          },
+          "slow_breathing_6bpm": {
+            "speed_of_effect": {
+              "value": "Immediate (5 min)",
+              "citations": []
+            },
+            "effect_size_d": {
+              "value": "~0.60",
+              "citations": []
+            },
+            "hrv_impact": {
+              "value": "Most consistent acute HRV increase (BYU 2025)",
+              "citations": []
+            },
+            "cortisol_impact": {
+              "value": "Indirect via parasympathetic",
+              "citations": []
+            },
+            "mobile_delivery_fit": {
+              "value": "Excellent",
+              "citations": []
+            },
+            "evidence_quality": {
+              "value": "High (multiple RCTs, meta)",
+              "citations": []
+            }
+          },
+          "box_breathing": {
+            "speed_of_effect": {
+              "value": "Immediate (5 min)",
+              "citations": []
+            },
+            "effect_size_d": {
+              "value": "~0.38",
+              "citations": []
+            },
+            "hrv_impact": {
+              "value": "Smaller than 6 bpm; significant vs. baseline",
+              "citations": []
+            },
+            "cortisol_impact": {
+              "value": "Not measured in brief protocols",
+              "citations": []
+            },
+            "mobile_delivery_fit": {
+              "value": "Excellent — simple pattern",
+              "citations": []
+            },
+            "evidence_quality": {
+              "value": "Moderate (limited RCTs)",
+              "citations": []
+            }
+          },
+          "cognitive_reappraisal": {
+            "speed_of_effect": {
+              "value": "2-5 min (instruction)",
+              "citations": []
+            },
+            "effect_size_d": {
+              "value": "~0.45 (task performance)",
+              "citations": []
+            },
+            "hrv_impact": {
+              "value": "Weak acute effect (Scientific Reports)",
+              "citations": []
+            },
+            "cortisol_impact": {
+              "value": "No significant effect in brief protocols",
+              "citations": []
+            },
+            "mobile_delivery_fit": {
+              "value": "Good — text/prompt card",
+              "citations": []
+            },
+            "evidence_quality": {
+              "value": "Moderate-High (meta, k=44)",
+              "citations": []
+            }
+          },
+          "affect_labeling": {
+            "speed_of_effect": {
+              "value": "Immediate",
+              "citations": []
+            },
+            "effect_size_d": {
+              "value": "~0.50 (emotion reduction)",
+              "citations": []
+            },
+            "hrv_impact": {
+              "value": "Not directly measured",
+              "citations": []
+            },
+            "cortisol_impact": {
+              "value": "Not measured",
+              "citations": []
+            },
+            "mobile_delivery_fit": {
+              "value": "Excellent 1-2 word tap",
+              "citations": []
+            },
+            "evidence_quality": {
+              "value": "High (Lieberman 2007+; replicated)",
+              "citations": []
+            }
+          },
+          "brief_mindfulness": {
+            "speed_of_effect": {
+              "value": "5-15 min",
+              "citations": []
+            },
+            "effect_size_d": {
+              "value": "~0.48",
+              "citations": []
+            },
+            "hrv_impact": {
+              "value": "Acute RMSSD increase during session (PLOS ONE)",
+              "citations": []
+            },
+            "cortisol_impact": {
+              "value": "Long-term reduction (8-week programs)",
+              "citations": []
+            },
+            "mobile_delivery_fit": {
+              "value": "Good — guided audio",
+              "citations": []
+            },
+            "evidence_quality": {
+              "value": "High (multiple RCTs, meta)",
+              "citations": []
+            }
+          },
+          "expressive_writing": {
+            "speed_of_effect": {
+              "value": "20+ min",
+              "citations": []
+            },
+            "effect_size_d": {
+              "value": "~0.30 (overall)",
+              "citations": []
+            },
+            "hrv_impact": {
+              "value": "Not measured in brief protocols",
+              "citations": []
+            },
+            "cortisol_impact": {
+              "value": "Not within single sessions",
+              "citations": []
+            },
+            "mobile_delivery_fit": {
+              "value": "Poor — requires long form text",
+              "citations": []
+            },
+            "evidence_quality": {
+              "value": "Moderate (meta r=0.075; highly moderated)",
+              "citations": []
+            }
+          }
+        },
+        "effect_size_caveat": {
+          "value": "Effect size estimates are approximate cross-study standardizations; direct comparisons across studies should be interpreted with caution.",
+          "citations": []
+        }
+      },
+      "section_3_2_cyclic_sighing_winner": {
+        "winner_statement": {
+          "value": "The single highest-evidence, fastest-acting, most mobile-compatible micro-intervention for high-performing individuals experiencing elevated stress or emotional exhaustion is cyclic sighing (also called the physiological sigh).",
+          "citations": []
+        },
+        "technique_description": {
+          "value": "Double nasal inhale (first inhale fills lungs ~80%; second quick inhale tops up remaining ~20%) followed by a long, slow exhale through the mouth. Repeat for approximately 5 minutes (or 1-3 sighs for immediate relief).",
+          "citations": []
+        },
+        "stanford_rct": {
+          "authors": {
+            "value": "Balban, Huberman, Spiegel",
+            "citations": []
+          },
+          "publication": {
+            "value": "Cell Reports Medicine",
+            "citations": []
+          },
+          "year": {
+            "value": "2023",
+            "citations": []
+          },
+          "sample_size": {
+            "value": "111 volunteers",
+            "citations": []
+          },
+          "duration": {
+            "value": "One month",
+            "citations": []
+          },
+          "positive_affect_improvement": {
+            "value": "+1.91 points above baseline on the PANAS good-feelings scale",
+            "citations": []
+          },
+          "comparison_mindfulness_improvement": {
+            "value": "+1.22 for mindfulness meditation",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Cyclic sighing produced the greatest daily improvements in positive affect; the effect increased over time suggesting cumulative benefit; all controlled breathing groups showed significantly greater improvements than mindfulness meditation.",
+            "citations": []
+          }
+        },
+        "physiological_mechanism": {
+          "value": "The second inhale re-inflates collapsed alveoli, maximizing CO₂ offloading. The long exhale stimulates the vagus nerve, activating the parasympathetic nervous system, slowing heart rate, and shifting the autonomic balance toward recovery.",
+          "citations": []
+        },
+        "hrv_feedback_loop": {
+          "value": "Brief mindfulness meditation (≤10 min) is associated with acute increases in RMSSD during and immediately after the session in three out of seven reviewed studies with 120 participants. If an agent delivers a cyclic sighing card when daytime HRV drops and measures HRV 15-30 minutes later, the recovery signal is physiologically plausible and detectable with Oura Ring precision.",
+          "citations": []
+        },
+        "byu_2025_rct": {
+          "sample_size": {
+            "value": "n=84",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Breathing at 6 bpm with a 5:5 ratio produced medium effects on RMSSD, while square (box) breathing and 4-7-8 breathing produced smaller, less consistent effects with wider confidence intervals.",
+            "citations": []
+          }
+        }
+      },
+      "section_3_3_affect_labeling": {
+        "key_advantage": {
+          "value": "Uniquely suited to mobile delivery because it requires only a single interaction — naming the emotion. Compatible with delivery as a single in-app tap.",
+          "citations": []
+        },
+        "neuroscientific_mechanism": {
+          "value": "Labeling an emotion in words reduces amygdala activation and dampens emotional reactivity without requiring any physical technique. This happens within seconds of labeling, making it the fastest cognitive intervention.",
+          "citations": []
+        },
+        "lieberman_citation": {
+          "value": "Lieberman et al., 2007 (widely replicated)",
+          "citations": []
+        },
+        "suggested_emotion_labels": [
+          {
+            "value": "Depleted",
+            "citations": []
+          },
+          {
+            "value": "Wired",
+            "citations": []
+          },
+          {
+            "value": "Anxious-focused",
+            "citations": []
+          },
+          {
+            "value": "Flat",
+            "citations": []
+          },
+          {
+            "value": "Overwhelmed",
+            "citations": []
+          },
+          {
+            "value": "Sharp",
+            "citations": []
+          },
+          {
+            "value": "Restless",
+            "citations": []
+          }
+        ],
+        "grid_size": {
+          "value": "8-12 emotional labels",
+          "citations": []
+        },
+        "bmc_psychology_2024_finding": {
+          "value": "Reappraisal reduced negative emotion significantly, and affect labeling combined with reappraisal increased lateral prefrontal cortex activity — suggesting affect labeling primes the regulatory system for subsequent interventions.",
+          "citations": []
+        },
+        "dual_function": {
+          "value": "Affect labeling as the check-in is also the first step of the intervention. Asking 'what are you feeling?' is simultaneously data collection and therapeutic micro-dose.",
+          "citations": []
+        }
+      },
+      "section_3_4_feedback_loop": {
+        "key_finding": {
+          "value": "The most compelling reason to build cyclic sighing as the primary micro-intervention is the feasibility of a closed feedback loop: the agent can detect a stress signal, deliver the intervention, and measure whether HRV has shifted within 15-30 minutes.",
+          "citations": []
+        },
+        "hrv_evidence": {
+          "plos_one_rct": {
+            "value": "PLOS ONE 10-day RCT (Headspace, n=88): daytime HRV (RMSSD) increased significantly during daily mindfulness sessions in the mindfulness group; nighttime HRV (sleep quality index) also improved, with effects accumulating over 10 days.",
+            "citations": []
+          },
+          "resonance_breathing_rct": {
+            "value": "Resonance breathing RCT (4-7-8/slow breathing): acute shifts in HRV parameters (SDNN, pNN50, total power) measurable within a single session (PMC Cureus).",
+            "citations": []
+          },
+          "brief_mindfulness_meta_analysis": {
+            "value": "Brief mindfulness meta-analysis: RMSSD increase associated with brief sessions across 3 out of 7 studies; limitations include heterogeneity in measurement timing.",
+            "citations": []
+          }
+        },
+        "cortisol_caveat": {
+          "value": "Cortisol changes require 15-30 minutes post-intervention to detect in saliva, and are highly confounded by other factors. Salivary cortisol measurement is not feasible via consumer wearables. The feedback loop must rely on HRV as the measurable physiological output, with self-report mood change as a secondary signal.",
+          "citations": []
+        },
+        "compatible_hrv_devices": [
+          {
+            "value": "Oura Ring",
+            "citations": []
+          },
+          {
+            "value": "Apple Watch",
+            "citations": []
+          },
+          {
+            "value": "Polar H10",
+            "citations": []
+          }
+        ],
+        "recommended_feedback_architecture": {
+          "step_1": {
+            "value": "Agent detects biometric + self-report anomaly (Tier 2 threshold)",
+            "citations": []
+          },
+          "step_2": {
+            "value": "Agent delivers affect labeling tap (3 seconds) + cyclic sighing guide (5 minutes)",
+            "citations": []
+          },
+          "step_3": {
+            "value": "Agent measures HRV passively for 20 minutes post-intervention",
+            "citations": []
+          },
+          "step_4": {
+            "value": "Agent returns with: 'Your HRV shifted [X]%—your body responded to that reset. Here's what we noticed.'",
+            "citations": []
+          }
+        }
+      }
+    },
+    "design_synthesis": {
+      "morning_flow": {
+        "description": {
+          "value": "Highest-evidence, lowest-risk design for a daily mental state check-in within a mobile AI agent for high-performers; daily, fixed time",
+          "citations": []
+        },
+        "step_1_checkin": {
+          "value": "Check-in card appears before biometric summary; 'How are you showing up today?'; [Sharp] [Steady] [Low] [Running on empty]; Tap = affect labeling (simultaneous data + micro-dose)",
+          "citations": []
+        },
+        "step_2_sharp_steady_path": {
+          "value": "If [Sharp] or [Steady]: → Show biometric summary → Fused insight: 1 sentence + 1 action",
+          "citations": []
+        },
+        "step_3_low_running_empty_path": {
+          "value": "If [Low] or [Running on empty]: Soft follow-up: 'What's weighing on you most?' → Optional short voice/text entry → Biometric summary shown with recovery framing → Immediate option: '5-minute reset' (cyclic sighing)",
+          "citations": []
+        }
+      },
+      "pattern_detection": {
+        "tier_1": {
+          "value": "Tier 1 (default): Standard performance coaching",
+          "citations": []
+        },
+        "tier_2": {
+          "value": "Tier 2 (2-5 day signal): Tone shifts to warm/supportive, recovery-focused content surface",
+          "citations": []
+        },
+        "tier_3": {
+          "value": "Tier 3 (5+ day signal or crisis language): Resources explicitly offered, intervention scope limited, user directed to human support",
+          "citations": []
+        }
+      },
+      "evening_reflection": {
+        "trigger": {
+          "value": "Contextual trigger only: appears when daytime biometric anomaly detected OR when user explicitly opens the app",
+          "citations": []
+        },
+        "question": {
+          "value": "How did your body hold up today? (single tap, 5-point scale)",
+          "citations": []
+        },
+        "stress_streak_response": {
+          "value": "If stress streak confirmed: offer evening cyclic sighing + tomorrow readiness framing",
+          "citations": []
+        }
+      },
+      "ethical_architecture": {
+        "data_consent": {
+          "value": "Affirmative data consent before biometric pattern monitoring begins",
+          "citations": []
+        },
+        "scope_statement": {
+          "value": "Explicit scope statement visible at all times: 'This is a wellness tool, not a clinical service'",
+          "citations": []
+        },
+        "crisis_resources": {
+          "value": "Crisis resources (988, local EAP) accessible from any screen, never surfaced with alarm — always matter-of-fact",
+          "citations": []
+        },
+        "no_retrospective_inference": {
+          "value": "No retrospective inference of mental health diagnoses from historical data",
+          "citations": []
+        },
+        "user_data_control": {
+          "value": "User always holds delete + data control at any point",
+          "citations": []
+        }
+      }
+    },
+    "key_takeaways": {
+      "takeaway_1": {
+        "value": "Ask before you show: check-ins placed before biometric data prevent anchoring bias and capture genuine self-report signal.",
+        "citations": []
+      },
+      "takeaway_2": {
+        "value": "Performance language outperforms clinical language for high-performing users — frame check-ins around readiness and energy, not mood and symptoms.",
+        "citations": []
+      },
+      "takeaway_3": {
+        "value": "One morning prompt + contextual evening prompt produces optimal compliance without habituation; voluntary check-ins have higher quality per completion than forced daily surveys.",
+        "citations": []
+      },
+      "takeaway_4": {
+        "value": "Cyclic sighing is the top micro-intervention: fastest-acting, highest evidence, most mobile-compatible, and capable of producing measurable HRV shifts within 15-30 minutes to close a feedback loop.",
+        "citations": []
+      },
+      "takeaway_5": {
+        "value": "Affect labeling is simultaneously a check-in and an intervention: naming an emotion reduces amygdala reactivity in seconds and can double as the first step of emotional processing before a breathing exercise.",
+        "citations": []
+      },
+      "takeaway_6": {
+        "value": "Never attempt clinical work from a wellness agent: the ethical and safety case for explicit scope limitation is conclusive. Woebot, Wysa, and the ethics literature all converge on the same boundary — the moment the agent detects signals beyond wellness range, it routes to humans, not deeper AI conversation.",
+        "citations": []
+      },
+      "takeaway_7": {
+        "value": "Close the feedback loop: delivering a micro-intervention and measuring HRV recovery 20 minutes later is both physiologically valid and behaviorally reinforcing — it makes the intervention feel like it works, because it does.",
+        "citations": []
+      }
+    }
+  }
+}

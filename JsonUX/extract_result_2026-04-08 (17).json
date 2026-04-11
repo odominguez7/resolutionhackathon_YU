@@ -1,0 +1,1158 @@
+{
+  "job_id": "f0fb450d-c7d9-46ea-a55e-b716c4d4f6da",
+  "usage": {
+    "num_pages": 14,
+    "num_fields": 261,
+    "credits": 56.1,
+    "extract_mode": "super_agent"
+  },
+  "studio_link": "https://studio.reducto.ai/job/f0fb450d-c7d9-46ea-a55e-b716c4d4f6da",
+  "result": {
+    "DOCUMENT_METADATA": {
+      "title": {
+        "value": "Single vs. Multiple CTAs in Mobile Health & Wellness Interfaces: Behavioral Science Evidence",
+        "citations": []
+      },
+      "topic": {
+        "value": "Behavioral science argument for single-CTA design in mobile health apps, with implications for the YU platform",
+        "citations": []
+      },
+      "target_platform": {
+        "value": "YU",
+        "citations": []
+      },
+      "theoretical_frameworks_covered": [
+        {
+          "value": "choice overload theory",
+          "citations": []
+        },
+        {
+          "value": "Hick's Law",
+          "citations": []
+        },
+        {
+          "value": "implementation intentions research",
+          "citations": []
+        },
+        {
+          "value": "real-world product evidence from Headspace, Noom, and WHOOP",
+          "citations": []
+        }
+      ],
+      "total_references": {
+        "value": 35,
+        "citations": []
+      },
+      "core_design_implication": {
+        "value": "one recommended action, one moment, one clear path",
+        "citations": []
+      }
+    },
+    "EXECUTIVE_SUMMARY": {
+      "value": "The behavioral science case for single-CTA design in mobile health apps is overwhelming and multi-layered-supported by choice overload theory, Hick’s Law, implementation intentions research, and real-world product evidence from Headspace, Noom, and WHOOP. The convergent finding: every additional option presented to a user in a health behavior context does not expand their freedom-it erodes their probability of action. For a platform like YU delivering micro-interventions to cognitively loaded high-performers, the design implication is categorical: one recommended action, one moment, one clear path.",
+      "citations": [
+        {
+          "type": "Text",
+          "bbox": {
+            "left": 0.1111111111111111,
+            "top": 0.22474747474747475,
+            "width": 0.7611044417767107,
+            "height": 0.13085399449035812,
+            "page": 1,
+            "original_page": 1
+          },
+          "content": "The full executive summary paragraph beginning with 'The behavioral science case for single-CTA design in mobile health apps is overwhelming and multi-layered'",
+          "image_url": null,
+          "chart_data": null,
+          "confidence": null,
+          "granular_confidence": null,
+          "extra": null,
+          "parentBlock": {
+            "type": "Text",
+            "bbox": {
+              "left": 0.1111111111111111,
+              "top": 0.22474747474747475,
+              "width": 0.7769607843137255,
+              "height": 0.13257575757575757,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "The behavioral science case for single-CTA design in mobile health apps is overwhelming and multi-layered-supported by choice overload theory, Hick's Law, implementation intentions research, and real-world product evidence from Headspace, Noom, and WHOOP. The convergent finding: every additional option presented to a user in a health behavior context does not expand their freedom-it erodes their probability of action. For a platform like YU delivering micro-interventions to cognitively loaded high-performers, the design implication is categorical: one recommended action, one moment, one clear path.",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": "low",
+            "granular_confidence": {
+              "extract_confidence": null,
+              "parse_confidence": null
+            },
+            "extra": null
+          }
+        }
+      ]
+    },
+    "SECTION_1_CHOICE_REDUCTION": {
+      "section_title": {
+        "value": "Section 1: The Measurable Impact of Choice Reduction on Completion Rates, Time-to-Action, and Satisfaction",
+        "citations": []
+      },
+      "subsection_1A_header": {
+        "value": "1A. Completion/Conversion Rates",
+        "citations": []
+      },
+      "iyengar_lepper_2000_study1_jam_experiment": {
+        "description": {
+          "value": "Jam Experiment (Study 1) by Iyengar & Lepper (2000) at Draeger's Supermarket in Menlo Park, California",
+          "citations": []
+        },
+        "large_display_jam_varieties": {
+          "value": "24",
+          "citations": []
+        },
+        "large_display_passersby_stopped": {
+          "value": "60%",
+          "citations": []
+        },
+        "large_display_purchase_rate": {
+          "value": "3%",
+          "citations": []
+        },
+        "small_display_jam_varieties": {
+          "value": "6",
+          "citations": []
+        },
+        "small_display_passersby_stopped": {
+          "value": "40%",
+          "citations": []
+        },
+        "small_display_purchase_rate": {
+          "value": "30%",
+          "citations": []
+        },
+        "statistical_test": {
+          "value": "x²(1, N=249) = 32.34, p < .0001",
+          "citations": []
+        },
+        "key_finding": {
+          "value": "More options = more initial interest, dramatically less action (paradox of choice quantified)",
+          "citations": []
+        }
+      },
+      "iyengar_lepper_2000_study2_essay": {
+        "description": {
+          "value": "Study 2 (essay topics) by Iyengar & Lepper (2000) in an educational context",
+          "citations": []
+        },
+        "limited_choice_topics": {
+          "value": "6 topics",
+          "citations": []
+        },
+        "extensive_choice_topics": {
+          "value": "30 topics",
+          "citations": []
+        },
+        "limited_choice_completion_rate": {
+          "value": "74%",
+          "citations": []
+        },
+        "extensive_choice_completion_rate": {
+          "value": "60%",
+          "citations": []
+        },
+        "completion_statistical_test": {
+          "value": "x²(1, N=193) = 3.93, p < .05",
+          "citations": []
+        },
+        "essay_quality_limited_choice": {
+          "value": "M=8.13",
+          "citations": []
+        },
+        "essay_quality_extensive_choice": {
+          "value": "M=7.79",
+          "citations": []
+        },
+        "essay_quality_statistical_test": {
+          "value": "F(1,124)=5.65, p<.02",
+          "citations": []
+        },
+        "key_finding": {
+          "value": "Students with fewer options acted more often and performed better when they did",
+          "citations": []
+        }
+      },
+      "iyengar_lepper_2000_study3_chocolates": {
+        "description": {
+          "value": "Study 3 (chocolates) by Iyengar & Lepper (2000) - chose chocolate over $5 cash",
+          "citations": []
+        },
+        "limited_choice_selection_rate": {
+          "value": "48%",
+          "citations": []
+        },
+        "extensive_choice_selection_rate": {
+          "value": "12%",
+          "citations": []
+        },
+        "no_choice_selection_rate": {
+          "value": "10%",
+          "citations": []
+        },
+        "statistical_test": {
+          "value": "x²(2, N=134) = 21.84, p < .0001",
+          "citations": []
+        },
+        "key_finding": {
+          "value": "Extensive-choice performed barely better than no-choice — a devastating indictment of 'more options = better'",
+          "citations": []
+        }
+      },
+      "email_marketing_cta_stats": {
+        "single_cta_click_increase_tarvent": {
+          "value": "Up to 371% more clicks for single focused CTA (Tarvent analysis)",
+          "citations": []
+        },
+        "single_cta_click_increase_campaign_monitor": {
+          "value": "371% more clicks (Campaign Monitor)",
+          "citations": []
+        },
+        "single_cta_sales_increase_campaign_monitor": {
+          "value": "1,617% more sales (Campaign Monitor)",
+          "citations": []
+        },
+        "tarvent_quote": {
+          "value": "\"a single CTA has one clear advantage: it eliminates the need to make a decision\"",
+          "citations": []
+        },
+        "relevance_to_mhealth": {
+          "value": "Particularly relevant for short, goal-driven formats — maps directly to push notifications and in-app health intervention cards",
+          "citations": []
+        }
+      },
+      "mhealth_engagement_crisis": {
+        "minimum_engagement_rate": {
+          "value": "Up to 80% of mHealth app participants only engage at minimum level",
+          "citations": []
+        },
+        "daily_active_users_rate": {
+          "value": "Less than 5% daily active users in real-world settings",
+          "citations": []
+        },
+        "discontinued_within_100_days": {
+          "value": "Median 70% discontinued within first 100 days (JMIR 2024)",
+          "citations": []
+        },
+        "health_apps_abandoned_within_90_days": {
+          "value": "66% of health apps abandoned within 90 days",
+          "citations": []
+        },
+        "fitness_apps_abandoned_within_90_days": {
+          "value": "69% of fitness apps abandoned within 90 days",
+          "citations": []
+        },
+        "source": {
+          "value": "C4DHI research data and JMIR study (2024)",
+          "citations": []
+        },
+        "interface_complexity_correlation": {
+          "value": "Drop-off is directly correlated with interface complexity",
+          "citations": []
+        }
+      },
+      "subsection_1B_time_to_action": {
+        "header": {
+          "value": "1B. Time-to-Action (Decision Latency)",
+          "citations": []
+        },
+        "decision_time_6_option": {
+          "value": "8.91 seconds (SD=6.02) for 6-option condition",
+          "citations": []
+        },
+        "decision_time_30_option": {
+          "value": "24.36 seconds (SD=12.99) for 30-option condition",
+          "citations": []
+        },
+        "statistical_test": {
+          "value": "F(1,131) = 77.02, p < .0001",
+          "citations": []
+        },
+        "decision_time_increase_ratio": {
+          "value": "2.7x increase in decision time with 5x more options",
+          "citations": []
+        },
+        "difficulty_extensive_choice": {
+          "value": "M=4.45 (extensive choice)",
+          "citations": []
+        },
+        "difficulty_limited_choice": {
+          "value": "M=3.30 (limited choice)",
+          "citations": []
+        },
+        "difficulty_statistical_test": {
+          "value": "F(1,132)=16.38, p<.0001",
+          "citations": []
+        },
+        "frustration_extensive_choice": {
+          "value": "M=3.10 (extensive choice)",
+          "citations": []
+        },
+        "frustration_limited_choice": {
+          "value": "M=2.24 (limited choice)",
+          "citations": []
+        },
+        "frustration_statistical_test": {
+          "value": "F(1,123)=7.61, p<.007",
+          "citations": []
+        },
+        "enjoyment_extensive_choice": {
+          "value": "M=6.02 (extensive choice — enjoyed the process more even though behavioral outcome was worse)",
+          "citations": []
+        },
+        "enjoyment_limited_choice": {
+          "value": "M=4.72 (limited choice)",
+          "citations": []
+        },
+        "health_app_latency_implications": {
+          "value": "For health apps, the health behavior window (morning readiness, post-workout recovery, pre-sleep) is narrow. A 2-3x increase in decision time means the user’s context changes, motivation fades, or the moment passes entirely.",
+          "citations": []
+        },
+        "insidebe_quote_on_decision_overload": {
+          "value": "\"Decision overload is directly tied to the timeframe you have to make decisions in. If you are pressed for time, choice overload hits harder.\"",
+          "citations": []
+        }
+      },
+      "subsection_1C_user_satisfaction": {
+        "header": {
+          "value": "1C. User Satisfaction",
+          "citations": []
+        },
+        "satisfaction_limited_choice": {
+          "value": "M=6.28 (SD=0.54) for limited choice condition",
+          "citations": []
+        },
+        "satisfaction_extensive_choice": {
+          "value": "M=5.46 (SD=0.82) for extensive choice condition",
+          "citations": []
+        },
+        "satisfaction_statistical_test": {
+          "value": "F(1,122)=28.02, p<.0001",
+          "citations": []
+        },
+        "satisfaction_key_finding": {
+          "value": "Fewer options led to greater enjoyment and less regret",
+          "citations": []
+        },
+        "jmir_2024_dropout_reasons": {
+          "value": "JMIR (2024) qualitative mHealth dropout study: most cited problems were 'too extensive and time-consuming' and 'inadequate, unappealing content design'; patients criticized 'lack of an easy overview and nonintuitive app design'; simplicity cited as key driver for completers; deficient menu navigation explicitly criticized",
+          "citations": []
+        },
+        "headspace_insidebe_audit_engagement_boost": {
+          "value": "InsideBE Headspace behavioral audit (2023): 'feeling stressed-out and overwhelmed by choices' was primary reason for abandonment; guiding new users through content rather than giving options increased engagement by 34%",
+          "citations": []
+        },
+        "frontiers_public_health_2024_study": {
+          "citation": {
+            "value": "Zhong, Cao & Xue (2024), Frontiers in Public Health",
+            "citations": []
+          },
+          "sample_size": {
+            "value": "n=1,137 valid respondents",
+            "citations": []
+          },
+          "self_efficacy_effect": {
+            "value": "β = -0.152, p < .0001 (reduced self-efficacy)",
+            "citations": []
+          },
+          "perceived_barriers_effect": {
+            "value": "β = 0.191, p < .0001 (increased perceived barriers)",
+            "citations": []
+          },
+          "additional_findings": {
+            "value": "Information overload also increased perceived susceptibility, perceived severity, and cues to action leading to overuse of medical services",
+            "citations": []
+          }
+        }
+      }
+    },
+    "SECTION_2_HICKS_LAW": {
+      "section_header": {
+        "value": "Section 2: Hick’s Law Applied to Health Behavior Change Apps",
+        "citations": []
+      },
+      "formula_header": {
+        "value": "The Formula",
+        "citations": []
+      },
+      "hicks_law_formula": {
+        "value": "RT = b·log₂(n + 1), where RT = response time, n = number of equally probable choices, b = empirically derived constant",
+        "citations": []
+      },
+      "hicks_law_description": {
+        "value": "Decision time grows logarithmically with the number of choices (Hick-Hyman Law, 1952)",
+        "citations": []
+      },
+      "laws_of_ux_quote": {
+        "value": "\"The time it takes to make a decision increases with the number and complexity of choices.\"",
+        "citations": []
+      },
+      "practical_implications": {
+        "value": "Minimize choices when response times are critical; break complex tasks into smaller steps; highlight recommended options to avoid overwhelming users",
+        "citations": []
+      },
+      "why_worse_in_health_header": {
+        "value": "Why It’s Worse in Health Contexts Than in General UX",
+        "citations": []
+      },
+      "health_context_intro": {
+        "value": "In standard consumer UX, Hick’s Law mainly affects conversion. In health behavior change, the consequences are compounded.",
+        "citations": []
+      },
+      "factor_1_cognitive_depletion_cascade": {
+        "value": "Cognitive depletion cascade: YU target users (bankers, consultants, founders) arrive with depleted prefrontal cortex resources from prior cognitive work. Every decision strains the mind; effective 'n' for processing choices is lower than a rested user’s, making every additional option disproportionately costly.",
+        "citations": []
+      },
+      "factor_2_emotional_interference": {
+        "value": "Emotional interference: Health decisions are not emotionally neutral. Recommendations touching on stress, sleep, or recovery carry emotional valence that increases the cost of each additional choice. Frontiers in Public Health (2024) confirmed health-related information overload increased anxiety and affected decision quality.",
+        "citations": []
+      },
+      "factor_3_compliance_cliff": {
+        "value": "Compliance cliff: In general UX, choice overload causes cart abandonment. In health apps, it causes non-adherence which compounds over time. Non-adherence in mHealth is the primary driver of failure. C4DHI: up to 80% only engage at minimum level; JMIR (2024): 66% abandoned within 90 days. This is a clinical and product efficacy problem.",
+        "citations": []
+      },
+      "factor_4_temporal_cost": {
+        "value": "Temporal cost: Health behavior windows are context-dependent and time-bounded. A 2.7x increase in decision time means users are more likely to fall outside the optimal window for action. Morning recovery window, post-workout refueling, pre-sleep wind-down — all finite.",
+        "citations": []
+      },
+      "compliance_rate_thresholds_header": {
+        "value": "Compliance Rate Thresholds",
+        "citations": []
+      },
+      "compliance_rate_thresholds_finding": {
+        "value": "When users face ≥3 recommended actions, compliance rates in digital behavior change interventions drop significantly. Perceived information excess reduced self-efficacy (β=-0.152) and increased perceived barriers (β=0.191) — a double penalty.",
+        "citations": []
+      },
+      "jmir_2024_habit_formation": {
+        "value": "JMIR (2024) on digital behavior change for habit formation: prompts and cues combined with action planning and personalization are most effective; effectiveness depends on prompt being specific and singular enough to activate automaticity; time-based cues and personalized adaptive goals were most effective techniques.",
+        "citations": []
+      },
+      "effective_principle": {
+        "value": "Health apps should not present n > 1 primary recommended actions when the goal is behavior completion rather than education.",
+        "citations": []
+      },
+      "design_application_for_yu_header": {
+        "value": "Design Application for YU",
+        "citations": []
+      },
+      "good_yu_example": {
+        "value": "Morning agent output: one recovery-informed recommendation — \"Your HRV is 12% below your 7-day baseline - do a 5-minute cyclic sighing reset before your 9am call\"",
+        "citations": []
+      },
+      "bad_yu_example": {
+        "value": "Counter-example: \"Here are three things you could do: (1) breathing exercise, (2) reduce your meeting load, (3) take a walk\"",
+        "citations": []
+      },
+      "cognitive_load_comparison": {
+        "value": "log₂(3+1) = 2 bits of processing (3-option) vs. log₂(1+1) = 1 bit (1-option) — double the cognitive load from number of options alone",
+        "citations": []
+      }
+    },
+    "SECTION_3_IMPLEMENTATION_INTENTIONS": {
+      "section_header": {
+        "value": "Section 3: Implementation Intentions - Singularity and Specificity of Behavioral Prompts",
+        "citations": []
+      },
+      "core_science_header": {
+        "value": "The Core Science",
+        "citations": []
+      },
+      "gollwitzer_definition": {
+        "value": "Peter Gollwitzer (1993, 1999, NYU) introduced implementation intentions as a self-regulatory strategy: 'If situation X, then I will perform behavior Y.' Unlike goal intentions ('I intend to exercise'), implementation intentions pre-specify the when, where, and how.",
+        "citations": []
+      },
+      "strategic_automaticity": {
+        "value": "NCI/Cancer Control: 'Implementation intentions are formed for the purpose of enhancing the translation of goal intentions into action' through 'strategic automaticity' — the specified situational context elicits goal-directed behavior immediately, efficiently, and without requiring conscious intent.",
+        "citations": []
+      },
+      "effect_size_meta_analysis_header": {
+        "value": "Effect Size and Meta-Analytic Evidence",
+        "citations": []
+      },
+      "gollwitzer_sheeran_2006_meta_analysis": {
+        "value": "Meta-analysis of 94 studies (Gollwitzer & Sheeran, 2006, Advances in Experimental Social Psychology): implementation intentions had a medium-to-large effect on goal attainment (d = 0.65) on top of goal intentions alone; more than 8,000 participants.",
+        "citations": []
+      },
+      "alleviating_failure_effect_size": {
+        "value": "Alleviating failure to get started: d = 0.61 (medium-to-large). Applied to remembering to act (e.g., taking vitamin pills), not missing opportunities (e.g., mammography), overcoming initial reluctance (e.g., testicular self-examination).",
+        "citations": []
+      },
+      "preventing_derailment_effect_size": {
+        "value": "Preventing derailment: d = 0.77 (large) (Gollwitzer & Sheeran, 2006)",
+        "citations": []
+      },
+      "flu_vaccination_study_milkman_2011": {
+        "citation": {
+          "value": "Milkman et al. (2011), PNAS",
+          "citations": []
+        },
+        "control_group_vaccination_rate": {
+          "value": "33.1%",
+          "citations": []
+        },
+        "date_and_time_increase": {
+          "value": "+4.2 percentage points higher (regression-adjusted) with date and time specification",
+          "citations": []
+        },
+        "statistical_significance": {
+          "value": "p<0.05",
+          "citations": []
+        },
+        "single_day_clinic_increase": {
+          "value": "+6.0 percentage points at single-day clinic sites",
+          "citations": []
+        }
+      },
+      "gollwitzer_brandstatter_1997": {
+        "citation": {
+          "value": "Gollwitzer & Brandstätter (1997, JPSP)",
+          "citations": []
+        },
+        "difficult_goals_without_ii": {
+          "value": "22% completion rate without implementation intention",
+          "citations": []
+        },
+        "difficult_goals_with_ii": {
+          "value": "62% completion rate with implementation intention",
+          "citations": []
+        },
+        "improvement_multiplier": {
+          "value": "Approximately 3 times more often completed with implementation intentions",
+          "citations": []
+        },
+        "statistical_test": {
+          "value": "x²(1, N=68) = 9.99, p = .002",
+          "citations": []
+        },
+        "easy_goals_completion": {
+          "value": "Easy goals showed near-ceiling completion (78%) regardless of implementation intentions",
+          "citations": []
+        }
+      },
+      "specificity_singularity_header": {
+        "value": "The Specificity and Singularity Requirement",
+        "citations": []
+      },
+      "nci_literature_specificity_requirement": {
+        "value": "NCI/Cancer Control: 'If-then planning may not be very effective if relevant opportunities and responses are not specified precisely!'",
+        "citations": []
+      },
+      "vague_plan_critique": {
+        "value": "A plan specifying 'exercise more' and 'tomorrow' has NOT spelled out an unambiguous opportunity or specific response. 'Having to thus deliberate about when, where, and what to do in situ means that the person is unlikely to garner the benefits of enhanced accessibility of critical cues and automation of responding'",
+        "citations": []
+      },
+      "correct_implementation_intention_format": {
+        "value": "Correct format: 'If it is 5pm on Monday, then I will jog home from work.' ― Specific time, specific behavior, specific trigger.",
+        "citations": []
+      },
+      "non_overlapping_requirement": {
+        "value": "Multiple implementation intentions for the same cue must be non-overlapping: 'different responses are not specified in relation to the same cue, specified responses do not conflict.' The if-part must connect to exactly one then-part to maintain the automaticity benefit.",
+        "citations": []
+      },
+      "do_this_one_thing_vs_three_things": {
+        "value": "'Do This One Thing at 9pm' vs. 'Here Are Three Things You Could Do' — the literature makes a stark distinction",
+        "citations": []
+      },
+      "single_action_9pm_explained": {
+        "value": "'Do this one thing at 9pm': IS an implementation intention. Pre-specifies trigger (9pm) and response (one specific behavior). Activates strategic automaticity. Brandstätter, Lengfelder & Gollwitzer (2001, JPSP): implementation intention participants initiated action faster and with less cognitive effort, with speed comparable to habitual responses. 'Forming implementation intentions instigates immediate action initiation that is also efficient.'",
+        "citations": []
+      },
+      "three_things_goal_intention_explained": {
+        "value": "'Here are three things you could do today': This is a goal intention list. Requires user to (1) evaluate each option, (2) select one, (3) decide when, (4) decide how. Intention-behavior gap remains fully open. Probability of follow-through is significantly lower.",
+        "citations": []
+      },
+      "taylor_francis_2021_specificity": {
+        "value": "Taylor & Francis (2021) review: 'From a practical perspective, conceiving of actions according to discrete ‘steps’ highlights the importance of specifying how habit is expected to support health-related behaviours.' Implementation intentions work best for discrete, single-action behaviors; work less well for complex sustained behaviors requiring multiple actions in varying contexts.",
+        "citations": []
+      },
+      "design_implications_yu_header": {
+        "value": "Direct Design Implications for YU’s Agent Output",
+        "citations": []
+      },
+      "poor_agent_output_example": {
+        "value": "Poor (goal intention framing): 'Based on your HRV data, here are some things you might consider: breathing exercises, reducing your caffeine intake, or going to bed earlier.'",
+        "citations": []
+      },
+      "strong_agent_output_example": {
+        "value": "Strong (implementation intention framing): 'Your autonomic recovery is low. At 9pm tonight, do 5 minutes of cyclic sighing before you close your laptop. I’ll remind you then'",
+        "citations": []
+      },
+      "strong_example_mechanistic_explanation": {
+        "value": "The second formulation pre-loads the if-then plan into working memory, activates the environmental cue (9pm), and specifies the exact response (cyclic sighing). The user does not need to deliberate at 9pm. Behavior initiates with near-automatic speed, as documented by Brandstätter et al. (2001).",
+        "citations": []
+      }
+    },
+    "SECTION_4_PRODUCT_EVIDENCE": {
+      "section_header": {
+        "value": "Section 4: Product Evidence - Headspace, Noom, and WHOOP",
+        "citations": []
+      },
+      "headspace_header": {
+        "value": "4A. Headspace",
+        "citations": []
+      },
+      "headspace_primary_cta": {
+        "value": "One action everywhere: 'Download the app.' Every piece of content leads to a single action. SEO blog content generates 720,000+ monthly organic visitors; 620,000+ YouTube subscribers. (Grizzle 2025: 'No matter where you look, Headspace offers one clear call-to-action: ‘Download the app.’')",
+        "citations": []
+      },
+      "headspace_monthly_organic_visitors": {
+        "value": "720,000+",
+        "citations": []
+      },
+      "headspace_youtube_subscribers": {
+        "value": "620,000+",
+        "citations": []
+      },
+      "headspace_insidebe_2023_behavioral_audit": {
+        "value": "InsideBE behavioral audit (2023): Choice overload and stress were causing app abandonment. Guiding new users through content rather than presenting an open library increased engagement by 34%. 'Feeling stressed-out and overwhelmed by choices' was identified as a common reason for abandonment.",
+        "citations": []
+      },
+      "headspace_engagement_increase": {
+        "value": "34%",
+        "citations": []
+      },
+      "headspace_onboarding_ab_test": {
+        "value": "Onboarding A/B test (Wyatt Feaster, Headspace, LinkedIn 2025): multi-select won with +10% free trial starts. Nuance: 'single select immediately created the sense that users were missing out on personalized content from needs that they couldn’t check off.' For goal DISCOVERY, multiple options work; for action PROMPTS, single-CTA holds.",
+        "citations": []
+      },
+      "headspace_action_first_design": {
+        "value": "Action-first design case study: Flipping from metrics-first to action-first in a reading app context produced +35% increase in action-based conversions.",
+        "citations": []
+      },
+      "noom_header": {
+        "value": "4B. Noom",
+        "citations": []
+      },
+      "noom_intro": {
+        "value": "Noom is the most explicit practitioner of bounded-action design in health apps.",
+        "citations": []
+      },
+      "noom_daily_task_structure": {
+        "value": "Daily task structure: vertically stacked priority order — weigh in, log meals, reach step goal. Ordered by priority, allowing Noom to highlight what matters most that day without presenting unbounded choice. Not 'zero vs. many' but 'one clear primary' with secondary scaffolding.",
+        "citations": []
+      },
+      "noom_progressive_disclosure": {
+        "value": "Progressive disclosure: Features revealed over time rather than at onboarding. Users meet Goal Specialist coach after a few days, then join group community weeks in. Prevents cognitive load of full feature set from overwhelming new users.",
+        "citations": []
+      },
+      "noom_engagement_outcomes_study": {
+        "dataset_size": {
+          "value": "14,210 subscribers",
+          "citations": []
+        },
+        "top_quartile_definition": {
+          "value": "Top 25% of app opens",
+          "citations": []
+        },
+        "weight_loss_at_40_weeks": {
+          "value": "8.3 lbs more weight loss at 40 weeks vs. lowest quartile",
+          "citations": []
+        },
+        "percent_more_total_weight_loss": {
+          "value": "25.2% more total weight loss (p<0.001)",
+          "citations": []
+        },
+        "weight_loss_4_weeks": {
+          "value": "+3.8 lbs at 4 weeks",
+          "citations": []
+        },
+        "weight_loss_8_weeks": {
+          "value": "+4.7 lbs at 8 weeks",
+          "citations": []
+        },
+        "weight_loss_16_weeks": {
+          "value": "+6.3 lbs at 16 weeks",
+          "citations": []
+        },
+        "weight_loss_40_weeks_milestone": {
+          "value": "+8.3 lbs at 40 weeks",
+          "citations": []
+        },
+        "medication_program_duration": {
+          "value": "Most-engaged members stayed on medication program 2.2x longer",
+          "citations": []
+        },
+        "source": {
+          "value": "Noom’s own data (2026)",
+          "citations": []
+        }
+      },
+      "noom_micro_habit_architecture": {
+        "value": "Noom explicitly uses the 'Elephant and Rider' framework (Haidt). Focuses on making healthy behaviors automatic by reducing their size and complexity — the behavior change equivalent of single-CTA design.",
+        "citations": []
+      },
+      "whoop_header": {
+        "value": "4C. WHOOP",
+        "citations": []
+      },
+      "whoop_intro": {
+        "value": "WHOOP is perhaps the most radical example of single-number compression in health tech.",
+        "citations": []
+      },
+      "whoop_core_design_decision": {
+        "value": "Compress dozens of biometric signals to one Recovery score between 0 and 100. WHOOP Developer docs: 'When you wake up in the morning, WHOOP calculates a Recovery score as a percentage between 0-100%. The higher the score, the more primed your body is to take on Strain that day.' Built from HRV, resting heart rate, respiratory rate, sleep quality, skin temperature, and blood oxygen.",
+        "citations": []
+      },
+      "whoop_three_tier_architecture": {
+        "value": "Three-tier progressive disclosure: Tier 1 = single glanceable Recovery score (color-coded green/yellow/red); Tier 2 = trend charts and detailed metrics; Tier 3 = raw biometric graphs. Vast majority of users only need Tier 1 to take action. BASIC/DEPT: 'WHOOP doesn’t just track your sleep, strain, and recovery data, it translates it into actionable insights.'",
+        "citations": []
+      },
+      "whoop_strain_recovery_feedback_loop": {
+        "value": "One recommended action each morning: a Strain target range based on Recovery. Daily ritual drives retention without gamification. Through personalized challenges powered by Hightouch and Iterable, WHOOP achieved 128% uplift in active participants, open rates above 60% throughout, 92% of members would participate in next challenge.",
+        "citations": []
+      },
+      "whoop_128_percent_uplift": {
+        "value": "128% uplift in active participants",
+        "citations": []
+      },
+      "whoop_open_rates": {
+        "value": "Open rates above 60% throughout the campaign",
+        "citations": []
+      },
+      "whoop_next_challenge_participation": {
+        "value": "92% of members reporting they would participate in the next challenge",
+        "citations": []
+      },
+      "whoop_2020_injury_study": {
+        "value": "2020 study: Runners who adjusted workouts based on WHOOP recovery scores experienced 30% fewer injuries and spent less time training than those who did not — while making equal fitness gains.",
+        "citations": []
+      },
+      "whoop_injury_reduction": {
+        "value": "30% fewer injuries",
+        "citations": []
+      },
+      "whoop_design_philosophy": {
+        "value": "The underlying data can be complex. The first thing users see should not be. Compress complexity into a single score — the design principle that defines WHOOP’s entire UX architecture.",
+        "citations": []
+      },
+      "comparative_pattern_analysis_intro": {
+        "value": "Comparative Pattern Analysis",
+        "citations": []
+      }
+    },
+    "COMPARATIVE_PATTERN_ANALYSIS_TABLE": {
+      "table_full_content": {
+        "value": "Table comparing Headspace, Noom, and WHOOP across: Primary Action Surface, Choice Architecture, Progressive Disclosure, Behavioral Science Foundation, and Key Metric",
+        "citations": []
+      },
+      "headspace_row": {
+        "app": {
+          "value": "Headspace",
+          "citations": []
+        },
+        "primary_action_surface": {
+          "value": "Single daily session prompt",
+          "citations": []
+        },
+        "choice_architecture": {
+          "value": "One featured meditation",
+          "citations": []
+        },
+        "progressive_disclosure": {
+          "value": "Feature reveal over weeks",
+          "citations": []
+        },
+        "behavioral_science_foundation": {
+          "value": "Behavioral conditioning, habit formation",
+          "citations": []
+        },
+        "key_metric": {
+          "value": "34% engagement boost from guided navigation (InsideBE, 2023)",
+          "citations": []
+        }
+      },
+      "noom_row": {
+        "app": {
+          "value": "Noom",
+          "citations": []
+        },
+        "primary_action_surface": {
+          "value": "Prioritized 3-task daily stack (1 primary)",
+          "citations": []
+        },
+        "choice_architecture": {
+          "value": "Vertically ordered, one highlighted",
+          "citations": []
+        },
+        "progressive_disclosure": {
+          "value": "Features released over program timeline",
+          "citations": []
+        },
+        "behavioral_science_foundation": {
+          "value": "CBT, Elephant & Rider, implementation intentions",
+          "citations": []
+        },
+        "key_metric": {
+          "value": "25.2% more weight loss in top engagement quartile (Noom, 2026)",
+          "citations": []
+        }
+      },
+      "whoop_row": {
+        "app": {
+          "value": "WHOOP",
+          "citations": []
+        },
+        "primary_action_surface": {
+          "value": "Single Recovery score (0-100)",
+          "citations": []
+        },
+        "choice_architecture": {
+          "value": "Three-tier, most users stay at tier 1",
+          "citations": []
+        },
+        "progressive_disclosure": {
+          "value": "Raw data accessible but not surfaced by default",
+          "citations": []
+        },
+        "behavioral_science_foundation": {
+          "value": "Fogg B=MAP, feedback loop design",
+          "citations": []
+        },
+        "key_metric": {
+          "value": "128% fitness challenge participation increase (Hightouch, 2024)",
+          "citations": []
+        }
+      }
+    },
+    "SECTION_5_BEHAVIORAL_ECONOMICS": {
+      "section_header": {
+        "value": "Section 5: Behavioral Economics and Persuasive Technology Synthesis",
+        "citations": []
+      },
+      "fogg_model_header": {
+        "value": "5A. The Fogg Behavior Model (B=MAP)",
+        "citations": []
+      },
+      "fogg_behavior_model": {
+        "value": "BJ Fogg (Stanford Persuasive Technology Lab, 2009): B = Motivation × Ability × Prompt. All three must converge simultaneously for behavior to occur. 'Even a highly motivated person won’t act if the task feels too difficult, and even the simplest task won’t happen if there’s no motivation or cue to trigger it.'",
+        "citations": []
+      },
+      "multiple_ctas_fragment_prompt": {
+        "value": "Multiple CTAs fragment the Prompt. Instead of one clear signal, user receives multiple competing signals each diluting the strength of the prompt. 'Simplicity changes behaviors' (Fogg). Amazon’s 1-click purchase is the consumer example. For health apps: one-tap intervention cards, not menus.",
+        "citations": []
+      },
+      "tiny_habits_corollary": {
+        "value": "Tiny Habits: Reduce behavior to minimum viable form. One floss. One push-up. One breath cycle. Not three exercises. Frontiers in Public Health (2022) study: Tiny Habits Recipes structured as implementation intentions produced significant effect sizes on habit formation (Cohen’s d = 0.85 for gratitude outcomes). Leverages B=MAP framework to reduce behavior to smallest actionable unit.",
+        "citations": []
+      },
+      "tiny_habits_effect_size": {
+        "value": "Cohen’s d = 0.85 for gratitude outcomes",
+        "citations": []
+      },
+      "fogg_six_simplicity_factors": {
+        "value": "Fogg’s six simplicity factors: time, money, physical effort, mental effort, social deviance, and non-routine. All argue for single-action prompts. Each additional option increases mental effort and introduces non-routine decision costs.",
+        "citations": []
+      },
+      "default_effects_header": {
+        "value": "5B. Default Effects and Choice Architecture",
+        "citations": []
+      },
+      "organ_donation_default_effect": {
+        "value": "Participants in opt-out conditions had nearly double the organ donation rate compared to opt-in conditions",
+        "citations": []
+      },
+      "flu_vaccination_default_effect": {
+        "value": "Milkman et al. (2011): pre-scheduled appointments with date-and-time specificity increased vaccination rates from 33.1% to 37.1% with most specific prompt at zero incremental cost",
+        "citations": []
+      },
+      "single_cta_as_default": {
+        "value": "The single-CTA is the health app equivalent of a default: it removes the need for active choice. The user doesn’t pick what to do — the system does. This is not paternalism; it is frictionless behavioral scaffolding.",
+        "citations": []
+      },
+      "frontiers_public_health_penalty_of_complexity": {
+        "value": "Frontiers in Public Health (2024) mHealth information overload study: information overload reduces self-efficacy (β = -0.152, p<.0001), increases perceived barriers (β = 0.191, p < .0001), and increases anxiety. A single recommended action mitigates all three pathways simultaneously.",
+        "citations": []
+      },
+      "cognitive_load_boundary_header": {
+        "value": "5C. The Cognitive Load Boundary Condition",
+        "citations": []
+      },
+      "cognitive_load_boundary_condition": {
+        "value": "Single-CTA principle applies specifically to the PRIMARY action surface — the moment-of-truth card or notification asking the user to do something right now. It does NOT mean no other content, no educational modules, no data exploration, no personalization choices during setup.",
+        "citations": []
+      },
+      "what_single_cta_does_not_mean_list": [
+        {
+          "value": "No other content in the app",
+          "citations": []
+        },
+        {
+          "value": "No educational modules",
+          "citations": []
+        },
+        {
+          "value": "No data exploration (the WHOOP model proves this-rich data behind a single score)",
+          "citations": []
+        },
+        {
+          "value": "No personalization choices made during setup (the Headspace onboarding test proves multi-select works for goal discovery)",
+          "citations": []
+        }
+      ],
+      "what_single_cta_means": {
+        "value": "At the moment you ask a user to change a behavior, give them one action. One. The rest of the app can be as rich as needed.",
+        "citations": []
+      },
+      "high_performer_modifier_header": {
+        "value": "5D. The High-Performer Modifier",
+        "citations": []
+      },
+      "yu_target_population": {
+        "value": "YU’s specific population: investment bankers, consultants, founders",
+        "citations": []
+      },
+      "high_performer_cognitive_depletion": {
+        "value": "High-performers arrive at health behavior prompts with above-average cognitive depletion from prior decision-making work. InsideBE ego depletion research: 'every decision strains your mind and numbs you to each subsequent decision you have to make. In order to cope and not get overloaded, the brain starts to simplify everything.' Their effective tolerance for choice is compressed further than average.",
+        "citations": []
+      },
+      "high_performer_performance_framing": {
+        "value": "Performance framing with single clear actions outperforms multiple-option menus and open-ended suggestions. These users respond to 'do this exact thing' with efficiency orientation. Gollwitzer & Brandstätter (1997) tripling of completion rates for difficult goals is particularly relevant — high-performers face difficult health behavior goals by definition, competing with professional demands.",
+        "citations": []
+      },
+      "high_performer_paradox": {
+        "value": "The high-performer paradox: capable of evaluating many options but most engaged by systems that do the evaluation for them. They hire analysts, use dashboards, build teams precisely to reduce decisions they personally need to make. YU’s value proposition: not 'we give you health options' but 'we’ve already decided what you should do next.'",
+        "citations": []
+      }
+    },
+    "SECTION_6_DESIGN_PRINCIPLES": {
+      "section_header": {
+        "value": "Section 6: Design Principles for YU’s Primary Action Surface",
+        "citations": []
+      },
+      "intro": {
+        "value": "Distilling all evidence into six actionable, evidence-grounded design principles:",
+        "citations": []
+      },
+      "principle_1": {
+        "title": {
+          "value": "1. One recommended action per notification/card — enforced.",
+          "citations": []
+        },
+        "explanation": {
+          "value": "Not 'here are some options.' The agent decides, surfaces one action, and frames it with a brief rationale tied to the user’s biometric context. Evidence: Iyengar & Lepper (2000) showed 30% purchase rate with 6 options vs. 3% with 24. Single-CTA emails generate 371% more clicks. The principle is categorical at the action surface.",
+          "citations": []
+        }
+      },
+      "principle_2": {
+        "title": {
+          "value": "2. The if-then trigger must be explicit.",
+          "citations": []
+        },
+        "explanation": {
+          "value": "E.g., 'At 9pm tonight, before closing your laptop, do X.' Not 'sometime today, consider doing Y.' The environmental cue (time or context) must be named. Gollwitzer & Sheeran (2006) showed d = 0.65 for implementation intentions; the NCI literature is explicit that vague plans yield no benefit over bare goal intentions.",
+          "citations": []
+        }
+      },
+      "principle_3": {
+        "title": {
+          "value": "3. Compress complexity before surfacing it.",
+          "citations": []
+        },
+        "explanation": {
+          "value": "One recovery signal drives the recommendation. The underlying biometric signals are never shown on the primary card. Progressive disclosure puts them 2 taps away for users who want them. WHOOP’s three-tier architecture is the model: one score first, everything else secondary.",
+          "citations": []
+        }
+      },
+      "principle_4": {
+        "title": {
+          "value": "4. Completion must be one tap.",
+          "citations": []
+        },
+        "explanation": {
+          "value": "The 'I did it' action is one tap on the card. This closes the behavioral loop without requiring the user to navigate anywhere. Fogg’s prompt must be instantly actionable — as Fogg’s B=MAP model stipulates, ability must be maximized at the moment of the prompt.",
+          "citations": []
+        }
+      },
+      "principle_5": {
+        "title": {
+          "value": "5. Post-action, show the score.",
+          "citations": []
+        },
+        "explanation": {
+          "value": "Show biometric context only after the action has been prompted or completed, never before (anchoring bias risk). This is consistent with the action-first design principle showing 35% higher conversion than metrics-first design. The user acts first; the data reinforces the value of acting.",
+          "citations": []
+        }
+      },
+      "principle_6": {
+        "title": {
+          "value": "6. Never present 3+ options as equivalent.",
+          "citations": []
+        },
+        "explanation": {
+          "value": "If secondary actions are needed, surface them in a subordinate UI tier with clear visual hierarchy that makes the primary action dominant. WHOOP’s three-tier architecture is the model: one score first, everything else secondary. Noom’s vertically stacked task list demonstrates how to offer multiple tasks without creating equivalent-weight choice overload.",
+          "citations": []
+        }
+      }
+    },
+    "CONCLUSION": {
+      "conclusion_header": {
+        "value": "Conclusion",
+        "citations": []
+      },
+      "paragraph_1_convergent_evidence": {
+        "value": "The evidence converges from every direction. Experimental psychology (Iyengar & Lepper) shows that more options produce less action and lower satisfaction. Cognitive science (Hick’s Law) shows that decision time scales logarithmically with choice count — a tax on every additional option. Self-regulation research (Gollwitzer) shows that specific, singular if-then plans produce medium-to-large effect sizes on behavior completion, while vague multi-option prompts leave the intention-behavior gap wide open. And the most successful health products in the market — Headspace, Noom, WHOOP — have all converged independently on the same architecture: compress complexity, surface one action, make completion frictionless.",
+        "citations": []
+      },
+      "paragraph_2_yu_implications": {
+        "value": "For YU, serving cognitively loaded high-performers via wearable-driven micro-interventions, the implications are not directional — they are categorical. The primary action surface must present one recommended behavior, tied to a specific biometric signal, with an explicit time-based or context-based trigger, completable in one tap. The rich biometric data, the sophisticated Al reasoning, the personalization engine — all of that powers the selection of the right action. None of it should be visible at the moment of prompting.",
+        "citations": []
+      },
+      "paragraph_3_product_statement": {
+        "value": "The agent’s value is not that it gives users options — it’s that it eliminates the need to choose. That is the product.",
+        "citations": []
+      }
+    },
+    "REFERENCES": {
+      "references_header": {
+        "value": "References",
+        "citations": []
+      },
+      "ref_1": {
+        "value": "Iyengar, S. S., & Lepper, M. R. (2000). When choice is demotivating: Can one desire too much of a good thing? Journal of Personality and Social Psychology, 79(6), 995-1006. https://faculty.washington.edu/jdb/345/345 Articles/lyengar & Lepper (2000).pdf",
+        "citations": []
+      },
+      "ref_2": {
+        "value": "Gollwitzer, P. M. (1993). Goal achievement: The role of intentions. European Review of Social Psychology, 4(1), 141–185.",
+        "citations": []
+      },
+      "ref_3": {
+        "value": "Gollwitzer, P. M. (1999). Implementation intentions: Strong effects of simple plans. American Psychologist, 54(7), 493-503. https://www.prospectivepsych.org/sites/default/files/pictures/G ollwitzer Implementation-intentions-1999.pdf",
+        "citations": []
+      },
+      "ref_4": {
+        "value": "Gollwitzer, P. M., & Sheeran, P. (2006). Implementation intentions and goal achievement: A meta-analysis of effects and processes. Advances in Experimental Social Psychology, 38, 69–119. https://cancercontrol.cancer.gov/sites/default/files/2020-06/goal_intent_attain.pdf",
+        "citations": []
+      },
+      "ref_5": {
+        "value": "Gollwitzer, P. M., & Brandstätter, V. (1997). Implementation intentions and effective goal pursuit. Journal of Personality and Social Psychology, 73(1), 186–199. https://sparq.stanford.edu/sites/g/files/sbiybj19021/files/media/file/gollwitzer_brandstatter_1997_-_implementation_intentions_effective_goal_pursuit.pdf",
+        "citations": []
+      },
+      "ref_6": {
+        "value": "Brandstätter, V., Lengfelder, A., & Gollwitzer, P. M. (2001). Implementation intentions and efficient action initiation. Journal of Personality and Social Psychology, 81(5), 946–960. https://pdfs.semanticscholar.org/1e1c/145abe3ba075cb56a5e7e889b0e527dc90ac.pdf",
+        "citations": []
+      },
+      "ref_7": {
+        "value": "Milkman, K. L., Beshears, J., Choi, J. J., Laibson, D., & Madrian, B. C. (2011). Using implementation intentions prompts to enhance influenza vaccination rates. Proceedings of the National Academy of Sciences, 108(26), 10415-10420. https://pmc.ncbi.nlm.nih.gov/articles/PMC3127912/",
+        "citations": []
+      },
+      "ref_8": {
+        "value": "Hick, W. E. (1952). On the rate of gain of information. Quarterly Journal of Experimental Psychology, 4(1), 11-26.",
+        "citations": []
+      },
+      "ref_9": {
+        "value": "Fogg, B. J. (2009). A behavior model for persuasive design. Proceedings of the 4th International Conference on Persuasive Technology. https://www.northbeam.io/blog/fogg-behavior-model-motivation-ability-and-prompts",
+        "citations": []
+      },
+      "ref_10": {
+        "value": "Zhong, L., Cao, J., & Xue, F. (2024). The paradox of convenience: How information overload in mHealth apps leads to medical service overuse. Frontiers in Public Health, 12, 1408998. https://pmc.ncbi.nlm.nih.gov/articles/PMC11634807/",
+        "citations": []
+      },
+      "ref_11": {
+        "value": "C4DHI Center for Digital Health Interventions (2023). Prediction and prevention of non-adherence to digital health interventions. https://www.c4dhi.org/projects/prediction-prevention-non-adherence/",
+        "citations": []
+      },
+      "ref_12": {
+        "value": "Laing, E. et al. (2024). Problems and barriers related to the use of mHealth apps from the perspective of the patients. Journal of Medical Internet Research, 26, e49982. https://www.jmir.org/2024/1/e49982/",
+        "citations": []
+      },
+      "ref_13": {
+        "value": "Peng, Z. et al. (2024). When and why adults abandon lifestyle behavior and mental health apps. Journal of Medical Internet Research, 26, e56897. https://www.jmir.org/2024/1/e56897/",
+        "citations": []
+      },
+      "ref_14": {
+        "value": "Li, H. et al. (2024). Digital behavior change intervention designs for habit formation. Journal of Medical Internet Research, 26, e54375. https://www.jmir.org/2024/1/e54375/",
+        "citations": []
+      },
+      "ref_15": {
+        "value": "Gardner, B. et al. (2021). Developing habit-based health behaviour change interventions. Psychology & Health, 38(4). https://www.tandfonline.com/doi/full/10.1080/08870446.2021.2003362",
+        "citations": []
+      },
+      "ref_16": {
+        "value": "NCI National Cancer Institute. Implementation intentions construct summary. https://cancercontrol.cancer.gov/brp/research/constructs/implementation-intentions",
+        "citations": []
+      },
+      "ref_17": {
+        "value": "Inside BE (2023). Case study: Headspace increased user engagement by 34% by reducing user stress and choice overload. https://insidebe.com/articles/how-headspace-reduced-stress-and-choice-overload/",
+        "citations": []
+      },
+      "ref_18": {
+        "value": "Inside BE (2022). Choice overload. https://insidebe.com/articles/choice-overload/",
+        "citations": []
+      },
+      "ref_19": {
+        "value": "Grizzle (2025). How Headspace built a content marketing strategy that generates over 722,000 monthly organic visitors. https://grizzle.io/blog/headspace",
+        "citations": []
+      },
+      "ref_20": {
+        "value": "Feaster, W. (2025). Headspace onboarding A/B test. LinkedIn. https://www.linkedin.com/posts/wyattfeaster_one-design-tweak-helped-headspace-drive-double-digit-activity-7371896806584012800-IHTW",
+        "citations": []
+      },
+      "ref_21": {
+        "value": "Noom (2026). The Noom engagement report: New data shows that the GLP-1 companion delivers results. https://www.noom.com/in-the-news/people-who-use-noom-the-most-also-lose-the-most-weight/",
+        "citations": []
+      },
+      "ref_22": {
+        "value": "Noom (2026). Retention, renewal, results: Noom’s GLP-1 companion. https://www.noom.com/blog/weight-management/2025-was-the-breakout-year-for-nooms-glp1-companion/",
+        "citations": []
+      },
+      "ref_23": {
+        "value": "WHOOP (2026). WHOOP 101 developer documentation. https://developer.whoop.com/docs/whoop-101/",
+        "citations": []
+      },
+      "ref_24": {
+        "value": "WHOOP (2026). How does WHOOP Recovery work? https://www.whoop.com/us/en/thelocker/how-does-whoop-recovery-work-101/",
+        "citations": []
+      },
+      "ref_25": {
+        "value": "WHOOP (2021). Podcast 107: Study shows training based on WHOOP Recovery improves performance, reduces injury. https://www.whoop.com/us/en/thelocker/podcast-107-project-pr-study-validates-recovery/",
+        "citations": []
+      },
+      "ref_26": {
+        "value": "Hightouch (2024). WHOOP boosts member engagement by 128%. https://hightouch.com/customers/whoop",
+        "citations": []
+      },
+      "ref_27": {
+        "value": "Iterable (2024). Leveraging the power of data to unlock human performance (WHOOP case study). https://iterable.com/blog/leveraging-the-power-of-data-to-unlock-human-performance/",
+        "citations": []
+      },
+      "ref_28": {
+        "value": "BASIC/DEPT (2023). WHOOP case study. https://www.basicagency.com/case-studies/whoop",
+        "citations": []
+      },
+      "ref_29": {
+        "value": "Tarvent (2025). Single CTA vs. multiple CTAs: Does choice overwhelm readers? https://www.tarvent.com/blog/single-cta-vs-multiple-ctas-does-choice-overwhelm-readers",
+        "citations": []
+      },
+      "ref_30": {
+        "value": "Campaign Monitor. Do CTAs help to improve email response rates? https://www.campaignmonitor.com/resources/knowledge-base/do-ctas-help-to-improve-email-response-rates/",
+        "citations": []
+      },
+      "ref_31": {
+        "value": "Laws of UX. Hick’s Law. https://lawsofux.com/hicks-law/",
+        "citations": []
+      },
+      "ref_32": {
+        "value": "Helio (2024). Hick’s Law explained: Improve decision-making in UX. https://helio.app/ux-research/laws-of-ux/hicks-law/",
+        "citations": []
+      },
+      "ref_33": {
+        "value": "The Decision Lab (2021). How default settings doubled organ donation rates in the U.S. https://thedecisionlab.com/intervention/how-default-settings-doubled-organ-donation-rates-in-the-us",
+        "citations": []
+      },
+      "ref_34": {
+        "value": "Rathbone, A. L. et al. (2022). Tiny Habits for Gratitude — Implications for healthcare education. Frontiers in Public Health, 10, 849059. https://pmc.ncbi.nlm.nih.gov/articles/PMC9149079/",
+        "citations": []
+      },
+      "ref_35": {
+        "value": "Frontiers in Human Neuroscience (2015). Promoting the translation of intentions into action by implementation intentions. https://pmc.ncbi.nlm.nih.gov/articles/PMC4500900/",
+        "citations": []
+      }
+    }
+  }
+}

@@ -1,0 +1,438 @@
+{
+  "job_id": "c70c88fa-61bc-4b0b-b6a7-9544ccde1e1d",
+  "usage": {
+    "num_pages": 15,
+    "num_fields": 255,
+    "credits": 55.5,
+    "extract_mode": "super_agent"
+  },
+  "studio_link": "https://studio.reducto.ai/job/c70c88fa-61bc-4b0b-b6a7-9544ccde1e1d",
+  "result": [
+    {
+      "document_title": "Per-Market Mental Health Psychology: Investment Banking/Consulting, Amateur Endurance Athletes, and SME Founders",
+      "executive_summary": "Three distinct high-performance populations — investment banking and management consulting professionals, amateur endurance athletes, and SME founders-share an outward posture of control but diverge sharply in their underlying psychological mechanisms, biometric signatures, and receptivity to digital wellness tools. Understanding these differences is not merely academic: the same HRV dip means something entirely different to an analyst facing a pitch deck deadline, a triathlete three weeks out from an Ironman, and a founder navigating a payroll shortfall. Each market requires its own psychological model, its own narrative framing, and its own intervention logic. This report maps the specific psychological architectures of all three segments and draws implications for product design, agent persona, and copy strategy.",
+      "market_1_investment_banking_consulting": {
+        "market_name": "Investment Banking and Management Consulting",
+        "identity_performance_fusion": {
+          "description": "The naive assumption about high-finance professionals is that their identities are fused to performance that every deal, every deck, every model reflects self-worth. The empirical picture is more complex and more consequential for tool design.",
+          "teflonic_identity_maneuvering": {
+            "definition": "an extreme dissociation of personal self from professional output",
+            "research_source": "researchers at Queen Mary University of London (ScienceDaily, 2015; Scientific American, 2016)",
+            "study_details": "In 18 months of repeated interviews with six senior London bankers, researchers found that subjects universally avoided attaching personal value to their work.",
+            "subject_quote": "It just washes over me. I just see it as my job and don't take anything personally!"
+          },
+          "money_as_identity_surrogate": "Money functions as the identity surrogate: effort and reward are assessed in real-time, solely in monetary terms, which suppresses all other identity considerations.",
+          "long_term_costs_identified": "burnout, physical ailments, substance abuse, and divorce (Scientific American, 2016)",
+          "junior_population_dynamic": "Early-career analysts and associates who haven't yet monetized their detachment tend toward acute identity-performance fusion, where every piece of critical feedback reads as a verdict on the self.",
+          "shame_based_processing_source": "Research in finance-adjacent populations confirms that when professional identity remains unsettled, high stress and perceived inadequacy activate shame-based processing rather than instrumental coping (CEREVITY, 2026).",
+          "wellness_tool_design_challenge": "A two-population design challenge within a single industry vertical: junior talent who need identity separation from performance metrics, and senior talent who have achieved that separation but are running on depleted biological reserves they refuse to acknowledge."
+        },
+        "anticipatory_anxiety": {
+          "description": "Finance professionals face a specific, recurring pattern of anticipatory anxiety around high-stakes events-pitch meetings, deal closings, board presentations, earnings calls. Neuroscience clarifies the mechanism with precision.",
+          "high_stakes_events_examples": "pitch meetings, deal closings, board presentations, earnings calls",
+          "amygdala_threat_protocol": "When the amygdala identifies an upcoming high-stakes event as a threat, it initiates a threat protocol immediately upon recognition-not at the moment of the event itself (MindLAB Neuroscience). The anticipatory phase depletes the prefrontal cortex's regulatory resources across the days or weeks before the event.",
+          "prefrontal_cortex_depletion": "The anticipatory phase depletes the prefrontal cortex's regulatory resources across the days or weeks before the event. By the time the presentation arrives, the regulatory buffer is already compromised.",
+          "neural_valuation_signals_finding": "Neural valuation signals in the ventromedial prefrontal cortex and ventral striatum - the systems responsible for evaluating opportunity - are markedly suppressed under anticipatory anxiety, while the anterior insula's coding of negative expected value increases (Journal of Neuroscience, 2015). The cognitive shift is from 'what could go right' to 'what might go wrong'.",
+          "biometric_signature_pre_event": [
+            "rising resting heart rate",
+            "declining HRV (particularly nighttime RMSSD)",
+            "increased sleep onset latency",
+            "reduced deep sleep percentage",
+            "potentially elevated respiratory rate"
+          ],
+          "cortisol_hrv_relationship": "Cortisol both prepares the body for stress and remains elevated longer when anxiety is trait-based (Marquette epublications, 2022). Elevated cortisol disrupts HRV by increasing sympathetic tone and reducing vagal activity. The cortisol-HRV relationship is established: cortisol administration produces connectivity changes in central autonomic network structures that directly reduce HRV (PMC/Behavioural Brain Research, 2024).",
+          "sleep_stress_depression_link": "Lower resting HRV predicts poorer sleep quality in response to stressor exposure, and poor sleep then amplifies depression risk (Annals of Behavioral Medicine, 2020).",
+          "cns_spectrums_survey": {
+            "sample_size": "1,456 investment banking practitioners",
+            "finding": "The possibility of anxiety disorders in this population is high, with significant differences in anxiety scores by age, gender, years of experience, marital status, and income level (all p<0.01)",
+            "source": "Cambridge Core, 2023"
+          }
+        },
+        "emotional_suppression": {
+          "culture_description": "Banking and consulting cultures explicitly reward emotional suppression - the ability to appear composed under pressure, to absorb criticism without reaction, and to withhold vulnerability as a signal of competence. The professional archetype is the unfazed analyst who delivers bad news with clinical neutrality.",
+          "psychological_costs": "Emotion suppression is consistently related to anxiety, depressive mood, and burnout, and negatively related to job satisfaction, life satisfaction, and cognitive functioning (USF thesis, 2021). The mechanism is dual-cost: suppression does not eliminate the underlying emotion - the physiological stress response continues but the person also spends additional cognitive resources maintaining the external facade.",
+          "systematic_review_2026": "A 2026 systematic review of 101 empirical studies published in Human Resource Development Review found that emotional suppression correlates negatively with leadership performance, across multiple outcome measures (LinkedIn/Dr. Adi Jaffe, 2026).",
+          "sleep_hrv_effects": "A pre-registered daily diary study found that for European Americans - who inhabit an individualist cultural context where suppression is incongruous with values - greater use of emotion suppression across two weeks was associated with lower average subjective sleep quality, more tense awakening states, and on high-suppression days, shorter sleep duration (Emotion, APA, 2023). Finance culture sits squarely in this suppression-incongruent space for individuals who entered the profession without fully internalizing its emotional norms.",
+          "wearable_signal_pathway": "prolonged emotional suppression → elevated sympathetic tone → reduced HRV → disrupted sleep architecture → compounding cognitive impairment → degraded performance"
+        },
+        "recovery_patterns": {
+          "table_entries": [
+            {
+              "method_used": "Alcohol after high-stress periods",
+              "evidence_quality": "Harmful tanks HRV and sleep architecture",
+              "evidence_supported_alternative": "Mindfulness meditation (ES 0.33 vs. nonspecific controls) (PMC/ANYAS, 2018)"
+            },
+            {
+              "method_used": "Caffeine to compensate for poor sleep",
+              "evidence_quality": "Perpetuates insomnia cycle (Wolters Kluwer, 2022)",
+              "evidence_supported_alternative": "Sleep banking: 10h/night for 1 week before restricted period (PMC/Sleep, 2009)"
+            },
+            {
+              "method_used": "Weekend sleep catch-up",
+              "evidence_quality": "Partially effective but doesn't reverse chronic debt",
+              "evidence_supported_alternative": "CBT-I (CBT for Insomnia) current gold standard"
+            },
+            {
+              "method_used": "Physical exercise as primary outlet",
+              "evidence_quality": "Positive when moderate; neutral or negative when used as emotional avoidance",
+              "evidence_supported_alternative": "HRV biofeedback + exercise - combined approach outperforms either alone"
+            },
+            {
+              "method_used": "Social suppression (\"I'm fine\")",
+              "evidence_quality": "Maintains burnout cycle",
+              "evidence_supported_alternative": "Peer advisory / confidential coaching framing"
+            },
+            {
+              "method_used": "Long working hours as identity signal",
+              "evidence_quality": "Deepens cognitive depletion",
+              "evidence_supported_alternative": "Structured detachment periods; \"performance recovery\" framing"
+            }
+          ],
+          "sleep_census_finding": "Sealy UK's worldwide sleep census data - 5,000 respondents - found that 79% of UK banking and finance professionals reported they would function better at work with improved sleep (Aalto University, health of banking sector workers). The awareness exists. The behavioral gap is enormous, driven by cultural norms that equate sleep sacrifice with commitment.",
+          "banking_stress_research": "Research on work-related stress in the banking sector across 20 studies found uniform agreement that stress is at critical levels, with mental health problems increasing and being stress-related—including anxiety, depression, maladaptive behaviors, and job burnout (Frontiers in Psychology, 2017). Key evidence-supported protective factors include social support (reduces depressive risk significantly), psychological capital (PsyCap), and structured relaxation practices (meditation, yoga) that reduce role-magnitude stress."
+        },
+        "mental_health_prevalence": {
+          "statistics": {
+            "depressive_symptoms_bank_employees": "32%",
+            "high_burnout_risk_spanish_savings_bank": "63%",
+            "firms_reporting_mental_health_increase": "62%",
+            "workers_wanting_more_employer_wellbeing": "74%",
+            "would_use_wellbeing_services": "42%"
+          },
+          "stigma_barrier": "The 42% figure is critical: more than half of this population-who experience high rates of clinical anxiety and burnout-would not use wellbeing services as currently framed. The stigma barrier is real and deeply tied to identity.",
+          "mckinsey_quote": "Employees are more likely to use solutions when they are positively framed - for example, as a way to boost well-being and performance (McKinsey, 2021)",
+          "performance_narrative_opening": "The opening for self-monitoring tools is the performance narrative. Finance professionals are already data-driven in their work - they trust quantitative signals. A tool that translates biometric data into performance readiness language, rather than mental health language, has a fundamentally different uptake profile.",
+          "framing_shift_example": "\"Your HRV indicates reduced cognitive capacity for complex modeling today\" outperforms \"Your HRV suggests you may be experiencing elevated stress\""
+        }
+      },
+      "market_2_amateur_endurance_athletes": {
+        "market_name": "Amateur Endurance Athletes",
+        "training_guilt_compulsive_exercise": {
+          "athlete_profile_description": "Amateur endurance athletes-marathon runners, triathletes, cyclists - exhibit a psychological profile distinct from both elite athletes and recreational exercisers. They have made an identity commitment to training as a defining life activity, yet operate without the professional support systems (coaches, medical staff, periodized plans) that protect elite athletes from their own worst impulses.",
+          "neurobiological_addiction_features": "Compulsive exercise in this population shares neurobiological features with behavioral addiction. Intense training releases dopamine and endorphins through the mesolimbic reward pathway, creating a neurochemical reinforcement loop.",
+          "tolerance_withdrawal_persistence": "Over time, this produces tolerance (needing more training for the same emotional effect), withdrawal (irritability or anxiety when rest is taken), and persistence despite injury or exhaustion (LinkedIn/SA Quan Hicks, 2025). The compulsion becomes an affect regulation strategy rather than a performance strategy - training is used to manage negative emotions, not to achieve athletic adaptation (BMJ Open Sport & Exercise Medicine, 2025).",
+          "affect_regulation_model": "The Affect Regulation Model explains the HRV signature: athletes using training for emotional management tend to train at inappropriate intensities because the emotional benefit requires sympathetic arousal. This suppresses HRV chronically.",
+          "cyclists_study_finding": "A six-week study of amateur road cyclists found that the more intense the training, the lower the mood the following day and the lower the subsequent HRV (HFnu parameter)—and conversely, higher HFnu was associated with mood improvement (EurekAlert!/UAB, 2022). The body is clearly communicating what the mind refuses to hear.",
+          "exercise_addiction_predictors": "Clinically, body image dissatisfaction, anxiety, and stress are the strongest predictors of exercise addiction risk-not training type, frequency, or demographics (BMJ Open Sport & Exercise Medicine, 2025). Among bodybuilders and strength athletes, psychological distress is the driver; similar patterns appear in endurance athletes who use their sport as a primary emotional coping tool.",
+          "training_guilt_biometric_spiral": [
+            "Athlete skips or reduces workout (for legitimate recovery reasons)",
+            "Guilt response activates → cortisol rise → HRV suppression",
+            "Lower HRV next morning reinforces sense of falling behind",
+            "Anxiety drives a compensatory training response",
+            "Training load exceeds recovery capacity",
+            "HRV trends further downward",
+            "Functional overreaching sets in"
+          ],
+          "triathlete_guilt_criterion": "\"Whether it is in or out of my control, I feel extremely guilty when I miss or skip a training session\" functions as a diagnostic criterion for compulsive exercise assessment (Triathlete, 2016)."
+        },
+        "pre_race_anxiety": {
+          "description": "Amateur endurance athletes experience a distinctive and measurable pre-race anxiety signature that appears not at the starting gun but weeks in advance.",
+          "csai2_study_findings": {
+            "somatic_anxiety_f_stat": "F = 15.29, p = 0.0003",
+            "hrv_lf_hf_ratio_f_stat": "F = 23.24, p < 0.0001",
+            "cortisol_f_stat": "F = 22.96, p < 0.0001",
+            "source": "Biology of Sport, 2018"
+          },
+          "temporal_pattern": "The temporal pattern is specific: cognitive anxiety and self-confidence remain relatively stable in the week preceding competition, while somatic anxiety shows a sudden rise peaking at competition onset. For amateur athletes-who typically have fewer coping resources than elites the anxiety onset window extends further out.",
+          "marathon_runner_immunity_finding": "Research on marathon runners found that those who were more anxious generally and those who experienced greater mood disturbance in the month before the race had more suppressed mucosal immunity and higher rates of respiratory infection in the two weeks post-race (LJMU, 2025). The immune system is registering pre-race psychological state weeks before the event.",
+          "biometric_deterioration_window": "2-4 weeks before target race",
+          "pre_race_anxiety_prevalence": "Up to 78% of runners experience significant pre-race anxiety",
+          "performance_cost_of_anxiety": "10-15% of training-level performance"
+        },
+        "psychology_of_rest_days": {
+          "central_challenge": "Rest day acceptance is the central intervention challenge in this market. An athlete's HRV signals the need for rest; the athlete's psychology resists it. Understanding the specific resistance mechanisms is necessary before designing an effective response.",
+          "resistance_mechanisms": [
+            "Identity threat: Rest is perceived as 'not being an athlete today.' Strong athletic identity predicts deviant overconformity to sport culture norms, including training through injury and exhaustion",
+            "Fear of detraining: Cognitively distorted belief that a single rest day will meaningfully erode fitness",
+            "Loss of emotional regulation tool: For athletes using training as affect management, rest removes the primary coping mechanism without providing an alternative",
+            "Social comparison: Strava culture, training group norms, and social media pressure create a visibility problem—rest is hidden while suffering is displayed",
+            "Withdrawal symptoms: Genuine neurobiological withdrawal from exercise-induced dopamine/endorphin activity, manifesting as irritability, anxiety, and restlessness"
+          ],
+          "evidence_based_interventions": [
+            "Reframe rest as performance preparation, not its absence. Mental detachment from sport-related activities is negatively associated with injury and positively associated with mental energy, mediated by sleep quality",
+            "Provide objective third-party authority. HRV biofeedback training helps athletes find their zone of excellence and improves self-efficacy. A well-designed AI agent can serve this authority function.",
+            "Provide an alternative protocol. 'Active recovery session' with specific, legitimate activities (Zone 1 walk, mobility, breathwork) gives the identity something to do.",
+            "Connect the rest to the race goal specifically. Athletes with a near-term race as a referent (weeks away) are more receptive to reasoning that connects today's rest to race-day performance than to reasoning about long-term health."
+          ]
+        },
+        "athletic_identity_motivation_overreaching": {
+          "aims_framework": "The Athletic Identity Measurement Scale (AIMS) framework distinguishes athletes by the degree to which they identify with the athlete role. High-AIMS individuals who define themselves primarily as athletes, despite competing as amateurs around demanding full-time jobs are the highest-risk group for overreaching.",
+          "dual_career_dynamic": "Amateur endurance athletes who also work demanding professional jobs (a profile extremely common in marathon and triathlon populations) experience what sport psychology researchers describe as competing life demands that, when combined, exceed coping resources (Dual Career Development Perspective, Frontiers in Psychology, 2022). Work stress is not separate from athletic recovery - it draws on the same autonomic nervous system resources and contributes to HRV suppression indistinguishably from training load.",
+          "overreaching_hrv_signature": {
+            "overtrained_hrv_drop": "25% drop in HRV during overtraining period",
+            "adapted_athlete_hrv_shift": "~3% HRV shift across the season",
+            "source": "Triathlete, 2025",
+            "rolling_hrv_threshold": "7-day rolling HRV average trending below 0.5 standard deviations from baseline was associated with significantly blunted performance improvements in subsequent time trials"
+          },
+          "motivation_state_types": "Motivation state - the psychological reason why an athlete is training - interacts with overreaching risk in a specific way. Intrinsic motivation (training because it's meaningful and enjoyable) produces different load patterns than extrinsic or avoidance motivation (training to avoid guilt, maintain weight, or manage anxiety). Extrinsic and avoidant motivations drive training regardless of biometric readiness, creating the compulsive spiral described above."
+        },
+        "self_compassion_interventions": {
+          "definition": "The sport psychology literature has increasingly focused on self-compassion-treating oneself with kindness and understanding when facing setbacks - as an evidence-based intervention for athletic populations.",
+          "key_findings": [
+            "Self-compassion is associated with lower somatic anxiety, lower worry, and lower concentration disruption in competitive athletes (Journal of Sport and Exercise Psychology., 2017)",
+            "Higher self-compassion predicts healthier responses to emotionally difficult athletic situations, reduced negative self-criticism, and reduced rumination after poor performance (self-compassion.org, Reis.pdf, 2014)",
+            "The mindfulness component of self-compassion is specifically relevant to injury prevention: it allows athletes to experience stress without subsequent anxiety escalation by creating mental distance from the stressor (Journal of Sport and Exercise Psychology., 2017)",
+            "Self-compassion combined with mindfulness reduces anxiety and supports flow states more effectively than either alone (YouTube/sport psychology commentary, 2025)"
+          ],
+          "ai_agent_application": "For AI agent design, self-compassion framing has a direct application. When an athlete's HRV is suppressed and they are resisting rest, an agent that mirrors a self-compassionate perspective—acknowledging the frustration of a down day while reframing it within the common humanity of athletic experience ('this is exactly when champions build their edge') — is more effective than either performance optimization framing alone or a clinical stress-management framing.",
+          "act_framework_application": "The psychological flexibility construct from Acceptance and Commitment Therapy (ACT) is also directly applicable: helping athletes accept difficult physiological realities (a low HRV day) while still maintaining behavioral commitment to their long-term athletic values (racing well in 8 weeks)."
+        }
+      },
+      "market_3_sme_founders": {
+        "market_name": "SME Founders and Small Business Executives",
+        "founder_mental_health_statistics": {
+          "survey_156_founders": {
+            "mental_health_impacts_pct": "72%",
+            "bad_or_very_bad_mental_health_pct": "45%",
+            "source": "CEREVITY, 2025"
+          },
+          "ucsf_research": {
+            "more_likely_mental_health_conditions": "50% more likely to report mental health conditions than general population",
+            "seek_support_pct": "only 23% seek professional support"
+          },
+          "sifted_survey_138_founders": {
+            "burnout_pct": "54%",
+            "anxiety_pct": "75%",
+            "no_mental_health_issues_pct": "6%",
+            "source": "Sifted, 2025"
+          }
+        },
+        "sme_vs_corporate_comparison_table": {
+          "source_of_anxiety": {
+            "sme_founder": "Financial survival, runway, payroll, existential business risk",
+            "corporate_executive": "Career risk, organizational politics, performance metrics"
+          },
+          "identity_structure": {
+            "sme_founder": "Self = company; failure is personal",
+            "corporate_executive": "Professional role is distinct from self-concept"
+          },
+          "social_support": {
+            "sme_founder": "High structural isolation (no peers at same level internally)",
+            "corporate_executive": "Organizational hierarchy provides support structures"
+          },
+          "recovery_options": {
+            "sme_founder": "Constrained by 24/7 on-call nature of small business ownership",
+            "corporate_executive": "More defined separation between on/off"
+          },
+          "risk_profile": {
+            "sme_founder": "Often personally financially exposed (personal guarantees, equity concentration)",
+            "corporate_executive": "Financial downside is career-limited"
+          },
+          "shame_dynamics": {
+            "sme_founder": "Failure is public and permanent in local/community context",
+            "corporate_executive": "Failure can be attributed to market or organization"
+          }
+        },
+        "decision_fatigue": "Decision fatigue is particularly pronounced in founders because of the extraordinary breadth of decisions that must be made—from hiring to product to finance to legal to customer—often with insufficient information and without the specialist staff that corporate executives rely on. The prefrontal cortex's depletion mechanism is well-established: as the day progresses, decision quality declines, defaults to status quo become more common, and cognitive flexibility narrows (Startups Magazine, 2025). Research on judges showed likelihood of granting parole was significantly higher in the morning — the cognitive substrate is identical for founder decision-making.",
+        "financial_anxiety_profile": {
+          "brain_on_finance_study": "Research from Northwestern Mutual's Brain on Finance Study found that evaluating difficult financial scenarios produced 20% higher attentional demand (brain effort) and reduced recognition/comprehension - a direct cognitive impairment profile from financial uncertainty alone (Northwestern Mutual, 2017).",
+          "runway_anxiety_description": "Runway anxiety - the persistent background calculation of months of cash remaining - is a chronic low-level stressor. Unlike a single high-stakes event, it never resolves. Cortisol remains elevated. HRV remains suppressed. Sleep continuity is disrupted by rumination."
+        },
+        "founder_loneliness": {
+          "startup_snapshot_finding": "more than half of startup employees can detect visible founder stress - and are making career decisions based on what they observe (Psychology Today, 2025)",
+          "fortune_study": {
+            "sample_size": "308 entrepreneurs",
+            "payroll_uncertainty_pct": "68% were uncertain about meeting payroll or personal expenses",
+            "no_self_care_pct": "74% felt business demands left little room for self-care",
+            "source": "Fortune, 2025"
+          }
+        },
+        "biometric_signal_profile": {
+          "chronic_hrv_suppression": "Chronic HRV suppression without identifiable acute stressor - the \"always on\" sympathetic activation",
+          "sleep_architecture_disruption": "Sleep architecture disruption: difficulty with sleep onset (rumination) and early waking (cortisol peak activation from anxious anticipation)",
+          "within_day_hrv_volatility": "High within-day HRV volatility correlated with decision density and meeting intensity",
+          "weekend_recovery_pattern": "Weekend partial recovery that never reaches full baseline before the Monday re-entry",
+          "smartwatch_cortisol_hrv_study": "A 2024 smartwatch study integrating sweat cortisol measurement with HRV found a negative correlation between cortisol levels and HRV index in short-term stressful environments, validating the multi-signal approach for mental stress monitoring in real-world conditions (PubMed, 2024)."
+        },
+        "high_functioning_anxiety": {
+          "description": "The founder mental health presentation is frequently subclinical but functionally impairing — this is the defining characteristic that differentiates it from textbook burnout. Yet the founder often maintains high external output while internally depleted — the \"high-functioning\" pattern.",
+          "octopus_ventures_finding": "65% of startup failures stem from founder burnout or internal conflict",
+          "specific_features": [
+            "Masking through productivity: Anxiety is metabolized into work output—more hours, more initiatives, more control-seeking. The outward signal is intensity, not distress.",
+            "Cognitive overload that inverts strengths: executive function deterioration—optimism becomes denial, comfort with ambiguity becomes organizational chaos, decisiveness becomes impulsivity (Psychology Today, 2025)",
+            "Self-awareness gap: Chronic stress impairs the metacognition needed to recognize the impairment. Founders cannot see their own cognitive decline—a structural irony.",
+            "Subclinical presentation: SME leaders in a German sample (N=174) showed anxiety elevated scores (≥8 on HADS) at 22.3%—slightly above the German non-clinical reference of 21%—but depression elevated scores at only 18.3%, below the general population 23.7% (PLOS ONE, 2024)."
+          ],
+          "plos_one_study": {
+            "sample": "N=174 German SME leaders",
+            "anxiety_elevated_scores": "22.3% (≥8 on HADS)",
+            "german_non_clinical_reference": "21%",
+            "depression_elevated_scores": "18.3%",
+            "general_population_depression": "23.7%"
+          },
+          "personality_predictors_of_distress": {
+            "affect_differentiation": "deficit predicts anxiety and stress reactivity",
+            "impulse_control": "deficit predicts stress reactivity",
+            "regulation_of_self_esteem": "deficit predicts both stress reactivity and depression - the most powerful predictor in the model (adjusted R2 for PSR model = .53) (PLOS ONE, 2024)"
+          },
+          "regulation_of_self_esteem_construct": "Regulation of self-esteem—the capacity to maintain stable self-worth independent of business outcomes—is the psychological construct most predictive of sustainable founder performance."
+        },
+        "key_psychological_constructs": {
+          "entrepreneurial_self_efficacy": {
+            "definition": "belief in one's capacity to successfully perform entrepreneurial roles",
+            "effects": "directly predicts innovation, proactiveness, and risk-taking. High ESE individuals show more perseverance, confidence in business feasibility, and efficiency in decision-making under environmental change. ESE functions as a buffer against anxiety's decision-impairing effects - but it is depleted by burnout and can be rebuilt through recovery.",
+            "source": "Frontiers in Psychology/Waldenu, 2023"
+          },
+          "internal_locus_of_control": {
+            "definition": "belief that outcomes are determined by one's own actions rather than external forces",
+            "effects": "lower perceived stress and higher self-acceptance (Walden University dissertation, 2011)",
+            "financial_anxiety_impact": "Financial anxiety specifically attacks locus of control: when runway is the constraint and investor decisions are external, founders experience a structural loss of control perception that feeds anxiety spirals."
+          },
+          "psychological_safety": {
+            "definition": "the ability to express concerns, admit mistakes, and ask for help without fear of penalty",
+            "effects": "predicts proactive problem-solving and innovative solutions (American Management Association, 2025)",
+            "founder_context": "psychological safety exists primarily in peer relationships (mastermind groups, co-founders) rather than hierarchically, which explains the critical role of horizontal accountability structures"
+          }
+        },
+        "performance_framing": {
+          "description": "Founders do not respond to wellness or mental health framing. The social identity of the entrepreneur—the cultural narrative of the resilient builder—actively works against mental health help-seeking. Only 23% of founders with clinically significant mental health impacts seek professional support (CEREVITY, 2025). The 77% who don't seek help are not ignorant of their suffering - they are rejecting the framing of their experience as a mental health problem.",
+          "framing_responses": {
+            "manage_mental_health": "Founder Response: Disengage — identity threat, weakness signal",
+            "reduce_stress": "Founder Response: Mild interest, will not prioritize",
+            "optimize_recovery_for_better_decisions": "Founder Response: Moderate interest",
+            "protect_decision_making_capacity": "Founder Response: Strong resonance — decision quality is the core founder currency",
+            "keep_team_from_detecting_cognitive_decline": "Founder Response: High resonance — social stakes are business stakes",
+            "build_performance_infrastructure": "Founder Response: Highest resonance — founders understand systems thinking"
+          },
+          "language_to_avoid": "wellbeing, self-care, burnout, mental health, rest",
+          "language_that_engages": "decision quality, cognitive capacity, performance, signal-to-noise, recovery protocol, sustainable output",
+          "early_adopter_evidence": "The Awear EEG wearable startup found its early-access waitlist populated primarily by other founders described by Tech Crunch as \"a notoriously stressed-out group\" (TechCrunch, 2025). The self-selected early adopter for brain/biometric monitoring in the founder segment already exists and they came to performance optimization, not mental health."
+        },
+        "mastermind_peer_groups": {
+          "description": "Peer advisory structures—mastermind groups, founder peer groups, CEO circles—already address a meaningful portion of the founder mental health need, which is important context for any digital tool positioning.",
+          "effectiveness_research": [
+            "People are 65% likely to complete a goal if they commit to someone; 95% likely with a specific accountability appointment (American Society of Training and Development data, via Deliberate Directions, 2025)",
+            "A well-structured mastermind removes the yes-men problem: members have no incentive to protect the founder's ego, enabling honest strategic pressure-testing",
+            "Entrepreneurs with access to mentors and emotional backing were 50% more likely to report higher resilience and better stress management (Fortune/Lehigh University, 2025)",
+            "Psychological safety within peer groups—the ability to be vulnerable about mistakes and ask for help is the critical mechanism"
+          ],
+          "coverage_gap_table": [
+            {
+              "need": "Continuous physiological signal monitoring",
+              "coverage": "None",
+              "gap": "Entire gap"
+            },
+            {
+              "need": "Daily/real-time state awareness",
+              "coverage": "None",
+              "gap": "Entire gap"
+            },
+            {
+              "need": "Private acknowledgment of struggle between meetings",
+              "coverage": "None",
+              "gap": "Entire gap"
+            },
+            {
+              "need": "Behavioral pattern recognition across weeks",
+              "coverage": "None",
+              "gap": "Entire gap"
+            },
+            {
+              "need": "Non-judgmental reflection space",
+              "coverage": "Partial (1-2x/month)",
+              "gap": "Between-session gap is weeks long"
+            },
+            {
+              "need": "Crisis-moment support",
+              "coverage": "None",
+              "gap": "Founders in acute stress have no peer resource between scheduled meetings"
+            }
+          ],
+          "digital_tool_positioning": "The digital tool gap is specifically in continuous, private, low-stigma monitoring and reflection between peer touchpoints. The mastermind covers strategic accountability monthly; the wearable + AI agent covers the other 29 days. These are complements, not competitors. Positioning that acknowledges mastermind groups—and frames the tool as what happens between the meetings—is likely to resonate with this market's existing mental model."
+        }
+      },
+      "cross_market_comparison": {
+        "table_1_key_differentiators": {
+          "primary_identity_threat": {
+            "ib_consulting": "Underperforming at work/being \"found out\"",
+            "amateur_endurance_athletes": "Missing training/failing to complete race goal",
+            "sme_founders": "Business failure / being exposed as not a \"real\" entrepreneur"
+          },
+          "core_psychological_defense": {
+            "ib_consulting": "Teflonic identity dissociation (senior); imposter suppression (junior)",
+            "amateur_endurance_athletes": "Compulsive training/avoidance of rest",
+            "sme_founders": "High-functioning anxiety/masking through work intensity"
+          },
+          "hrv_signature": {
+            "ib_consulting": "Anticipatory HRV decline before events; chronic suppression from emotional labor",
+            "amateur_endurance_athletes": "Compulsive training overload; pre-race LF/HF ratio elevation",
+            "sme_founders": "Chronic sympathetic baseline elevation; high within-day volatility"
+          },
+          "sleep_disruption_mechanism": {
+            "ib_consulting": "Pre-event anticipatory anxiety; alcohol use; emotional suppression",
+            "amateur_endurance_athletes": "Pre-race rumination; training-induced recovery deficits",
+            "sme_founders": "Financial anxiety rumination; early morning cortisol awakening"
+          },
+          "openness_to_monitoring": {
+            "ib_consulting": "Moderate—requires performance not wellness frame",
+            "amateur_endurance_athletes": "High—already biometric-minded; HRV apps native to this culture",
+            "sme_founders": "High among early adopters; requires performance/decisions frame"
+          },
+          "effective_intervention_language": {
+            "ib_consulting": "\"Cognitive performance,\" \"decision-readiness,\" \"edge\"",
+            "amateur_endurance_athletes": "\"Recovery optimization,\" \"race readiness,\" \"overreaching prevention\"",
+            "sme_founders": "\"Decision quality,\" \"cognitive capacity,\" \"performance infrastructure\""
+          }
+        },
+        "table_2_additional_differentiators": {
+          "key_psychological_lever": {
+            "ib_consulting": "Fear of professional degradation reframed as signal, not shame",
+            "amateur_endurance_athletes": "Self-compassion + objective authority (biometric) to authorize rest",
+            "sme_founders": "ESE preservation + locus of control restoration"
+          },
+          "agent_persona": {
+            "ib_consulting": "Discreet performance analyst; never therapeutic",
+            "amateur_endurance_athletes": "Empathetic coach who understands the compulsion",
+            "sme_founders": "Peer-level advisor who speaks the founder language"
+          },
+          "risk_of_tool_rejection": {
+            "ib_consulting": "High if wellness-framed; lower if performance analytics-framed",
+            "amateur_endurance_athletes": "Medium—tool must not amplify data anxiety",
+            "sme_founders": "High if wellness-framed; lower with performance/systems framing"
+          }
+        }
+      },
+      "product_design_agent_architecture": {
+        "ib_consulting_agent": {
+          "core_role": "performance analyst, never a wellness counselor; frames biometric data as operational intelligence—the equivalent of monitoring a financial system's performance metrics",
+          "design_principles": [
+            "HRV and sleep data should be presented as \"cognitive readiness index\" or \"decision bandwidth\" rather than \"stress level\"",
+            "The agent should proactively identify anticipatory cascade windows (2-5 days before identified high-stakes events) and offer preparation protocols (sleep banking, pre-event recovery practices) framed as performance optimization",
+            "Emotional suppression downstream effects should be surfaced as performance cost, not psychological harm: \"Surface acting is draining cognitive resources that would otherwise be available for your pitch\"",
+            "Recovery suggestions should fit the cultural reality—they cannot require long time investments or visible vulnerability",
+            "The agent must be extremely discreet—this population will exit a tool that feels like it is medicalizing their experience"
+          ]
+        },
+        "amateur_athlete_agent": {
+          "core_role": "knowledgeable training partner who has the biological data the athlete doesn't",
+          "design_principles": [
+            "The agent needs a pre-race calendar awareness layer: biometric readings should be contextualized by race proximity, so a HRV dip 3 weeks out triggers a very different response than one 3 months out",
+            "Rest-day recommendations must come with specific, legitimate alternative activities—not just permission to rest but a protocol for active recovery",
+            "The agent should explicitly reference the athletic identity without threatening it: \"Champions build their edge in recovery, not just training\"",
+            "Self-compassion language should be deployed when guilt is detected (e.g., from skipped session + negative mood trajectory): \"Missing one session doesn't erase eight weeks of work\"",
+            "The agent must be prepared for emotional pushback on rest-day recommendations and provide graduated options rather than binary rest/train choices",
+            "Pre-race anxiety framing should normalize and contextualize physiological arousal as readiness rather than threat"
+          ]
+        },
+        "sme_founder_agent": {
+          "core_role": "performance infrastructure advisor—a systems thinker who helps the founder see their own cognitive and physiological capacity as a business resource",
+          "design_principles": [
+            "All communications should use business and performance language—never mental health, self-care, or wellness language",
+            "Financial anxiety signals (sleep disruption patterns correlated with calendar events like month-end, pitch meetings, payroll dates) should be explicitly surfaced as decision-quality risks with quantifiable business stakes",
+            "Decision fatigue should be tracked across the day and week, with the agent surfacing optimal decision windows",
+            "Peer accountability integration—if the founder is in a mastermind group, the agent functions as what happens between meetings",
+            "The agent should explicitly reference how cognitive decline manifests before the founder notices it, framing early monitoring as leadership infrastructure",
+            "ESE-building language should be embedded: \"Your HRV this week suggests your recovery systems are functioning well—this is when founders make their best bets\"",
+            "Founder loneliness should be addressed through framing the agent as a non-judgmental thinking partner, explicitly available when peers aren't"
+          ]
+        }
+      },
+      "research_metadata": {
+        "research_date": "April 2026",
+        "sources_types": "peer-reviewed academic literature from PubMed, Frontiers journals, Cambridge Core, and Biology of Sport; industry research from McKinsey, Sifted, Fortune, and CEREVITY; and specialist clinical and coaching practitioner sources",
+        "caveat": "All statistics cited reflect the specific study populations noted and may not generalize universally."
+      }
+    }
+  ],
+  "citations": null
+}

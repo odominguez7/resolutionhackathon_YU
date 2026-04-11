@@ -25,7 +25,7 @@ export default function History() {
   }, [range]);
 
   return (
-    <div className="min-h-screen px-4 py-6 max-w-2xl mx-auto" style={{ background: "#0a0b0d" }}>
+    <div className="min-h-screen px-4 py-6 max-w-2xl mx-auto" style={{ background: "#0B1120" }}>
       <div className="mb-6">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: "rgba(255,92,53,0.5)" }}>Training log</p>
         <h1 className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>Performance History</h1>
@@ -41,9 +41,9 @@ export default function History() {
               { value: summary.completed, label: "logged", color: "#C2FF4A" },
               { value: summary.total_sessions, label: "prescribed", color: "#FF5C35" },
               { value: `${summary.completion_rate}%`, label: "output rate", color: "#6EE7FF" },
-              { value: summary.streak, label: "consistency", color: "#A78BFA" },
+              { value: summary.streak, label: "training momentum", color: "#A78BFA" },
             ].map(s => (
-              <div key={s.label} className="text-center rounded-xl py-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+              <div key={s.label} className="text-center rounded-xl py-3" style={{ background: "rgba(15,26,46,0.6)" }}>
                 <p className="text-2xl font-black" style={{ color: s.color, fontFamily: "'Space Grotesk', sans-serif" }}>{s.value}</p>
                 <p className="text-[8px] uppercase tracking-[0.12em] font-bold" style={{ color: "rgba(255,255,255,0.25)" }}>{s.label}</p>
               </div>
@@ -74,7 +74,7 @@ export default function History() {
             {progressions.filter(p => p.current_load_lbs).slice(0, 8).map((p: any) => {
               const bumped = p.next_prescribed_lbs > p.current_load_lbs;
               return (
-                <div key={p.movement_name} className="flex items-center justify-between py-1.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+                <div key={p.movement_name} className="flex items-center justify-between py-1.5" style={{ borderBottom: "1px solid rgba(15,26,46,0.6)" }}>
                   <div>
                     <p className="text-sm text-white font-bold">{p.movement_name}</p>
                     <p className="text-[10px] text-slate-500">{p.consecutive_clean} clean hit{p.consecutive_clean !== 1 ? "s" : ""} at {p.current_load_lbs}lb</p>
@@ -155,7 +155,7 @@ export default function History() {
           const isExpanded = expanded === e.id;
           return (
             <motion.div key={e.id} className="rounded-xl overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+              style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(255,255,255,0.05)" }}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <button onClick={() => setExpanded(isExpanded ? null : e.id)}
                 className="w-full flex items-center gap-3 p-3.5 cursor-pointer border-0 bg-transparent text-left">

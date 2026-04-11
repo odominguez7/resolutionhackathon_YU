@@ -63,7 +63,7 @@ function ReadinessRing() {
           strokeDasharray={circ} strokeDashoffset={circ * 0.18}
           style={{ animation: "draw-in 2s ease-out 0.5s both", ["--dash-length" as string]: circ }} />
         {/* Inner ring */}
-        <circle cx="140" cy="140" r={r - 16} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth={4} />
+        <circle cx="140" cy="140" r={r - 16} fill="none" stroke="rgba(15,26,46,0.6)" strokeWidth={4} />
         <circle cx="140" cy="140" r={r - 16} fill="none" stroke="url(#ringGrad2)" strokeWidth={4}
           strokeLinecap="round" transform="rotate(-90 140 140)"
           strokeDasharray={2 * Math.PI * (r - 16)} strokeDashoffset={2 * Math.PI * (r - 16) * 0.3}
@@ -103,7 +103,7 @@ function ReadinessRing() {
           <div className="px-3 py-1.5 rounded-xl flex items-center gap-2"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}>
             <div className="w-1.5 h-1.5 rounded-full" style={{ background: d.color }} />
-            <span className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.5)" }}>{d.label}</span>
+            <span className="text-[10px] font-bold" style={{ color: "#94A3B8" }}>{d.label}</span>
             <span className="text-[11px] font-black text-white">{d.value}</span>
           </div>
         </motion.div>
@@ -176,7 +176,7 @@ function FeatureCard({ icon: Icon, title, desc, color, image, index }: {
 }) {
   return (
     <motion.div className="group relative overflow-hidden rounded-2xl"
-      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+      style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
@@ -193,7 +193,7 @@ function FeatureCard({ icon: Icon, title, desc, color, image, index }: {
           loading="lazy" />
         {/* Gradient overlay */}
         <div className="absolute inset-0"
-          style={{ background: `linear-gradient(180deg, transparent 0%, #0a0b0d 100%)` }} />
+          style={{ background: `linear-gradient(180deg, transparent 0%, #0B1120 100%)` }} />
         {/* Icon badge */}
         <div className="absolute top-4 left-4 w-10 h-10 rounded-xl flex items-center justify-center"
           style={{ background: `${color}15`, border: `1px solid ${color}25`, backdropFilter: "blur(12px)" }}>
@@ -258,7 +258,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col relative noise-overlay" style={{ background: "#0a0b0d" }}>
+    <div className="min-h-screen flex flex-col relative noise-overlay" style={{ background: "#0B1120" }}>
       <style>{`
         html { scroll-behavior: smooth; }
         @keyframes oura-number-pop { 0%{transform:scale(.6);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
@@ -276,7 +276,7 @@ const Landing = () => {
             alt="" className="w-full h-full object-cover"
             style={{ filter: "brightness(0.15) saturate(1.3)" }} />
           {/* Gradient overlays */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,11,13,0.3) 0%, rgba(10,11,13,0.95) 85%, #0a0b0d 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(11,17,32,0.3) 0%, rgba(11,17,32,0.95) 85%, #0B1120 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 800px 600px at 50% 35%, rgba(255,92,53,0.08) 0%, transparent 70%)" }} />
         </div>
 
@@ -287,7 +287,7 @@ const Landing = () => {
             <div className="px-4 py-2 rounded-full flex items-center gap-2.5"
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}>
               <div className="w-2 h-2 rounded-full" style={{ background: "#C2FF4A", boxShadow: "0 0 8px rgba(194,255,74,0.5)" }} />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: "#94A3B8" }}>
                 AI Training OS
               </span>
             </div>
@@ -311,8 +311,7 @@ const Landing = () => {
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }}
                 className="text-base md:text-lg max-w-xl leading-relaxed mb-10"
                 style={{ color: "rgba(255,255,255,0.4)" }}>
-                Your wearable collects data every night. YU turns it into your training plan,
-                adjusts load in real-time, and gets sharper with every session you log.
+                The training OS that reads your biology and writes your program.
               </motion.p>
 
               {/* CTAs */}
@@ -330,7 +329,7 @@ const Landing = () => {
                 <a href="#how-it-works" className="no-underline">
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                     className="px-6 py-4 rounded-2xl font-bold text-sm tracking-wide border-0 cursor-pointer transition-all duration-300"
-                    style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    style={{ background: "rgba(255,255,255,0.04)", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)" }}>
                     See how it works
                   </motion.button>
                 </a>
@@ -351,11 +350,11 @@ const Landing = () => {
             transition={{ delay: 1.2, duration: 0.6 }}
             className="mt-20 w-full max-w-2xl mx-auto">
             <div className="flex items-center justify-center gap-12 md:gap-20 py-6 px-8 rounded-2xl"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(8px)" }}>
+              style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(8px)" }}>
               {[
-                { value: "183+", label: "days trained" },
-                { value: "8", label: "auto-progressed" },
-                { value: "3", label: "ML models" },
+                { value: "183+", label: "DAYS OF REAL DATA" },
+                { value: "3", label: "ML MODELS" },
+                { value: "", label: "OURA-POWERED" },
               ].map((s, i) => <Stat key={s.label} value={s.value} label={s.label} index={i} />)}
             </div>
           </motion.div>
@@ -549,7 +548,7 @@ const Landing = () => {
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto">
           <motion.div className="rounded-3xl p-10 md:p-14 text-center relative overflow-hidden"
-            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+            style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.7, ease }}>
             <div className="absolute inset-0 pointer-events-none"

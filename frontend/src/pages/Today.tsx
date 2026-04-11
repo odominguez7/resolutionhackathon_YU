@@ -153,7 +153,7 @@ export default function Today() {
     setPhase("reveal");
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0b0d" }}><div className="w-3 h-3 rounded-full animate-pulse" style={{ background: "#FF5C35" }} /></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1120" }}><div className="w-3 h-3 rounded-full animate-pulse" style={{ background: "#FF5C35" }} /></div>;
 
   const action = todayData?.action || {};
   const body = todayData?.body || {};
@@ -176,12 +176,12 @@ export default function Today() {
     const restPct = restRunning && restTimer > 0 ? restTimer / 90 : 0;
 
     return (
-      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0a0b0d" }}>
+      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#0B1120" }}>
         {/* Top bar */}
         <div className="flex items-center justify-between px-5 pt-4 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <button onClick={() => { setSessionActive(false); if (restRef.current) clearInterval(restRef.current); }}
             className="text-xs font-bold cursor-pointer border-0 bg-transparent px-3 py-1.5 rounded-lg"
-            style={{ color: "#94A3B8", background: "rgba(255,255,255,0.04)" }}>Exit</button>
+            style={{ color: "#94A3B8", background: "rgba(15,26,46,0.5)" }}>Exit</button>
           <div className="text-center">
             <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>{workout?.title}</p>
             <p className="text-xs font-black text-white">{sessionMovIdx + 1} of {total}</p>
@@ -190,7 +190,7 @@ export default function Today() {
         </div>
 
         {/* Progress bar with block color */}
-        <div className="h-1.5 w-full" style={{ background: "rgba(255,255,255,0.04)" }}>
+        <div className="h-1.5 w-full" style={{ background: "rgba(15,26,46,0.5)" }}>
           <motion.div className="h-full" style={{ background: `linear-gradient(90deg, ${blockColor}, ${blockColor}90)` }}
             initial={false} animate={{ width: `${progress}%` }} transition={{ duration: 0.3 }} />
         </div>
@@ -227,7 +227,7 @@ export default function Today() {
                 </p>
                 <button onClick={() => { clearInterval(restRef.current); setRestRunning(false); setRestTimer(0); }}
                   className="px-6 py-2.5 rounded-xl text-xs font-bold cursor-pointer border-0"
-                  style={{ background: "rgba(255,255,255,0.04)", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  style={{ background: "rgba(15,26,46,0.5)", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.06)" }}>
                   Skip rest
                 </button>
               </motion.div>
@@ -271,7 +271,7 @@ export default function Today() {
                 )}
 
                 {/* RPE slider */}
-                <div className="w-full rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="w-full rounded-2xl p-4" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>Effort (RPE)</span>
                     <span className="text-lg font-black" style={{
@@ -301,7 +301,7 @@ export default function Today() {
                   <button onClick={() => { setSessionMovIdx(Math.max(0, sessionMovIdx - 1)); setSessionSetNum(1); }}
                     disabled={sessionMovIdx === 0}
                     className="flex-1 py-3 rounded-xl text-xs font-bold cursor-pointer border-0"
-                    style={{ background: "rgba(255,255,255,0.03)", color: sessionMovIdx === 0 ? "rgba(255,255,255,0.1)" : "#94A3B8", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    style={{ background: "rgba(15,26,46,0.4)", color: sessionMovIdx === 0 ? "rgba(255,255,255,0.1)" : "#94A3B8", border: "1px solid rgba(255,255,255,0.06)" }}>
                     Prev
                   </button>
                   <button onClick={() => {
@@ -331,36 +331,43 @@ export default function Today() {
   // ── PHASE 1: MORNING CHECK-IN (before biometrics) ──
   if (phase === "checkin" && !feedback) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 relative" style={{ background: "#0a0b0d" }}>
-        {/* Subtle ambient glow */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,92,53,0.06) 0%, transparent 70%)" }} />
-        <motion.div className="w-full max-w-md text-center space-y-10 relative z-10"
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ease }}>
+      <div className="min-h-screen flex flex-col justify-center px-8 relative" style={{ background: "#0B1120" }}>
+        {/* Subtle ambient trust glow */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%)" }} />
+
+        {/* Agent status indicator */}
+        <div className="absolute top-16 left-8 flex items-center gap-2.5 z-10">
+          <span className="text-lg font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>YU</span>
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#C2FF4A" }} />
+          <span className="text-xs" style={{ color: "#475569" }}>analyzed your overnight data</span>
+        </div>
+
+        <motion.div className="w-full max-w-md space-y-12 relative z-10"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ease, duration: 0.6 }}>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4" style={{ color: "rgba(255,92,53,0.5)" }}>Readiness check</p>
-            <p className="text-3xl font-black text-white mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em", lineHeight: 1.15 }}>How ready are you to perform?</p>
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>Your perception first. Then we compare it to the data.</p>
+            <p className="text-[38px] font-black text-white leading-[1.15]" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>
+              How ready<br />are you to<br />perform today?
+            </p>
+            <p className="text-sm mt-4" style={{ color: "#475569" }}>Your answer sharpens the system.</p>
           </div>
-          <div className="flex justify-center gap-3">
+          <div className="flex gap-3">
             {[
-              { score: 1, label: "Drained", emoji: "🔻", color: "#FF5D6C" },
-              { score: 2, label: "Low", emoji: "△", color: "#FFC36B" },
-              { score: 3, label: "Okay", emoji: "●", color: "#94A3B8" },
-              { score: 4, label: "Good", emoji: "▲", color: "#6EE7FF" },
-              { score: 5, label: "Peak", emoji: "⚡", color: "#C2FF4A" },
+              { score: 1, label: "Depleted", color: "#FF5D6C" },
+              { score: 2, label: "Low", color: "#FFC36B" },
+              { score: 4, label: "Steady", color: "#60A5FA" },
+              { score: 5, label: "Sharp", color: "#C2FF4A" },
             ].map(e => (
               <motion.button key={e.score}
                 onClick={() => submitCheckin(e.score)}
-                className="flex flex-col items-center gap-2 py-5 px-4 rounded-2xl cursor-pointer border-0"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", minWidth: 68 }}
-                whileHover={{ scale: 1.08, borderColor: `${e.color}50`, background: `${e.color}08` }}
+                className="flex-1 py-3.5 rounded-full cursor-pointer border-0 text-xs font-semibold"
+                style={{ background: `${e.color}0A`, border: `1px solid ${e.color}30`, color: e.color }}
+                whileHover={{ scale: 1.06, background: `${e.color}18` }}
                 whileTap={{ scale: 0.93 }}>
-                <span className="text-3xl font-black" style={{ color: e.color }}>{e.score}</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: `${e.color}70` }}>{e.label}</span>
+                {e.label}
               </motion.button>
             ))}
           </div>
-          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.12)" }}>One tap. Your data is waiting on the other side.</p>
+          <p className="text-xs" style={{ color: "#334155" }}>Tap to begin your morning brief</p>
         </motion.div>
       </div>
     );
@@ -380,72 +387,85 @@ export default function Today() {
     : null;
 
   if (phase === "reveal") {
-    const hrvDisplay = body.hrv ? `${body.hrv}` : "--";
-    const readinessDisplay = body.readiness || "--";
-    const sleepDisplay = body.sleep_score || "--";
+    const readinessVal = body.readiness || 0;
+    const ringR = 90, ringCirc = 2 * Math.PI * ringR;
+    const ringPct = readinessVal / 100;
 
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 relative" style={{ background: "#0a0b0d" }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-8 relative" style={{ background: "#0B1120" }}>
         {/* Ambient glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ width: 500, height: 500, borderRadius: "50%", background: isAnomaly ? "radial-gradient(circle, rgba(255,92,53,0.08) 0%, transparent 60%)" : "radial-gradient(circle, rgba(110,231,255,0.05) 0%, transparent 60%)" }} />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ width: 500, height: 500, borderRadius: "50%", background: isAnomaly ? "radial-gradient(circle, rgba(255,92,53,0.08) 0%, transparent 60%)" : "radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 60%)" }} />
+
+        {/* Agent status */}
+        <div className="absolute top-16 left-8 flex items-center gap-2.5 z-10">
+          <span className="text-lg font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>YU</span>
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#C2FF4A" }} />
+        </div>
 
         <motion.div className="w-full max-w-sm text-center space-y-8 relative z-10"
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ease }}>
 
-          {/* Prediction-confirmation header */}
+          {/* Curiosity teaser */}
+          <motion.p className="text-lg leading-relaxed text-left" style={{ color: "#94A3B8" }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.6 }}>
+            {isAnomaly
+              ? "Something shifted in your recovery last night..."
+              : "Your body processed yesterday. Here's where you are."}
+          </motion.p>
+
+          {/* Hero Readiness Ring */}
+          <motion.div className="flex justify-center"
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(16px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ delay: 0.6, duration: 0.8, ease }}>
+            <div className="relative" style={{ width: 220, height: 220 }}>
+              <svg width="220" height="220" viewBox="0 0 220 220">
+                <circle cx="110" cy="110" r={ringR} fill="none" stroke="rgba(26,42,74,0.4)" strokeWidth="6" />
+                <circle cx="110" cy="110" r={ringR} fill="none"
+                  stroke="#2563EB" strokeWidth="6" strokeLinecap="round"
+                  transform="rotate(-90 110 110)"
+                  strokeDasharray={ringCirc}
+                  strokeDashoffset={ringCirc * (1 - ringPct)}
+                  style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.2,0.8,0.2,1)" }} />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-[72px] font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.03em", lineHeight: 1 }}>
+                  {readinessVal || "--"}
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] mt-1" style={{ color: "#475569" }}>Readiness</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Narrative insight */}
+          <motion.p className="text-[15px] leading-relaxed text-left" style={{ color: "#CBD5E1" }}
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.0, duration: 0.6 }}>
+            {body.hrv && body.hrv_baseline
+              ? `HRV ${body.hrv > body.hrv_baseline ? "recovered" : "dipped"} ${body.hrv > body.hrv_baseline ? "+" : ""}${Math.round(body.hrv - body.hrv_baseline)}ms overnight. ${body.hrv > body.hrv_baseline ? "Your nervous system absorbed yesterday's load. Today you push." : "Autonomic load is elevated. The system is pulling back."}`
+              : "Processing your overnight biometrics."}
+          </motion.p>
+
+          {/* Prediction-confirmation pill */}
           {confirmationMsg && (
-            <motion.p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-              {confirmationMsg}
-            </motion.p>
-          )}
-
-          {/* Blurred metric tease — reveals on stagger */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: "HRV", value: hrvDisplay, unit: "ms", color: "#6EE7FF", delay: 0.4 },
-              { label: "Readiness", value: readinessDisplay, unit: "", color: "#C2FF4A", delay: 0.7 },
-              { label: "Sleep", value: sleepDisplay, unit: "", color: "#A78BFA", delay: 1.0 },
-            ].map(m => (
-              <motion.div key={m.label} className="rounded-2xl p-4 relative overflow-hidden"
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
-                initial={{ opacity: 0, filter: "blur(16px)", scale: 0.9 }}
-                animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
-                transition={{ delay: m.delay, duration: 0.6, ease }}>
-                <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none" style={{ background: `radial-gradient(circle at 100% 0%, ${m.color}10, transparent 70%)` }} />
-                <p className="text-[9px] uppercase tracking-[0.15em] font-bold mb-1" style={{ color: `${m.color}80` }}>{m.label}</p>
-                <p className="text-2xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{m.value}</p>
-                {m.unit && <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>{m.unit}</span>}
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Fusion insight (if available) */}
-          {fusion && (
-            <motion.div className="rounded-xl p-4 text-left" style={{ background: "rgba(110,231,255,0.04)", border: "1px solid rgba(110,231,255,0.1)" }}
-              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}>
-              <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{fusion.message}</p>
+            <motion.div className="flex justify-start"
+              initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3 }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+                style={{ background: bodyAgrees ? "rgba(194,255,74,0.08)" : "rgba(255,195,107,0.08)", border: `1px solid ${bodyAgrees ? "rgba(194,255,74,0.2)" : "rgba(255,195,107,0.2)"}` }}>
+                <span className="text-xs font-semibold" style={{ color: bodyAgrees ? "#C2FF4A" : "#FFC36B" }}>
+                  {bodyAgrees ? "Body confirms your read" : "Mismatch — plan adjusted"}
+                </span>
+              </div>
             </motion.div>
           )}
 
-          {/* Curiosity gap tease + CTA */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
-            <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.35)" }}>
-              {isAnomaly
-                ? "Something shifted in your overnight recovery."
-                : "Within your normal range. Ready to move."}
-            </p>
+          {/* CTA */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}>
             <motion.button
               onClick={() => setPhase("action")}
-              className="px-8 py-4 rounded-2xl text-sm font-black cursor-pointer border-0 flex items-center justify-center gap-2 mx-auto"
-              style={{
-                background: isAnomaly ? "linear-gradient(135deg, #FF5C35, #FF8040)" : "rgba(255,255,255,0.06)",
-                color: isAnomaly ? "#fff" : "#94A3B8",
-                boxShadow: isAnomaly ? "0 8px 32px rgba(255,92,53,0.25)" : "none",
-              }}
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Eye className="w-4 h-4" />
-              {isAnomaly ? "Reveal your plan" : "See today's plan"}
+              className="w-full py-4 rounded-full text-base font-semibold cursor-pointer border-0"
+              style={{ background: "#FF5C35", color: "#fff", boxShadow: "0 8px 32px rgba(255,92,53,0.25)" }}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+              See your session
             </motion.button>
           </motion.div>
         </motion.div>
@@ -455,12 +475,19 @@ export default function Today() {
 
   // ── PHASE 3: ACTION (the main /today content) ──
   return (
-    <div className="min-h-screen px-4 py-6 max-w-lg mx-auto" style={{ background: "#0a0b0d" }}>
+    <div className="min-h-screen px-5 py-6 max-w-lg mx-auto" style={{ background: "#0B1120" }}>
+
+      {/* Agent status bar */}
+      <div className="flex items-center gap-2.5 mb-8">
+        <span className="text-lg font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>YU</span>
+        <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#C2FF4A" }} />
+        <span className="text-xs" style={{ color: "#475569" }}>session ready</span>
+      </div>
 
       {/* BODY CONTEXT — individual baselines with EWMA-style range */}
       <motion.div className="mb-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ ease }}>
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[10px] uppercase tracking-[0.2em] font-bold" style={{ color: "rgba(255,255,255,0.25)" }}>Your body right now</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] font-bold" style={{ color: "#475569" }}>Your body right now</p>
           {confirmationMsg && (
             <motion.p className="text-[10px] font-medium px-2.5 py-1 rounded-full" style={{
               background: bodyAgrees ? "rgba(194,255,74,0.08)" : "rgba(255,195,107,0.08)",
@@ -478,7 +505,7 @@ export default function Today() {
             { label: "Stress", value: body.stress_min != null ? `${body.stress_min}` : "--", unit: "min", baseline: null, color: "#FF5D6C", delta: null },
           ].map((m, i) => (
             <motion.div key={m.label} className="rounded-2xl p-4 relative overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+              style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(26,42,74,0.4)" }}
               initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 * i, ease }}>
               {/* Subtle color glow */}
               <div className="absolute top-0 right-0 w-20 h-20 pointer-events-none" style={{ background: `radial-gradient(circle at 100% 0%, ${m.color}08, transparent 70%)` }} />
@@ -490,7 +517,7 @@ export default function Today() {
               {/* Individual baseline band (EWMA) */}
               {m.baseline != null && (
                 <div className="mt-2 flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full relative overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
+                  <div className="flex-1 h-1.5 rounded-full relative overflow-hidden" style={{ background: "rgba(15,26,46,0.5)" }}>
                     <div className="absolute inset-y-0 rounded-full" style={{
                       background: `${m.color}25`,
                       left: `${Math.max(0, Math.min(100, ((m.baseline - 15) / (m.baseline + 15)) * 100))}%`,
@@ -743,7 +770,7 @@ export default function Today() {
         {action.override_warning && !overriding && !feedback && (
           <button onClick={() => setOverriding(true)}
             className="w-full mt-3 py-2 rounded-lg text-[10px] cursor-pointer border-0 flex items-center justify-center gap-1"
-            style={{ background: "rgba(255,255,255,0.03)", color: "#64748B", border: "1px solid rgba(255,255,255,0.06)" }}>
+            style={{ background: "rgba(15,26,46,0.4)", color: "#64748B", border: "1px solid rgba(255,255,255,0.06)" }}>
             <AlertTriangle className="w-3 h-3" /> Override — I want to train anyway
           </button>
         )}

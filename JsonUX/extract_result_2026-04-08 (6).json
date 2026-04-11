@@ -1,0 +1,2014 @@
+{
+  "job_id": "7a5df37f-9fe0-4a60-9334-3143bb93a31b",
+  "usage": {
+    "num_pages": 15,
+    "num_fields": 434,
+    "credits": 73.4,
+    "extract_mode": "super_agent"
+  },
+  "studio_link": "https://studio.reducto.ai/job/7a5df37f-9fe0-4a60-9334-3143bb93a31b",
+  "result": {
+    "document_metadata": {
+      "title": {
+        "value": "Foundation Science: What Mental State Does to the Body Signal",
+        "citations": []
+      },
+      "subtitle": {
+        "value": "A Deep Research Synthesis on Psychological State, Wearable Biometrics, EMA, and Burnout Detection",
+        "citations": []
+      },
+      "document_type": {
+        "value": "Deep Research Synthesis",
+        "citations": []
+      }
+    },
+    "executive_summary": {
+      "overview": {
+        "value": "The relationship between psychological state and wearable biometric readings is real, measurable, and consequential - but it is also confounded, non-specific, and heavily attenuated in naturalistic settings compared to laboratory conditions.",
+        "citations": []
+      },
+      "key_findings": [
+        {
+          "value": "Psychological stress independently suppresses nocturnal HRV, with effect sizes roughly half that of vigorous exercise on the same night - but the signals overlap enough that biometrics alone cannot reliably distinguish the source.",
+          "citations": []
+        },
+        {
+          "value": "Pre-sleep rumination is among the strongest predictors of sleep onset latency and slow-wave sleep disruption, operating through cognitive hyperarousal rather than physiological activation, making it partially invisible to HRV.",
+          "citations": []
+        },
+        {
+          "value": "Ecological momentary assessment (EMA) combined with wearables consistently outperforms either modality alone for predicting burnout, depression onset, and cognitive performance with diminishing returns above 3 prompts/day or 10 items/prompt.",
+          "citations": []
+        },
+        {
+          "value": "Consumer wearables show systematic biometric changes 2-6 weeks before burnout onset, but behavioral digital markers (communication patterns, typing dynamics, activity reduction) add predictive power that physiological signals alone cannot provide.",
+          "citations": []
+        }
+      ]
+    },
+    "part_I_hrv_and_psychological_stress": {
+      "autonomic_nervous_system_mechanism": {
+        "description": {
+          "value": "Both psychological stress and physical exercise suppress HRV through increased sympathetic nervous system (SNS) activity and withdrawal of parasympathetic (vagal) tone. RMSSD is primarily a marker of parasympathetic modulation. Any stressor that activates the SNS will reduce RMSSD.",
+          "citations": []
+        },
+        "hrv_metric": {
+          "value": "RMSSD",
+          "citations": []
+        },
+        "devices_using_rmssd": {
+          "value": "Oura and WHOOP",
+          "citations": []
+        },
+        "key_insight": {
+          "value": "HRV measures the autonomic consequence of stress, not the type or source of stress",
+          "citations": []
+        }
+      },
+      "neuropsychobiology_review_2023": {
+        "study_count": {
+          "value": "20 studies",
+          "citations": []
+        },
+        "publication": {
+          "value": "Neuropsychobiology (2023)",
+          "citations": []
+        },
+        "key_metric": {
+          "value": "RMSSD was the single most consistently reported HRV metric associated with psychological stress",
+          "citations": []
+        },
+        "stress_induction_tasks": {
+          "value": "TSST, Stroop, mental arithmetic; real-life anticipatory stress (pre-competition); chronic stressors including depressive rumination and emotional exhaustion",
+          "citations": []
+        },
+        "acute_stress_rmssd_decrease": {
+          "value": "15-25% during the task, partially recovering afterward, effects persisting up to 30-60 minutes post-stressor",
+          "citations": []
+        },
+        "chronic_stress_rmssd_decrease": {
+          "value": "Sustained 10-18% reductions in resting RMSSD over multi-week periods, correlating with cortisol dysregulation",
+          "citations": []
+        },
+        "strongest_correlation_conditions": {
+          "value": "Specific, isolated stressors and research-grade sensors - conditions that diverge significantly from naturalistic monitoring",
+          "citations": []
+        }
+      },
+      "whoop_free_living_study": {
+        "authors": {
+          "value": "Presby, Jasinski, and Capodilupo",
+          "citations": []
+        },
+        "journal": {
+          "value": "PLOS ONE",
+          "citations": []
+        },
+        "year": {
+          "value": "2023",
+          "citations": []
+        },
+        "sample_size_stress_events": {
+          "value": "8,928 self-reported high-stress work events",
+          "citations": []
+        },
+        "sample_size_runs": {
+          "value": "23,665 runs",
+          "citations": []
+        },
+        "high_stress_work_finding": {
+          "value": "HRV non-significantly lower during event (p=0.06); significantly suppressed for 90-300 minutes after stressor ended (p<0.05), using Dunnett's post-hoc against pre-event baseline",
+          "citations": []
+        },
+        "vigorous_running_finding": {
+          "value": "HRV significantly suppressed for at least 270-300 minutes post-run (p<0.05), with vigorous strain showing greater area-under-the-curve suppression than moderate (p<0.05, Tukey's test)",
+          "citations": []
+        },
+        "moderate_exercise_finding": {
+          "value": "HRV remained depressed for 180-210 minutes post-run",
+          "citations": []
+        },
+        "overall_comparison": {
+          "value": "Vigorous exercise produces a broader, deeper, and faster-onset HRV suppression than psychological stress events of comparable duration. Psychological stress produces a prolonged post-event tail - the autonomic 'echo' of rumination and cognitive activation.",
+          "citations": []
+        }
+      },
+      "martinez_et_al_2022": {
+        "journal": {
+          "value": "JMIR",
+          "citations": []
+        },
+        "year": {
+          "value": "2022",
+          "citations": []
+        },
+        "sample_size": {
+          "value": "757 information workers",
+          "citations": []
+        },
+        "devices": {
+          "value": "Garmin/Fitbit",
+          "citations": []
+        },
+        "study_duration": {
+          "value": "one year",
+          "citations": []
+        },
+        "r_squared": {
+          "value": "1-2.2%",
+          "citations": []
+        },
+        "correlation_r": {
+          "value": "≈0.15",
+          "citations": []
+        },
+        "cohens_d": {
+          "value": "≈0.30 (small-to-medium)",
+          "citations": []
+        },
+        "conclusion": {
+          "value": "The laboratory-established HRV-stress association failed to replicate at meaningful magnitude in free-living conditions, attributed to absence of isolated stressors and use of commercial sensors",
+          "citations": []
+        }
+      },
+      "nature_communications_2025": {
+        "year": {
+          "value": "2025",
+          "citations": []
+        },
+        "journal": {
+          "value": "Nature Communications",
+          "citations": []
+        },
+        "hrv_decrease_maximal_exercise_2h_before_sleep": {
+          "value": "32.6% decrease (approximately 14.6 HRV units)",
+          "citations": []
+        },
+        "hrv_decrease_exercise_6h_plus_before_sleep": {
+          "value": "1.56-4.52 unit decrease (strain-dependent)",
+          "citations": []
+        }
+      },
+      "practical_implication": {
+        "value": "Vigorous training typically produces 1.5-2x greater HRV suppression than an acutely stressful psychological event on same night; sustained chronic psychological stress (rumination, emotional exhaustion) accumulates over days to produce HRV reductions comparable to moderate overtraining",
+        "citations": []
+      },
+      "hrv_suppression_by_stressor_table": [
+        {
+          "stressor_type": {
+            "value": "Illness / Alcohol",
+            "citations": []
+          },
+          "hrv_suppression_pct": {
+            "value": "22%",
+            "citations": []
+          },
+          "category": {
+            "value": "Lifestyle/Illness",
+            "citations": []
+          }
+        },
+        {
+          "stressor_type": {
+            "value": "Emotional Exhaustion (Burnout)",
+            "citations": []
+          },
+          "hrv_suppression_pct": {
+            "value": "15%",
+            "citations": []
+          },
+          "category": {
+            "value": "Psych-physiological",
+            "citations": []
+          }
+        },
+        {
+          "stressor_type": {
+            "value": "Moderate Exercise (>6h before sleep)",
+            "citations": []
+          },
+          "hrv_suppression_pct": {
+            "value": "8%",
+            "citations": []
+          },
+          "category": {
+            "value": "Physical (exercise)",
+            "citations": []
+          }
+        },
+        {
+          "stressor_type": {
+            "value": "Vigorous Exercise (same-night)",
+            "citations": []
+          },
+          "hrv_suppression_pct": {
+            "value": "32%",
+            "citations": []
+          },
+          "category": {
+            "value": "Physical (exercise)",
+            "citations": []
+          }
+        },
+        {
+          "stressor_type": {
+            "value": "Chronic Psych Stress (Rumination)",
+            "citations": []
+          },
+          "hrv_suppression_pct": {
+            "value": "12%",
+            "citations": []
+          },
+          "category": {
+            "value": "Psychological",
+            "citations": []
+          }
+        },
+        {
+          "stressor_type": {
+            "value": "Acute Psych Stress (Lab / TSST)",
+            "citations": []
+          },
+          "hrv_suppression_pct": {
+            "value": "18%",
+            "citations": []
+          },
+          "category": {
+            "value": "Psychological",
+            "citations": []
+          }
+        }
+      ],
+      "physical_vs_psychological_fatigue_comparison": {
+        "rmssd_nocturnal_physical": {
+          "value": "⅙3-32% (dose-dependent)",
+          "citations": []
+        },
+        "rmssd_nocturnal_psychological": {
+          "value": "⅙10-18% (sustained)",
+          "citations": []
+        },
+        "rhr_nocturnal_physical": {
+          "value": "↑8-16%",
+          "citations": []
+        },
+        "rhr_nocturnal_psychological": {
+          "value": "↑5-12%",
+          "citations": []
+        },
+        "sleep_onset_latency_physical": {
+          "value": "Slightly ↓ (fatigue promotes sleep)",
+          "citations": []
+        },
+        "sleep_onset_latency_psychological": {
+          "value": "↑10-30 min (hyperarousal)",
+          "citations": []
+        },
+        "deep_sleep_n3_physical": {
+          "value": "Maintained or ↑ (physical recovery)",
+          "citations": []
+        },
+        "deep_sleep_n3_psychological": {
+          "value": "⅙8-15% (stress → light sleep)",
+          "citations": []
+        },
+        "readiness_recovery_physical": {
+          "value": "Appropriately ↓",
+          "citations": []
+        },
+        "readiness_recovery_psychological": {
+          "value": "Appropriately ↓↓, but sleep SOL mismatch",
+          "citations": []
+        },
+        "subjective_biometric_alignment_physical": {
+          "value": "Moderate (r=0.36-0.47, Oura/WHOOP)",
+          "citations": []
+        },
+        "subjective_biometric_alignment_psychological": {
+          "value": "Often dissociated - biometrics 'normal' as subjective exhaustion rises",
+          "citations": []
+        }
+      },
+      "altini_plews_2021": {
+        "journal": {
+          "value": "Sensors",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        },
+        "measurements_per_person": {
+          "value": "320±374 longitudinal morning HRV measurements per person",
+          "citations": []
+        },
+        "illness_hrv_reduction": {
+          "value": "10% HRV reduction (d=0.47, moderate effect)",
+          "citations": []
+        },
+        "physical_activity_association": {
+          "value": "r=0.21 (small/weak effect)",
+          "citations": []
+        },
+        "conclusion": {
+          "value": "HRV is 'a more sensitive but not specific marker of stress' - it detects that something is wrong but cannot identify what",
+          "citations": []
+        }
+      }
+    },
+    "part_II_rumination_and_sleep": {
+      "cognitive_hyperarousal_mechanism": {
+        "description": {
+          "value": "Cognitive arousal (rumination, worry, repetitive negative thinking) - not somatic arousal (elevated heart rate, muscle tension) - is the primary mechanism through which psychological stress disrupts sleep. The pathway is cognitive, not autonomic, at the point of sleep initiation.",
+          "citations": []
+        },
+        "implication_for_hrv": {
+          "value": "HRV-based readiness scores will not capture rumination-driven sleep disruption unless the rumination is severe enough to produce full autonomic activation",
+          "citations": []
+        }
+      },
+      "journal_sleep_research_2025": {
+        "year": {
+          "value": "2025",
+          "citations": []
+        },
+        "journal": {
+          "value": "Journal of Sleep Research",
+          "citations": []
+        },
+        "study_duration": {
+          "value": "14 days of actigraphy and daily EMA in healthy adults",
+          "citations": []
+        },
+        "within_individual_stress_effect_on_sleep_time": {
+          "value": "10-point increase in perceived stress predicted ~2.46 fewer minutes of total sleep time",
+          "citations": []
+        },
+        "within_individual_stress_effect_on_sol": {
+          "value": "10-point increase in perceived stress predicted ~0.76 more minutes of sleep onset latency",
+          "citations": []
+        },
+        "mediator": {
+          "value": "Pre-sleep cognitive arousal (PSAS-C) - not somatic arousal or pre-sleep heart rate",
+          "citations": []
+        },
+        "between_individual_waso": {
+          "value": "Individuals with high sleep reactivity experienced greater WASO mediated by cognitive arousal (b=0.093, p=0.038)",
+          "citations": []
+        },
+        "pre_sleep_hr_finding": {
+          "value": "Pre-sleep heart rate did not differ between high and low sleep-reactive groups (p>0.05); cognitive arousal did - confirming mechanism is primarily cognitive, not physiological",
+          "citations": []
+        }
+      },
+      "li_et_al_2019": {
+        "journal": {
+          "value": "Frontiers in Psychiatry",
+          "citations": []
+        },
+        "year": {
+          "value": "2019",
+          "citations": []
+        },
+        "sample_size": {
+          "value": "n=1,065",
+          "citations": []
+        },
+        "rumination_mediation_percent": {
+          "value": "41.1% of total effect of stressful life events on sleep quality",
+          "citations": []
+        },
+        "indirect_effect_beta": {
+          "value": "beta=0.08",
+          "citations": []
+        },
+        "indirect_effect_ci": {
+          "value": "95% CI [0.03, 0.12]",
+          "citations": []
+        },
+        "rumination_psqi_correlation": {
+          "value": "r=0.19, p<0.01",
+          "citations": []
+        },
+        "resilience_threshold": {
+          "value": "At high resilience scores >67.12, the conditional effect of rumination on sleep became non-significant",
+          "citations": []
+        }
+      },
+      "zoccola_et_al_study": {
+        "finding": {
+          "value": "Stressor-specific rumination predicted longer objective SOL (using actigraphy); effect strongest among those with high trait rumination (interaction effect)",
+          "citations": []
+        },
+        "specificity": {
+          "value": "Effect specific to sleep initiation (SOL), not total sleep duration or WASO",
+          "citations": []
+        }
+      },
+      "pnas_2022_noradrenergic": {
+        "year": {
+          "value": "2022",
+          "citations": []
+        },
+        "journal": {
+          "value": "PNAS",
+          "citations": []
+        },
+        "finding": {
+          "value": "Acute psychosocial stress disrupts sleep by activating locus coeruleus noradrenergic neurons (LC-NE) during NREM sleep, causing frequent arousals, suppression of slow oscillations (delta power), and REM suppression",
+          "citations": []
+        }
+      },
+      "svihrova_et_al_2025": {
+        "journal": {
+          "value": "Frontiers in Digital Health",
+          "citations": []
+        },
+        "year": {
+          "value": "2025",
+          "citations": []
+        },
+        "method": {
+          "value": "Bayesian mixed-effects analysis of Garmin wearable data from a burnout-prevention study",
+          "citations": []
+        },
+        "finding": {
+          "value": "Excessive daily stress reduces deep sleep proportion; both medium and high nocturnal stress strongly associated with average daily stress (PoD=0.98-0.99)",
+          "citations": []
+        }
+      },
+      "riemann_feige_2023": {
+        "journal": {
+          "value": "Current Topics in Neuroscience",
+          "citations": []
+        },
+        "year": {
+          "value": "2023",
+          "citations": []
+        },
+        "finding": {
+          "value": "REM sleep is 'particularly prone to fragmentation' in individuals with persistent hyperarousal (cognitive or physiological), leading to a 'conscious-like wake experience' during REM reflecting pre-sleep concerns",
+          "citations": []
+        }
+      },
+      "psychologica_reflexio_2024": {
+        "value": "Confirmed rumination and social anxiety as dual mediators between stress and sleep quality in a college student sample",
+        "citations": []
+      },
+      "estimated_rumination_effects": {
+        "sws_reduction": {
+          "value": "10-20% reduction in SWS proportion",
+          "citations": []
+        },
+        "sol_increase": {
+          "value": "15-30 minute increase in SOL compared to low-arousal evenings",
+          "citations": []
+        },
+        "consumer_wearable_sws_sensitivity": {
+          "value": "~50-70% vs. PSG gold standard",
+          "citations": []
+        }
+      }
+    },
+    "part_III_ema_methodology": {
+      "ema_definition": {
+        "value": "Repeated, real-time, in-situ self-report methodology in which participants complete brief surveys (prompts) multiple times per day using smartphones or wearables",
+        "citations": []
+      },
+      "ema_limitations_addressed": {
+        "recall_bias": {
+          "value": "Retrospective reports compress multiple experiences into a single remembered average, introducing systematic distortion (mood-congruent recall, recency effects)",
+          "citations": []
+        },
+        "context_blindness": {
+          "value": "Single-point questionnaires miss within-day fluctuations that are clinically significant (e.g., stress peaking at 2pm, resolving by 6pm, leaving no trace in evening survey)",
+          "citations": []
+        }
+      },
+      "ema_trigger_types": {
+        "signal_contingent": {
+          "value": "Random prompts throughout the day",
+          "citations": []
+        },
+        "interval_contingent": {
+          "value": "Fixed-time prompts",
+          "citations": []
+        },
+        "event_contingent": {
+          "value": "Triggered by specific events or threshold crossings in passive sensor data",
+          "citations": []
+        },
+        "smart_ema": {
+          "value": "Event-contingent increasingly combined with wearable-derived data; prompts delivered when biometric signals indicate a state worth measuring",
+          "citations": []
+        }
+      },
+      "journal_clinical_medicine_2023_meta_analysis": {
+        "value": "EMA reveals dynamic associations between psychological states at small timescales (within-day, day-to-day) entirely missed in traditional study designs; specific value for studying burnout: tracking mood, social safety, energy, and present-focused attention fluctuations in relation to physiological markers",
+        "citations": []
+      },
+      "kapteijns_et_al_2023": {
+        "journal": {
+          "value": "JMIR",
+          "citations": []
+        },
+        "year": {
+          "value": "2023",
+          "citations": []
+        },
+        "study_context": {
+          "value": "Combined EMA with wearable biosensors (physiological EMA, EPA) during an examination week",
+          "citations": []
+        },
+        "finding_individualized_models": {
+          "value": "Individualized models combining EMA + physiological data significantly outperformed group-based models across all three input types (EMA alone, EPA alone, combined)",
+          "citations": []
+        },
+        "finding_baseline": {
+          "value": "Stress detection accuracy improved when self-reports were contextualized against each individual's own baseline - not compared across people",
+          "citations": []
+        },
+        "key_quote": {
+          "value": "'Personalized approaches in which momentary stress is optimally detected when referenced against an individual's own data' are necessary",
+          "citations": []
+        }
+      },
+      "greenberg_et_al_2024": {
+        "journal": {
+          "value": "Neurosurgery",
+          "citations": []
+        },
+        "year": {
+          "value": "2024",
+          "citations": []
+        },
+        "context": {
+          "value": "Lumbar spine surgery recovery prediction",
+          "citations": []
+        },
+        "ema_components": {
+          "value": "Preoperative EMA: pain, disability, depression, catastrophizing; combined with Fitbit data",
+          "citations": []
+        },
+        "improvement_over_single_point": {
+          "value": "30-34% improvement over traditional single-point assessments alone",
+          "citations": []
+        },
+        "c_statistic_combined_pain": {
+          "value": "0.82",
+          "citations": []
+        },
+        "c_statistic_baseline_pain": {
+          "value": "0.61",
+          "citations": []
+        },
+        "c_statistic_combined_recovery": {
+          "value": "0.70",
+          "citations": []
+        },
+        "c_statistic_baseline_recovery": {
+          "value": "0.54",
+          "citations": []
+        },
+        "median_ema_completion": {
+          "value": "78 prompts over 17 days (approximately 4-5 prompts per day)",
+          "citations": []
+        }
+      },
+      "moshe_et_al_2021": {
+        "journal": {
+          "value": "Frontiers in Psychiatry",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        },
+        "devices": {
+          "value": "Oura Ring + smartphone GPS + 3x/day EMA mood",
+          "citations": []
+        },
+        "biometrics_alone_beta_range": {
+          "value": "beta=0.21-0.26, p<0.05 (small-to-medium significant effects on depression and anxiety)",
+          "citations": []
+        },
+        "ema_mood_depression_beta": {
+          "value": "beta=-0.39",
+          "citations": []
+        },
+        "ema_mood_anxiety_beta": {
+          "value": "beta=-0.30",
+          "citations": []
+        },
+        "combined_model": {
+          "value": "Combined model provided best fit for depression (likelihood ratio test superior to either alone); for anxiety and stress, EMA-only models remained strongest",
+          "citations": []
+        },
+        "best_single_item": {
+          "value": "Emotional valence on -4 to +4 scale was the most predictive individual item across all mental health outcomes",
+          "citations": []
+        }
+      },
+      "jmir_meta_analysis_2021_ema_burden": {
+        "studies_count": {
+          "value": "68 studies",
+          "citations": []
+        },
+        "participants": {
+          "value": "n=27,000+ participants",
+          "citations": []
+        },
+        "overall_compliance": {
+          "value": "81.9% (95% CI 79.1-84.4%)",
+          "citations": []
+        },
+        "no_difference_clinical_nonclinical": {
+          "value": "No significant difference between clinical and non-clinical populations",
+          "citations": []
+        },
+        "non_compliance_factors": {
+          "value": "High prompt frequency (>3/day) and long individual surveys (>26 items)",
+          "citations": []
+        },
+        "protocol_guidelines": [
+          {
+            "variable": {
+              "value": "Prompts per day",
+              "citations": []
+            },
+            "finding": {
+              "value": "1-3/day -> 87% compliance; 4-5/day -> 76.9%; 6+/day -> 79.4%",
+              "citations": []
+            },
+            "recommended_range": {
+              "value": "1-3 prompts/day for sustained compliance",
+              "citations": []
+            }
+          },
+          {
+            "variable": {
+              "value": "Items per prompt",
+              "citations": []
+            },
+            "finding": {
+              "value": "<=26 items -> 78-84% compliance; >26 items -> 63% compliance",
+              "citations": []
+            },
+            "recommended_range": {
+              "value": "<=10 items per prompt (median in clinical studies = 8)",
+              "citations": []
+            }
+          },
+          {
+            "variable": {
+              "value": "Study duration",
+              "citations": []
+            },
+            "finding": {
+              "value": "No compelling relationship between duration and compliance",
+              "citations": []
+            },
+            "recommended_range": {
+              "value": "Up to 14-21 days is standard",
+              "citations": []
+            }
+          },
+          {
+            "variable": {
+              "value": "Prompt type",
+              "citations": []
+            },
+            "finding": {
+              "value": "Random signal prompts had highest compliance when kept to 1-3/day",
+              "citations": []
+            },
+            "recommended_range": {
+              "value": "Signal or fixed-interval preferred over event-only",
+              "citations": []
+            }
+          }
+        ],
+        "ema_compliance_by_frequency": [
+          {
+            "frequency": {
+              "value": "1-3 prompts/day",
+              "citations": []
+            },
+            "compliance_rate": {
+              "value": "87.0%",
+              "citations": []
+            }
+          },
+          {
+            "frequency": {
+              "value": "4-5 prompts/day",
+              "citations": []
+            },
+            "compliance_rate": {
+              "value": "76.9%",
+              "citations": []
+            }
+          },
+          {
+            "frequency": {
+              "value": "6+ prompts/day",
+              "citations": []
+            },
+            "compliance_rate": {
+              "value": "79.4%",
+              "citations": []
+            }
+          }
+        ],
+        "acceptable_compliance_threshold": {
+          "value": "80%",
+          "citations": []
+        }
+      },
+      "twice_daily_delivery_design": {
+        "morning_prompt": {
+          "value": "3-5 items assessing overnight recovery perception, energy, and mood valence",
+          "citations": []
+        },
+        "evening_prompt": {
+          "value": "3-5 items assessing daytime stress peak, emotional state, and pre-sleep arousal",
+          "citations": []
+        }
+      },
+      "validated_short_form_scales": [
+        {
+          "scale": {
+            "value": "PHQ-4",
+            "citations": []
+          },
+          "items": {
+            "value": "4 items",
+            "citations": []
+          },
+          "construct": {
+            "value": "Depression + Anxiety (screening)",
+            "citations": []
+          },
+          "response_burden": {
+            "value": "~30 sec",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Weekly or bi-weekly screening; not suited for daily delivery without modification",
+            "citations": []
+          }
+        },
+        {
+          "scale": {
+            "value": "PHQ-2 / GAD-2",
+            "citations": []
+          },
+          "items": {
+            "value": "2 items each",
+            "citations": []
+          },
+          "construct": {
+            "value": "Depression alone / Anxiety alone",
+            "citations": []
+          },
+          "response_burden": {
+            "value": "~15 sec each",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Daily delivery as individual subscales; validated subsets of PHQ-4",
+            "citations": []
+          }
+        },
+        {
+          "scale": {
+            "value": "PSS-4",
+            "citations": []
+          },
+          "items": {
+            "value": "4 items",
+            "citations": []
+          },
+          "construct": {
+            "value": "Perceived Stress (past month)",
+            "citations": []
+          },
+          "response_burden": {
+            "value": "~45 sec",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Weekly; retrospective window limits daily use",
+            "citations": []
+          }
+        },
+        {
+          "scale": {
+            "value": "PANAS (brief)",
+            "citations": []
+          },
+          "items": {
+            "value": "5-10 items (short forms)",
+            "citations": []
+          },
+          "construct": {
+            "value": "Positive + Negative Affect",
+            "citations": []
+          },
+          "response_burden": {
+            "value": "~45-90 sec",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Twice-daily; most validated for EMA; captures mood state, not trait",
+            "citations": []
+          }
+        },
+        {
+          "scale": {
+            "value": "BRUMS",
+            "citations": []
+          },
+          "items": {
+            "value": "24 items (full) / 6-item BRUMS-S",
+            "citations": []
+          },
+          "construct": {
+            "value": "Mood + Fatigue (7 subscales)",
+            "citations": []
+          },
+          "response_burden": {
+            "value": "2-5 min (full)",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Sport/performance; BRUMS-S feasible for daily use",
+            "citations": []
+          }
+        },
+        {
+          "scale": {
+            "value": "VAS Energy / Valence / Arousal",
+            "citations": []
+          },
+          "items": {
+            "value": "1-3 items each",
+            "citations": []
+          },
+          "construct": {
+            "value": "Energy, Mood, Arousal",
+            "citations": []
+          },
+          "response_burden": {
+            "value": "~10-20 sec",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Optimal for daily or multiple-daily delivery; highest compliance",
+            "citations": []
+          }
+        }
+      ],
+      "best_practice_recommendations": {
+        "daily_delivery": {
+          "value": "2-item energy VAS + 2-item mood valence VAS + 1-item stress (PSS single item) = 5 items total, ~30 seconds, validated predictive value for next-day HRV and performance",
+          "citations": []
+        },
+        "twice_daily_delivery": {
+          "value": "Morning: PHQ-2 (2 items) + Energy (1 item). Evening: GAD-2 (2 items) + Mood (1 item) + Pre-sleep arousal ('How much is your mind racing right now?', 1 item) = 7 items across both prompts",
+          "citations": []
+        }
+      },
+      "phq4_mobile_validation": {
+        "value": "2023 PMC validation study confirmed PHQ-9 and GAD-7 administered via mobile app yield equivalent psychometrics to paper-based testing; PHQ-4 (validated Kroenke et al. 2009; revalidated 2024 U.S. general population) showed 'reliable and valid' screening performance with 4 items",
+        "citations": []
+      }
+    },
+    "part_IV_prediction_performance": {
+      "performance_hierarchy": {
+        "value": "Combined > EMA Self-report > Biometrics alone; self-report advantage most pronounced for psychological outcomes (mood, burnout, depression); biometric advantage most pronounced for physical outcomes (sleep continuity, activity levels, physiological recovery)",
+        "citations": []
+      },
+      "prediction_accuracy_table": [
+        {
+          "method": {
+            "value": "Biometrics Alone",
+            "citations": []
+          },
+          "depression_mood_auroc": {
+            "value": "0.61",
+            "citations": []
+          },
+          "anxiety_stress_auroc": {
+            "value": "0.58",
+            "citations": []
+          },
+          "burnout_fatigue_auroc": {
+            "value": "0.65",
+            "citations": []
+          }
+        },
+        {
+          "method": {
+            "value": "EMA Self-report Alone",
+            "citations": []
+          },
+          "depression_mood_auroc": {
+            "value": "0.74",
+            "citations": []
+          },
+          "anxiety_stress_auroc": {
+            "value": "0.68",
+            "citations": []
+          },
+          "burnout_fatigue_auroc": {
+            "value": "0.71",
+            "citations": []
+          }
+        },
+        {
+          "method": {
+            "value": "Combined (Best)",
+            "citations": []
+          },
+          "depression_mood_auroc": {
+            "value": "0.82",
+            "citations": []
+          },
+          "anxiety_stress_auroc": {
+            "value": "0.74",
+            "citations": []
+          },
+          "burnout_fatigue_auroc": {
+            "value": "0.83",
+            "citations": []
+          }
+        }
+      ],
+      "mit_snapshot_study": {
+        "participants": {
+          "value": "201 college students",
+          "citations": []
+        },
+        "duration": {
+          "value": "1 month",
+          "citations": []
+        },
+        "data_hours": {
+          "value": "145,000+ hours of wearable + smartphone data",
+          "citations": []
+        },
+        "stress_classification_accuracy": {
+          "value": "73.5% accuracy using wearable + phone features alone",
+          "citations": []
+        },
+        "multimodal_benefit": {
+          "value": "Adding self-report instruments improved classification further, with multimodal fusion showing new insights into digital phenotyping",
+          "citations": []
+        }
+      },
+      "saylam_incel_2023": {
+        "journal": {
+          "value": "Sensors",
+          "citations": []
+        },
+        "year": {
+          "value": "2023",
+          "citations": []
+        },
+        "dataset": {
+          "value": "Tesserae dataset (office workers)",
+          "citations": []
+        },
+        "finding": {
+          "value": "LSTM time-based models using both biometric and self-reported constructs outperformed non-time-based approaches for predicting stress, anxiety, and positive affect; temporal dynamics within EMA + biometrics is the key predictive lever",
+          "citations": []
+        }
+      },
+      "integrative_study_2024_affect_forecasting": {
+        "value": "2024 integrative study using transformer encoder + pre-trained language model found combining diary self-report (natural language) with biometric sensor features substantially improved next-day affect prediction over either alone",
+        "citations": []
+      },
+      "minimum_viable_self_report": {
+        "source": {
+          "value": "Moshe et al. (2021) Oura Ring study",
+          "citations": []
+        },
+        "emotional_valence_depression_beta": {
+          "value": "β=-0.39",
+          "citations": []
+        },
+        "emotional_valence_anxiety_beta": {
+          "value": "β=-0.30",
+          "citations": []
+        },
+        "emotional_valence_stress_beta": {
+          "value": "β=-0.39",
+          "citations": []
+        },
+        "scale": {
+          "value": "-4 to +4",
+          "citations": []
+        },
+        "frequency": {
+          "value": "3x/day",
+          "citations": []
+        },
+        "conclusion": {
+          "value": "No additional items meaningfully improved effect sizes when added to biometric data",
+          "citations": []
+        }
+      },
+      "oldenhuis_et_al_2021": {
+        "journal": {
+          "value": "JMIR Cardio",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        },
+        "finding": {
+          "value": "3-item daily EMA (perceived demands, stress, mental exhaustion) combined with resting HRV from Fitbit predicted within-day accumulation of negative psychological consequences; minimum for early warning",
+          "citations": []
+        }
+      },
+      "mirjafari_multimodal_comparison": {
+        "fitness_tracker_auroc": {
+          "value": "0.72",
+          "citations": []
+        },
+        "phone_only_auroc": {
+          "value": "0.65",
+          "citations": []
+        },
+        "combined_auroc": {
+          "value": "0.83",
+          "citations": []
+        },
+        "source": {
+          "value": "Mirjafari et al., replicated across multiple working population studies",
+          "citations": []
+        }
+      }
+    },
+    "part_V_burnout_precursors": {
+      "frontiers_digital_health_2025": {
+        "year": {
+          "value": "2025",
+          "citations": []
+        },
+        "journal": {
+          "value": "Frontiers in Digital Health",
+          "citations": []
+        },
+        "method": {
+          "value": "Bayesian analysis of Garmin wearable data in a burnout-prevention study",
+          "citations": []
+        },
+        "finding_stress_deep_sleep": {
+          "value": "Excessive daily stress → reduced deep sleep (N3 proportion), mediated by elevated nocturnal stress score",
+          "citations": []
+        },
+        "finding_alcohol": {
+          "value": "Alcohol → reduced REM sleep + increased awake time + elevated nocturnal stress (all strong probabilistic effects)",
+          "citations": []
+        },
+        "finding_active_hours": {
+          "value": "Active hours → promoted deep sleep (PoD=0.75, suggesting competing dynamics)",
+          "citations": []
+        },
+        "daily_stress_nocturnal_pod": {
+          "value": "0.98-0.99 PoD; daytime stress is mirrored in sleep-time autonomic dysregulation",
+          "citations": []
+        }
+      },
+      "jmir_2024_burnout_scoping_review": {
+        "journal": {
+          "value": "JMIR",
+          "citations": []
+        },
+        "year": {
+          "value": "2024",
+          "citations": []
+        },
+        "studies_reviewed": {
+          "value": "10 studies",
+          "citations": []
+        },
+        "populations": {
+          "value": "Medical residents, nursing staff",
+          "citations": []
+        },
+        "finding": {
+          "value": "No single biometric reliably predicted burnout onset; RHR higher over 2-4 weeks in burned-out vs. non-burned-out residents, but MBI association largely non-significant across most longitudinal cohorts",
+          "citations": []
+        },
+        "methodological_weaknesses": {
+          "value": "Short study durations (<16 weeks), small samples (20-775), insufficient sampling frequency, poor adherence",
+          "citations": []
+        }
+      },
+      "medicine_2020_burnout_hrv": {
+        "journal": {
+          "value": "Medicine",
+          "citations": []
+        },
+        "year": {
+          "value": "2020",
+          "citations": []
+        },
+        "finding": {
+          "value": "Work-overcommitment (burnout precursor) correlated with LF/HF ratio (sympathovagal balance) in male workers; 'exhausted in the morning at the thought of another day at work' items correlated with HRV in female workers (Spearman r=0.187-0.341, p<0.05)",
+          "citations": []
+        }
+      },
+      "ijerph_2021_burnout_hrv": {
+        "journal": {
+          "value": "IJERPH",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        },
+        "population": {
+          "value": "Workers post-acute coronary syndrome",
+          "citations": []
+        },
+        "finding": {
+          "value": "Each 1 SD increase in job burnout score predicted RMSSD decline of 0.10-0.47 (all p<0.05) over 1 year, independent of anxiety and depression; burnout has independent HRV signature that compounds over time",
+          "citations": []
+        }
+      },
+      "burnout_onset_timeline": {
+        "hrv_decline_detectable": {
+          "value": "4-6 weeks before frank burnout symptoms in occupational cohorts",
+          "citations": []
+        },
+        "sleep_rhr_measurable": {
+          "value": "2-4 weeks before onset",
+          "citations": []
+        },
+        "self_reported_mood_energy_decline": {
+          "value": "6-8 weeks before biometric signals reach statistical significance",
+          "citations": []
+        }
+      },
+      "burnout_trajectory_table": [
+        {
+          "weeks_before_onset": {
+            "value": "-8",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "0",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "0",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "0",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "0",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "0",
+            "citations": []
+          }
+        },
+        {
+          "weeks_before_onset": {
+            "value": "-7",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "-3",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "3",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "2",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "-4",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "-2",
+            "citations": []
+          }
+        },
+        {
+          "weeks_before_onset": {
+            "value": "-6",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "-5",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "5",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "4",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "-7",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "-4",
+            "citations": []
+          }
+        },
+        {
+          "weeks_before_onset": {
+            "value": "-5",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "-7",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "7",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "6",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "-10",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "-6",
+            "citations": []
+          }
+        },
+        {
+          "weeks_before_onset": {
+            "value": "-4",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "-9",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "9",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "8",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "-13",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "-8",
+            "citations": []
+          }
+        },
+        {
+          "weeks_before_onset": {
+            "value": "-3",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "-11",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "11",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "10",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "-15",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "-10",
+            "citations": []
+          }
+        },
+        {
+          "weeks_before_onset": {
+            "value": "-2",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "-14",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "13",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "12",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "-17",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "-12",
+            "citations": []
+          }
+        },
+        {
+          "weeks_before_onset": {
+            "value": "-1",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "-17",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "15",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "14",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "-20",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "-15",
+            "citations": []
+          }
+        },
+        {
+          "weeks_before_onset": {
+            "value": "0 (onset)",
+            "citations": []
+          },
+          "hrv_pct_decline": {
+            "value": "-20",
+            "citations": []
+          },
+          "rhr_pct_elevation": {
+            "value": "17",
+            "citations": []
+          },
+          "sleep_fragmentation_pct": {
+            "value": "16",
+            "citations": []
+          },
+          "self_reported_mood_pct": {
+            "value": "-23",
+            "citations": []
+          },
+          "physical_activity_pct": {
+            "value": "-18",
+            "citations": []
+          }
+        }
+      ],
+      "burnout_trajectory_note": {
+        "value": "Illustrative synthesis based on converging evidence from multiple studies; represents approximate directional trends, not derived from a single longitudinal dataset with weekly resolution",
+        "citations": []
+      },
+      "behavioral_digital_markers": [
+        {
+          "marker": {
+            "value": "Late-night/weekend emailing",
+            "citations": []
+          },
+          "signal": {
+            "value": "Elevated → emotional exhaustion",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "Strong; associated with lack of social reciprocity and negative sentiment",
+            "citations": []
+          }
+        },
+        {
+          "marker": {
+            "value": "Email response time",
+            "citations": []
+          },
+          "signal": {
+            "value": "Increasing delays → disengagement",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "Moderate; observed in EHR log analyses",
+            "citations": []
+          }
+        },
+        {
+          "marker": {
+            "value": "Task-switching frequency",
+            "citations": []
+          },
+          "signal": {
+            "value": "Elevated → cognitive overload",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "Moderate; captured via computer interaction logs",
+            "citations": []
+          }
+        },
+        {
+          "marker": {
+            "value": "Calendar density",
+            "citations": []
+          },
+          "signal": {
+            "value": "Chronically overscheduled → exhaustion",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "Moderate; preliminary",
+            "citations": []
+          }
+        },
+        {
+          "marker": {
+            "value": "Social communication reduction",
+            "citations": []
+          },
+          "signal": {
+            "value": "Fewer messages, shorter replies",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "Strong subjective; passive measurement emerging",
+            "citations": []
+          }
+        },
+        {
+          "marker": {
+            "value": "Screen time at home",
+            "citations": []
+          },
+          "signal": {
+            "value": "Increased off-work phone use → anxiety",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "GLOBEM study (N=330, 3 years): within-individual phone use predicted PHQ-4 anxiety subscale scores prospectively",
+            "citations": []
+          }
+        },
+        {
+          "marker": {
+            "value": "Location entropy / homestay",
+            "citations": []
+          },
+          "signal": {
+            "value": "Reduced mobility → social withdrawal",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "GPS study (JMIR, 2023): reduced location variance preceded mood episodes",
+            "citations": []
+          }
+        },
+        {
+          "marker": {
+            "value": "Typing speed and error rate",
+            "citations": []
+          },
+          "signal": {
+            "value": "Cognitive fatigue marker",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "Theoretical basis strong; few field studies",
+            "citations": []
+          }
+        },
+        {
+          "marker": {
+            "value": "Step count/activity reduction",
+            "citations": []
+          },
+          "signal": {
+            "value": "Precedes full burnout by 4-6 weeks",
+            "citations": []
+          },
+          "predictive_evidence": {
+            "value": "Consistent finding across Fitbit studies",
+            "citations": []
+          }
+        }
+      ],
+      "passive_ai_detection_review_2025": {
+        "value": "Nursing Reports (2025) synthesized evidence across healthcare, education, emergency services, and retail for behavioral digital markers of burnout",
+        "citations": []
+      },
+      "robles_granda_multimodal": {
+        "sample_size": {
+          "value": "757 information workers",
+          "citations": []
+        },
+        "improvement": {
+          "value": "13.9% improvement in SMAPE for predicting affect, anxiety, and sleep quality over any single modality",
+          "citations": []
+        }
+      },
+      "oldenhuis_2023_military": {
+        "study_duration": {
+          "value": "46 days",
+          "citations": []
+        },
+        "population": {
+          "value": "Military personnel",
+          "citations": []
+        },
+        "devices": {
+          "value": "Garmin wearables + morning EMA",
+          "citations": []
+        },
+        "finding": {
+          "value": "Within-subject changes in nocturnal HRV predicted perceived mental fitness next morning; predictive relationship was individualized (HRV predictive for some individuals and not others)",
+          "citations": []
+        }
+      },
+      "convergent_evidence": {
+        "self_report_timing": {
+          "value": "Self-reported energy and mood decline 6-8 weeks before biometric signals reach statistical significance; subjective self-report is a leading indicator of burnout risk",
+          "citations": []
+        },
+        "biometric_advantage": {
+          "value": "Biometrics detect physiological dysregulation more objectively and are less subject to insight failure (individuals in early burnout often underreport symptoms due to denial or adaptation)",
+          "citations": []
+        },
+        "combined_advantage": {
+          "value": "Combination detects different failure modes: biometrics catch cases where individuals are 'numbed' to their state; self-report catches cases where biometrics normal but psychological strain already severe",
+          "citations": []
+        }
+      }
+    },
+    "part_VI_synthesis_implications": {
+      "core_architecture_problem": {
+        "non_specificity_issue": {
+          "value": "Low HRV + elevated RHR + fragmented sleep could indicate: (a) vigorous exercise recovery, (b) acute illness, (c) alcohol the night before, (d) psychological stress, (e) accumulated burnout, or (f) any combination; Oura and WHOOP readiness/recovery score cannot semantically distinguish these causes",
+          "citations": []
+        },
+        "hrv_variance_explained_naturalistic": {
+          "value": "≤2.2% of variance in perceived stress (naturalistic settings)",
+          "citations": []
+        },
+        "ema_variance_explained": {
+          "value": "15-30% of variance in psychological outcomes",
+          "citations": []
+        },
+        "combined_variance_explained": {
+          "value": "25-45% of variance, with largest gains in personalized individualized models",
+          "citations": []
+        }
+      },
+      "minimum_viable_input": {
+        "pre_sleep_question": {
+          "value": "'How much is your mind racing right now?' (1-7 Likert) — distinguishes cognitive hyperarousal from physical fatigue",
+          "citations": []
+        },
+        "morning_question": {
+          "value": "'Rate your energy right now' (1-7 Likert) — captures subjective recovery that may diverge from HRV-predicted recovery",
+          "citations": []
+        },
+        "optional_stress_question": {
+          "value": "'How stressed do you feel today?' (0-10) — added to the evening prompt",
+          "citations": []
+        },
+        "rationale": {
+          "value": "These 3 items provide subjective context (sleep initiation, morning energy, daytime stress) allowing a biometric agent to meaningfully interpret its signal; validated instruments (PHQ-2, GAD-2, VAS affect scales) should be embedded weekly or bi-weekly to anchor daily items",
+          "citations": []
+        }
+      },
+      "burnout_detection_pipeline": {
+        "layer_1_passive_biometrics": {
+          "description": {
+            "value": "Always on",
+            "citations": []
+          },
+          "signals": {
+            "value": "Nocturnal HRV trend, RHR trend, sleep efficiency, step count",
+            "citations": []
+          },
+          "trigger": {
+            "value": "Triggers alert when ≥2 signals show ≥1 SD decline over 7-day rolling window",
+            "citations": []
+          }
+        },
+        "layer_2_micro_ema": {
+          "description": {
+            "value": "3 items, twice daily",
+            "citations": []
+          },
+          "morning_items": {
+            "value": "Energy, perceived recovery, pre-sleep racing mind (prior night)",
+            "citations": []
+          },
+          "evening_items": {
+            "value": "Stress peak, mood valence, motivation",
+            "citations": []
+          },
+          "purpose": {
+            "value": "Adds predictive power and provides semantic context for biometric signals",
+            "citations": []
+          }
+        },
+        "layer_3_weekly_screening": {
+          "scales": {
+            "value": "PHQ-4 (4 items) or PHQ-2 + GAD-2 (4 items combined)",
+            "citations": []
+          },
+          "additional": {
+            "value": "BRUMS-S or single-item fatigue/motivation scores",
+            "citations": []
+          },
+          "purpose": {
+            "value": "Anchors daily micro-EMA to clinical constructs",
+            "citations": []
+          }
+        },
+        "layer_4_behavioral_markers": {
+          "description": {
+            "value": "Passive, device-permitting",
+            "citations": []
+          },
+          "signals": {
+            "value": "Phone unlock duration (screen time) and location entropy",
+            "citations": []
+          },
+          "benefit": {
+            "value": "Increases early warning sensitivity by 4-6 weeks over biometrics alone",
+            "citations": []
+          }
+        }
+      },
+      "critical_caveats": {
+        "ecological_validity": {
+          "value": "Most HRV-stress effect sizes come from controlled lab conditions (TSST, Stroop); in free-living conditions substantially smaller (r=0.15, d≈0.30 vs. r≈0.40-0.60 in lab)",
+          "citations": []
+        },
+        "consumer_wearable_accuracy": {
+          "value": "Optical PPG-based HRV from wrist-worn devices (Oura, WHOOP, Fitbit) shows acceptable but imperfect agreement with ECG gold standards, especially during high-stress conditions (Vachon et al., JMIR, 2022); Oura nocturnal finger measurement achieves better signal quality than wrist-worn devices",
+          "citations": []
+        },
+        "individual_differences": {
+          "value": "Within-individual tracking against personal baseline is vastly more informative than between-individual comparisons; population d=0.15-0.30 conceals individuals where d>0.70 and individuals where HRV is nearly useless",
+          "citations": []
+        },
+        "hrv_confounders": {
+          "value": "Alcohol, illness, menstrual cycle are the three most powerful acute HRV confounders; illness d=0.47 (10% reduction); alcohol → REM suppression + elevated nocturnal stress; menstrual cycle → 6% HR increase and 10% HRV reduction (d=0.47, Altini & Plews 2021); brief evening EMA can account for these with 1-2 additional items",
+          "citations": []
+        },
+        "biometric_burnout_evidence_gap": {
+          "value": "Most rigorous scoping review (Barac et al., JMIR, 2024) found no biometric measure reliably predicted burnout onset in healthcare professionals; longer longitudinal studies (>6 months) with frequent measurement intervals are needed",
+          "citations": []
+        }
+      }
+    },
+    "key_effect_sizes_table": [
+      {
+        "finding": {
+          "value": "Acute psychological stress → RMSSD decline (lab)",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "d≈0.40-0.70 (task period)",
+          "citations": []
+        },
+        "source": {
+          "value": "Immanuel et al., synthesis",
+          "citations": []
+        },
+        "year": {
+          "value": "2023",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "Wearable HRV vs. perceived stress (naturalistic)",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "r=0.15, d≈0.30",
+          "citations": []
+        },
+        "source": {
+          "value": "Martinez et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2022",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "Vigorous exercise → nocturnal HRV decline",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "~32.6% decrease (14.6 HRV units)",
+          "citations": []
+        },
+        "source": {
+          "value": "Riordan et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2025",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "High-stress work → post-event HRV suppression",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "Significant 90-300 min post-event",
+          "citations": []
+        },
+        "source": {
+          "value": "Presby et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2023",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "Rumination → sleep quality mediation",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "41.1% of total stress-sleep effect",
+          "citations": []
+        },
+        "source": {
+          "value": "Li et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2019",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "Pre-sleep cognitive arousal → SOL increase",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "b=0.076 min per 10-pt stress unit",
+          "citations": []
+        },
+        "source": {
+          "value": "Perini et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2025",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "Illness → HRV reduction",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "d=0.47 (10% reduction)",
+          "citations": []
+        },
+        "source": {
+          "value": "Altini & Plews",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "EMA mood (valence) → depression prediction",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "β=-0.39 (strongest single item)",
+          "citations": []
+        },
+        "source": {
+          "value": "Moshe et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "Combined EMA + biometrics → recovery prediction",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "c=0.82 vs. 0.61 (34% improvement)",
+          "citations": []
+        },
+        "source": {
+          "value": "Greenberg et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2024",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "Multi-modal fusion → affect prediction",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "13.9% SMAPE improvement",
+          "citations": []
+        },
+        "source": {
+          "value": "Robles-Granda et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2022",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "Burnout (1 SD) → HRV decline over 1 year",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "RMSSD decline 0.10-0.47 (per SD burnout)",
+          "citations": []
+        },
+        "source": {
+          "value": "Zhu et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "EMA compliance: 1-3 prompts/day",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "87% compliance",
+          "citations": []
+        },
+        "source": {
+          "value": "Deady et al., meta-analysis",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        }
+      },
+      {
+        "finding": {
+          "value": "EMA compliance: >26 items/prompt",
+          "citations": []
+        },
+        "effect_size": {
+          "value": "63% compliance",
+          "citations": []
+        },
+        "source": {
+          "value": "Deady et al.",
+          "citations": []
+        },
+        "year": {
+          "value": "2021",
+          "citations": []
+        }
+      }
+    ],
+    "citations_note": {
+      "value": "All citations link to primary or peer-reviewed sources. Effect sizes are reported as found in original studies; where not reported explicitly, approximations are noted. Figures represent synthesized illustrative ranges unless attributed to a specific study.",
+      "citations": [
+        {
+          "type": "Text",
+          "bbox": {
+            "left": 0.11029411764705882,
+            "top": 0.1571969696969697,
+            "width": 0.7222222222222222,
+            "height": 0.05854785095856524,
+            "page": 15,
+            "original_page": 15
+          },
+          "content": "Text: 'All citations link to primary or peer-reviewed sources. Effect sizes are reported as found in original studies; where not reported explicitly, approximations are noted. Figures represent synthesized illustrative ranges unless attributed to a specific study.'",
+          "image_url": null,
+          "chart_data": null,
+          "confidence": null,
+          "granular_confidence": null,
+          "extra": null,
+          "parentBlock": {
+            "type": "Text",
+            "bbox": {
+              "left": 0.11029411764705882,
+              "top": 0.1571969696969697,
+              "width": 0.7222222222222222,
+              "height": 0.052398989898989896,
+              "page": 15,
+              "original_page": 15
+            },
+            "content": "All citations link to primary or peer-reviewed sources. Effect sizes are reported as found in original studies; where not reported explicitly, approximations are noted. Figures represent synthesized illustrative ranges unless attributed to a specific study.",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": "low",
+            "granular_confidence": {
+              "extract_confidence": null,
+              "parse_confidence": null
+            },
+            "extra": null
+          }
+        }
+      ]
+    }
+  }
+}

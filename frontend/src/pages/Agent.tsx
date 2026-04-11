@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { Heart, Target, Moon, Zap, ArrowRight, Check, RefreshCw, X, Share2 } from "lucide-react";
 
-/* ── YU brand tokens — dark theme (matches #0a0b0d canvas) ── */
+/* ── YU brand tokens — dark theme (matches #0B1120 canvas) ── */
 const YU = {
-  bg: "#0a0b0d",
-  bgSoft: "rgba(255,255,255,0.03)",
+  bg: "#0B1120",
+  bgSoft: "rgba(15,26,46,0.6)",
   ink: "#F0F0F2",
   body: "rgba(255,255,255,0.7)",
   muted: "rgba(255,255,255,0.4)",
@@ -367,7 +367,7 @@ export default function Agent() {
                 onClick={() => swapSpokesperson(agent.id)}
                 style={{
                   ["--c" as any]: agent.color,
-                  background: isActive ? `${agent.color}15` : "rgba(255,255,255,0.03)",
+                  background: isActive ? `${agent.color}15` : "rgba(15,26,46,0.6)",
                   border: `1px solid ${isActive ? agent.color : YU.line}`,
                   borderRadius: 16,
                   padding: "12px 12px 10px",
@@ -408,7 +408,7 @@ export default function Agent() {
                     width: 22,
                     height: 22,
                     borderRadius: "50%",
-                    background: "rgba(255,255,255,0.06)",
+                    background: "rgba(26,42,74,0.4)",
                     border: `1px solid ${YU.line}`,
                     color: YU.muted,
                     cursor: "pointer",
@@ -516,7 +516,7 @@ export default function Agent() {
                     aspectRatio: "1",
                     borderRadius: "50%",
                     border: `1px solid ${mood === n ? sp.color : YU.line}`,
-                    background: mood === n ? sp.color : "rgba(255,255,255,0.04)",
+                    background: mood === n ? sp.color : "rgba(15,26,46,0.5)",
                     color: mood === n ? "#fff" : YU.ink,
                     fontFamily: sans,
                     fontSize: 13,
@@ -824,7 +824,7 @@ function BaselineTrendChart({ trend, metricLabel, agent }: { trend: BaselineTren
             position: "absolute",
             inset: 60,
             borderRadius: "50%",
-            background: `radial-gradient(circle at 30% 25%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 40%, ${stateColor}10 100%)`,
+            background: `radial-gradient(circle at 30% 25%, rgba(26,42,74,0.4) 0%, rgba(15,26,46,0.6) 40%, ${stateColor}10 100%)`,
             border: `1.5px solid ${stateColor}40`,
             display: "flex",
             flexDirection: "column",
@@ -941,7 +941,7 @@ function buildStateCardSVG(agent: any, ritual: Ritual, fmt: { w: number; h: numb
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
   <defs>
     <linearGradient id="yu-bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0a0b0d"/>
+      <stop offset="0%" stop-color="#0B1120"/>
       <stop offset="100%" stop-color="#111215"/>
     </linearGradient>
     <radialGradient id="yu-glow" cx="50%" cy="50%" r="50%">
@@ -1006,7 +1006,7 @@ async function svgToPngBlob(svg: string, w: number, h: number): Promise<Blob> {
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#0a0b0d";
+  ctx.fillStyle = "#0B1120";
   ctx.fillRect(0, 0, w, h);
   ctx.drawImage(img, 0, 0, w, h);
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
@@ -1085,7 +1085,7 @@ function ShareStateModal({ agent, ritual, onClose }: { agent: any; ritual: Ritua
 
         {/* Preview */}
         <div style={{
-          background: "rgba(255,255,255,0.02)",
+          background: "rgba(15,26,46,0.6)",
           border: `1px solid ${YU.line}`,
           borderRadius: 16,
           padding: 16,
@@ -1131,7 +1131,7 @@ function ShareStateModal({ agent, ritual, onClose }: { agent: any; ritual: Ritua
             onClick={download}
             disabled={busy}
             style={{
-              background: "rgba(255,255,255,0.04)",
+              background: "rgba(15,26,46,0.5)",
               color: YU.ink,
               border: `1px solid ${YU.line}`,
               borderRadius: 999,
@@ -1195,7 +1195,7 @@ function HistoryChart({ values, baseline, color, lowerIsWorse }: { values: numbe
       <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 6px" }}>
         last {values.length} days
       </p>
-      <div style={{ width: "100%", border: `1px solid ${YU.line}`, borderRadius: 14, padding: "10px 14px", background: "rgba(255,255,255,0.02)" }}>
+      <div style={{ width: "100%", border: `1px solid ${YU.line}`, borderRadius: 14, padding: "10px 14px", background: "rgba(15,26,46,0.6)" }}>
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 100, display: "block" }}>
           {baseline != null && (
             <line x1={PAD} y1={y(baseline)} x2={W - PAD} y2={y(baseline)} stroke={YU.line} strokeWidth={1} strokeDasharray="3 4" />
@@ -1309,7 +1309,7 @@ function ClosedState({ sp, ritual, closed, adherenceCount, onLogAdherence, onDis
                 key={v}
                 onClick={() => handleAdherence(v)}
                 style={{
-                  background: "rgba(255,255,255,0.04)",
+                  background: "rgba(15,26,46,0.5)",
                   color: YU.ink,
                   border: `1px solid ${YU.line}`,
                   padding: "12px 22px",
@@ -1516,7 +1516,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
             <div style={{ display: "flex", gap: 4, marginBottom: 22 }}>
               {progress.days.map((d, i) => {
                 const isToday = i + 1 === progress.day_index;
-                const fill = d.status === "yes" ? YU.teal : d.status === "partial" ? YU.amber : d.status === "no" ? YU.red : isToday ? YU.line : "rgba(255,255,255,0.04)";
+                const fill = d.status === "yes" ? YU.teal : d.status === "partial" ? YU.amber : d.status === "no" ? YU.red : isToday ? YU.line : "rgba(15,26,46,0.5)";
                 return <div key={d.date} style={{ flex: 1, height: 8, borderRadius: 4, background: fill }} />;
               })}
             </div>
@@ -1562,7 +1562,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
                     onClick={() => applySuggestion(s)}
                     style={{
                       textAlign: "left",
-                      background: isSelected ? `${YU.teal}15` : "rgba(255,255,255,0.03)",
+                      background: isSelected ? `${YU.teal}15` : "rgba(15,26,46,0.6)",
                       border: `1px solid ${isSelected ? YU.teal : YU.line}`,
                       borderRadius: 14,
                       padding: "14px 16px",
@@ -1596,7 +1596,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
         <input
           value={behavior}
           onChange={(e) => setBehavior(e.target.value)}
-          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none", background: "rgba(255,255,255,0.04)" }}
+          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none", background: "rgba(15,26,46,0.5)" }}
         />
 
         <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label }}>For how many days</label>
@@ -1606,7 +1606,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
           max={30}
           value={duration}
           onChange={(e) => setDuration(parseInt(e.target.value) || 7)}
-          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none", background: "rgba(255,255,255,0.04)" }}
+          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none", background: "rgba(15,26,46,0.5)" }}
         />
 
         <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label }}>Improves my</label>
@@ -1616,7 +1616,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
               key={m.id}
               onClick={() => setMetric(m.id)}
               style={{
-                background: metric === m.id ? YU.teal : "rgba(255,255,255,0.03)",
+                background: metric === m.id ? YU.teal : "rgba(15,26,46,0.6)",
                 color: metric === m.id ? "#fff" : YU.ink,
                 border: `1px solid ${metric === m.id ? YU.teal : YU.line}`,
                 borderRadius: 12, padding: "12px 14px", fontSize: 13, fontWeight: 600, fontFamily: sans, cursor: "pointer", textAlign: "left",

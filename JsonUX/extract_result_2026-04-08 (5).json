@@ -1,0 +1,1741 @@
+{
+  "job_id": "0c5c8715-7da9-4643-b548-47d0a55377d3",
+  "usage": {
+    "num_pages": 15,
+    "num_fields": 239,
+    "credits": 53.900000000000006,
+    "extract_mode": "super_agent"
+  },
+  "studio_link": "https://studio.reducto.ai/job/0c5c8715-7da9-4643-b548-47d0a55377d3",
+  "result": {
+    "DOCUMENT_METADATA": {
+      "title": {
+        "value": "Bio + Mental Fusion: Combining Continuous Biometrics with Psychological Self-Report for Personalized Behavioral AI",
+        "citations": [
+          {
+            "type": "Title",
+            "bbox": {
+              "left": 0.11437908496732026,
+              "top": 0.09974747474747475,
+              "width": 0.6887254901960784,
+              "height": 0.07696007696007696,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "Full title text: 'Bio + Mental Fusion: Combining Continuous Biometrics with Psychological Self-Report for Personalized Behavioral AI'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Title",
+              "bbox": {
+                "left": 0.11437908496732026,
+                "top": 0.09974747474747475,
+                "width": 0.6887254901960784,
+                "height": 0.07575757575757576,
+                "page": 1,
+                "original_page": 1
+              },
+              "content": "Bio + Mental Fusion: Combining Continuous\nBiometrics with Psychological Self-Report for\nPersonalized Behavioral AI",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "subtitle": {
+        "value": "A research synthesis for practitioners building AI wellness agents that fuse physiological signals and subjective context.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.1707516339869281,
+              "top": 0.1976010101010101,
+              "width": 0.4307958477508651,
+              "height": 0.03175247371675943,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "Subtitle text: 'A research synthesis for practitioners building AI wellness agents that fuse physiological signals and subjective context.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.1707516339869281,
+                "top": 0.1976010101010101,
+                "width": 0.6102941176470589,
+                "height": 0.03345959595959596,
+                "page": 1,
+                "original_page": 1
+              },
+              "content": "A research synthesis for practitioners building AI wellness agents that fuse physiological signals and subjective context.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "document_type": {
+        "value": "Research synthesis",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.1707516339869281,
+              "top": 0.1976010101010101,
+              "width": 0.16847194760257048,
+              "height": 0.011437719027004741,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "Text 'A research synthesis for practitioners'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.1707516339869281,
+                "top": 0.1976010101010101,
+                "width": 0.6102941176470589,
+                "height": 0.03345959595959596,
+                "page": 1,
+                "original_page": 1
+              },
+              "content": "A research synthesis for practitioners building AI wellness agents that fuse physiological signals and subjective context.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "research_sources": {
+        "value": "Biosensors (2025), Nature Medicine (2025), Bioengineering (2026), Frontiers in Sports (2026), JMIR (2024-2025), ACM CHI (2025), Cambridge Psychological Medicine (2025), and commercial documentation from Oura, WHOOP, Woebot Health, and HRV4Training",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.6605120849509394,
+              "top": 0.2288510101010101,
+              "width": 0.2035378478876931,
+              "height": 0.01160037878787879,
+              "page": 15,
+              "original_page": 15
+            },
+            "content": "Text listing key sources: 'Key sources include studies from Biosensors (2025), Nature Medicine (2025), Bioengineering (2026), Frontiers in Sports (2026), JMIR (2024-2025), ACM CHI (2025), Cambridge Psychological Medicine (2025), and commercial documentation from Oura, WHOOP, Woebot Health, and HRV4Training.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.11029411764705882,
+                "top": 0.20896464646464646,
+                "width": 0.7589869281045751,
+                "height": 0.0928030303030303,
+                "page": 15,
+                "original_page": 15
+              },
+              "content": "Research synthesized from post-2020 academic literature, commercial product documentation, and expert practitioner frameworks. Key sources include studies from Biosensors (2025), Nature Medicine (2025), Bioengineering (2026), Frontiers in Sports (2026), JMIR (2024-2025), ACM CHI (2025), Cambridge Psychological Medicine (2025), and commercial documentation from Oura, WHOOP, Woebot Health, and HRV4Training.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      }
+    },
+    "EXECUTIVE_SUMMARY": {
+      "key_thesis": {
+        "value": "Neither biometric signal alone nor self-report alone is sufficient; the fusion of wearable biometrics and EMA unlocks a fundamentally different class of behavioral recommendation that is contextually grounded rather than physiologically inferred.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.3779761904761905,
+              "top": 0.3228334165834166,
+              "width": 0.448704481792717,
+              "height": 0.01093004218004218,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "Text: 'The convergence of wearable biometrics and ecological momentary assessment (EMA) has produced a research front where neither signal alone is sufficient. HRV tells you that the autonomic nervous system is mobilized; a single sentence from the user tells you why. The fusion of these streams unlocks a fundamentally different class of behavioral recommendation ―one that is contextually grounded rather than physiologically inferred.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.11029411764705882,
+                "top": 0.3023989898989899,
+                "width": 0.7728758169934641,
+                "height": 0.17297979797979798,
+                "page": 1,
+                "original_page": 1
+              },
+              "content": "The convergence of wearable biometrics and ecological momentary assessment (EMA) has produced a research front where neither signal alone is sufficient. HRV tells you that the autonomic nervous system is mobilized; a single sentence from the user tells you why. The fusion of these streams unlocks a fundamentally different class of behavioral recommendation ―one that is contextually grounded rather than physiologically inferred. This report surveys the current research and commercial state of this fusion problem, the ML architectures applied to it, the agent-level reasoning design required to operationalize it, the empirical evidence on micro-check-in design, and the engagement and ethical guardrails that determine whether high-performing users stay in the loop or abandon the tool entirely.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "fusion_definition": {
+        "value": "Fusion combines continuous wearable biometric streams (HRV, etc.) with ecological momentary assessment (EMA) self-report to produce actionable behavioral recommendations that are contextually grounded rather than purely physiologically inferred.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.11029411764705882,
+              "top": 0.3023989898989899,
+              "width": 0.7362861811391224,
+              "height": 0.014256576756576756,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "Text describing fusion: 'HRV tells you that the autonomic nervous system is mobilized; a single sentence from the user tells you why. The fusion of these streams unlocks a fundamentally different class of behavioral recommendation'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.11029411764705882,
+                "top": 0.3023989898989899,
+                "width": 0.7728758169934641,
+                "height": 0.17297979797979798,
+                "page": 1,
+                "original_page": 1
+              },
+              "content": "The convergence of wearable biometrics and ecological momentary assessment (EMA) has produced a research front where neither signal alone is sufficient. HRV tells you that the autonomic nervous system is mobilized; a single sentence from the user tells you why. The fusion of these streams unlocks a fundamentally different class of behavioral recommendation ―one that is contextually grounded rather than physiologically inferred. This report surveys the current research and commercial state of this fusion problem, the ML architectures applied to it, the agent-level reasoning design required to operationalize it, the empirical evidence on micro-check-in design, and the engagement and ethical guardrails that determine whether high-performing users stay in the loop or abandon the tool entirely.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "report_coverage_areas": [
+        {
+          "value": "Current research and commercial state of the fusion problem",
+          "citations": []
+        },
+        {
+          "value": "ML architectures applied to biometric + self-report fusion",
+          "citations": []
+        },
+        {
+          "value": "Agent-level reasoning design required to operationalize it",
+          "citations": []
+        },
+        {
+          "value": "Empirical evidence on micro-check-in design",
+          "citations": []
+        },
+        {
+          "value": "Engagement and ethical guardrails",
+          "citations": []
+        }
+      ]
+    },
+    "PART_I_BIOMETRIC_FUSION": {
+      "core_problem_description": {
+        "value": "How do you weight, time, and combine continuous wearable biosensor data (HRV, skin conductance, heart rate, accelerometry, temperature) with subjective psychological self-report (EMA) to produce actionable behavioral recommendations that are individualized, timely, and trustworthy?",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.25881075700720535,
+              "top": 0.6527619949494949,
+              "width": 0.614284393002484,
+              "height": 0.012511273448773442,
+              "page": 1,
+              "original_page": 1
+            },
+            "content": "Full paragraph: 'Continuous wearable biosensors generate rich time-series data - HRV, skin conductance, heart rate, accelerometry, temperature-that reflect autonomic state in high resolution. Subjective psychological self-report, delivered via EMA, provides the meaning behind that state. The fusion problem is: how do you weight, time, and combine these two heterogeneous streams to produce actionable behavioral recommendations that are individualized, timely, and trustworthy?'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.1111111111111111,
+                "top": 0.5934343434343434,
+                "width": 0.7745098039215687,
+                "height": 0.11300505050505051,
+                "page": 1,
+                "original_page": 1
+              },
+              "content": "Continuous wearable biosensors generate rich time-series data - HRV, skin conductance, heart rate, accelerometry, temperature-that reflect autonomic state in high resolution. Subjective psychological self-report, delivered via EMA, provides the meaning behind that state. The fusion problem is: how do you weight, time, and combine these two heterogeneous streams to produce actionable behavioral recommendations that are individualized, timely, and trustworthy?",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "biometric_data_types": [
+        {
+          "value": "HRV",
+          "citations": []
+        },
+        {
+          "value": "skin conductance",
+          "citations": []
+        },
+        {
+          "value": "heart rate",
+          "citations": []
+        },
+        {
+          "value": "accelerometry",
+          "citations": []
+        },
+        {
+          "value": "temperature",
+          "citations": []
+        }
+      ],
+      "key_research_studies": [
+        {
+          "study_name": {
+            "value": "2025 systematic review on AI models for mental health from wearable biosensors",
+            "citations": []
+          },
+          "journal": {
+            "value": "Biosensors",
+            "citations": []
+          },
+          "year": {
+            "value": "2025",
+            "citations": []
+          },
+          "sample_size": {
+            "value": "48 studies",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Nearly all high-performing studies relied on some form of labeled self-report to train or validate their models. Purely passive systems consistently underperform hybrid systems that incorporate user-provided context.",
+            "citations": []
+          }
+        },
+        {
+          "study_name": {
+            "value": "JAMA Network Open study on suicidal ideation prediction",
+            "citations": []
+          },
+          "journal": {
+            "value": "JAMA Network Open",
+            "citations": []
+          },
+          "year": {
+            "value": "Not specified",
+            "citations": []
+          },
+          "sample_size": {
+            "value": "n=102, 8-week EMA + wearable protocol",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Self-reported EMA predicted next-day ideation significantly better than sensor data alone, with sensors adding minimal incremental signal over self-report—a result that inverts common assumptions about passive sensing supremacy.",
+            "citations": []
+          }
+        },
+        {
+          "study_name": {
+            "value": "Bayesian GP-based HR pattern calibration study",
+            "citations": []
+          },
+          "journal": {
+            "value": "Sensors",
+            "citations": []
+          },
+          "year": {
+            "value": "2024",
+            "citations": []
+          },
+          "sample_size": {
+            "value": "Not specified",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Fusing historical HR temporal patterns with newly collected measurements using Gaussian Process posterior updating produces more accurate and precise HR estimation than raw signals or mean-based methods.",
+            "citations": []
+          }
+        },
+        {
+          "study_name": {
+            "value": "DAPPER dataset transformer study",
+            "citations": []
+          },
+          "journal": {
+            "value": "Sensors",
+            "citations": []
+          },
+          "year": {
+            "value": "2025",
+            "citations": []
+          },
+          "sample_size": {
+            "value": "88 subjects, 5-day continuous wrist-worn study",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Achieved 71.5% binary PANAS classification accuracy and 60-61% five-class valence/arousal classification. Cross-modal self-attention allows the model to capture temporal dependencies across physiological channels simultaneously.",
+            "citations": []
+          }
+        },
+        {
+          "study_name": {
+            "value": "HybridSense-LLM",
+            "citations": []
+          },
+          "journal": {
+            "value": "Bioengineering",
+            "citations": []
+          },
+          "year": {
+            "value": "2026",
+            "citations": []
+          },
+          "sample_size": {
+            "value": "Not specified",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Prompt-driven LLM reasoning can predict stress, fatigue, readiness, and sleep quality. Mood self-report descriptors (mean, variability, skewness, min) consistently ranked as top predictors across all wellness targets.",
+            "citations": []
+          }
+        },
+        {
+          "study_name": {
+            "value": "Google Personal Health LLM (PH-LLM)",
+            "citations": []
+          },
+          "journal": {
+            "value": "Nature Medicine",
+            "citations": []
+          },
+          "year": {
+            "value": "2025",
+            "citations": []
+          },
+          "sample_size": {
+            "value": "Not specified; trained on 20 wearable features aggregated over 15 days",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Fine-tuned Gemini with multimodal MLP adapter outperformed zero-shot and few-shot prompting for predicting patient-reported outcomes. Minimum 10 days of data produces similar performance to 15 days.",
+            "citations": []
+          }
+        }
+      ],
+      "ml_approaches": {
+        "personalized_baselines_ewma": {
+          "description": {
+            "value": "Individualized baseline tracking with exponentially weighted moving averages. EWMA assigns geometrically decaying weights to prior observations so that recent data drives the signal more strongly than historical averages.",
+            "citations": []
+          },
+          "key_advantage": {
+            "value": "Critical for physiological signals that drift with fitness level, seasonal variation, and life circumstances. Deviation from your own baseline is the meaningful signal, not comparison to age-matched population norms.",
+            "citations": []
+          },
+          "commercial_implementations": {
+            "value": "WHOOP, Oura, and HRV4Training all operationalize personalized EWMA baselines for daily recovery scoring.",
+            "citations": []
+          },
+          "whoop_baseline_window": {
+            "value": "14-day rolling personalized HRV baseline",
+            "citations": []
+          }
+        },
+        "bayesian_updating": {
+          "description": {
+            "value": "Bayesian frameworks treat the biometric + self-report fusion as a posterior update problem: prior beliefs about an individual's state are updated by incoming evidence (a new HRV reading, a mood report, a subjective energy rating).",
+            "citations": []
+          },
+          "key_study": {
+            "value": "Bayesian GP-based HR pattern calibration study (Sensors, 2024) demonstrated that fusing historical HR temporal patterns with newly collected measurements using Gaussian Process posterior updating produces more accurate and precise HR estimation.",
+            "citations": []
+          },
+          "key_advantage": {
+            "value": "The model naturally represents uncertainty, allowing the system to communicate confidence levels to the user.",
+            "citations": []
+          }
+        },
+        "transformer_multimodal_fusion": {
+          "description": {
+            "value": "The leading academic approach for complex, real-world affect recognition. Uses transformer encoder to jointly process concatenated multi-modal embeddings from physiological data streams.",
+            "citations": []
+          },
+          "dapper_study_accuracy": {
+            "value": "71.5% binary PANAS classification accuracy; 60-61% five-class valence/arousal classification",
+            "citations": []
+          },
+          "dapper_study_subjects": {
+            "value": "88 subjects, 5-day continuous wrist-worn study",
+            "citations": []
+          },
+          "key_finding": {
+            "value": "Cross-modal self-attention allows the model to capture temporal dependencies across physiological channels simultaneously, which classical ML approaches (SVM, RF, KNN) cannot do.",
+            "citations": []
+          },
+          "hal_paper": {
+            "value": "HAL paper (2023) pretrains on unlabeled physiological data via signal transformation prediction, then fine-tunes on emotion tasks—achieving state-of-the-art results with far fewer labeled examples.",
+            "citations": []
+          }
+        },
+        "llm_based_reasoning": {
+          "description": {
+            "value": "The newest and arguably most commercially significant approach integrates statistical biometric descriptors into structured LLM prompts for wellness prediction with practical accuracy and low inference cost.",
+            "citations": []
+          },
+          "hybridsense_llm": {
+            "value": "HybridSense-LLM (Bioengineering, 2026) demonstrated that prompt-driven LLM reasoning when paired with interpretable statistical features derived from wearables can predict stress, fatigue, readiness, and sleep quality with practical accuracy and low inference cost.",
+            "citations": []
+          },
+          "hybridsense_top_predictors": {
+            "value": "Mood self-report descriptors (mean, variability, skewness, min) consistently ranked as the top predictors across all wellness targets, even for physiologically grounded ones like fatigue and readiness.",
+            "citations": []
+          },
+          "google_ph_llm": {
+            "value": "Google's Personal Health LLM (PH-LLM) (Nature Medicine, 2025) fine-tuned Gemini for sleep and fitness coaching by fusing a multimodal MLP adapter (trained on 20 wearable features aggregated over 15 days, z-scored into soft tokens) with expert-authored narrative reasoning.",
+            "citations": []
+          },
+          "ph_llm_minimum_data_window": {
+            "value": "Minimum 10 days of data produces similar performance to 15 days, with performance dropping sharply only at 5 days or fewer.",
+            "citations": []
+          }
+        }
+      },
+      "commercial_platforms": {
+        "WHOOP_Journal": {
+          "fusion_approach": {
+            "value": "HRV + behavioral tagging",
+            "citations": []
+          },
+          "self_report_integration": {
+            "value": "300+ daily log categories; morning prompts",
+            "citations": []
+          },
+          "personalization": {
+            "value": "14-day personalized baseline; min 5 entries for correlation insights",
+            "citations": []
+          }
+        },
+        "Oura_Resilience": {
+          "fusion_approach": {
+            "value": "Daytime stress + nighttime HRV + recovery balance",
+            "citations": []
+          },
+          "self_report_integration": {
+            "value": "Mood tags; Daytime Stress feature",
+            "citations": []
+          },
+          "personalization": {
+            "value": "2-week rolling resilience score; 5 levels",
+            "citations": []
+          }
+        },
+        "HRV4Training": {
+          "fusion_approach": {
+            "value": "RMSSD + subjective feel questionnaire",
+            "citations": []
+          },
+          "self_report_integration": {
+            "value": "Daily morning HRV + 3-item perceived wellness",
+            "citations": []
+          },
+          "personalization": {
+            "value": "Individual baseline tracking by sport/training phase",
+            "citations": []
+          }
+        },
+        "Woebot": {
+          "fusion_approach": {
+            "value": "NLP mood tracking (text-based)",
+            "citations": []
+          },
+          "self_report_integration": {
+            "value": "CBT check-ins; natural language processing",
+            "citations": []
+          },
+          "personalization": {
+            "value": "Emotional profiles from interaction history; no wearable integration currently",
+            "citations": []
+          }
+        },
+        "Headspace": {
+          "fusion_approach": {
+            "value": "Sleep + mindfulness + steps (HealthKit)",
+            "citations": []
+          },
+          "self_report_integration": {
+            "value": "User preference + content engagement",
+            "citations": []
+          },
+          "personalization": {
+            "value": "Content packs by stated goal (sleep vs. focus)",
+            "citations": []
+          }
+        },
+        "Moodfit": {
+          "fusion_approach": {
+            "value": "Mood journal + step count + HR (HealthKit)",
+            "citations": []
+          },
+          "self_report_integration": {
+            "value": "Mood, gratitude, breathing logs",
+            "citations": []
+          },
+          "personalization": {
+            "value": "Correlation insights; no ML-driven personalization at depth",
+            "citations": []
+          }
+        },
+        "Apple_Health": {
+          "fusion_approach": {
+            "value": "Activity + sleep + HR + HRV",
+            "citations": []
+          },
+          "self_report_integration": {
+            "value": "No structured self-report; passive only",
+            "citations": []
+          },
+          "personalization": {
+            "value": "Trends; no personalized baseline deviation alerts",
+            "citations": []
+          }
+        }
+      },
+      "commercial_gap_analysis": {
+        "value": "No mainstream consumer tool currently operationalizes true Bayesian or transformer-based fusion of continuous biometrics with structured subjective self-report at the individual level. WHOOP's Journal correlations require 90 days of logged behavior for sufficient statistical power and use simple correlation, not causal modeling.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.5084188437279674,
+              "top": 0.125,
+              "width": 0.3366578774366889,
+              "height": 0.011511216056670603,
+              "page": 4,
+              "original_page": 4
+            },
+            "content": "Text: 'The meaningful gap across commercial products: no mainstream consumer tool currently operationalizes true Bayesian or transformer-based fusion of continuous biometrics with structured subjective self-report at the individual level. WHOOP's Journal correlations require 90 days of logged behavior for sufficient statistical power and use simple correlation, not causal modeling.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.11029411764705882,
+                "top": 0.125,
+                "width": 0.7736928104575164,
+                "height": 0.13131313131313133,
+                "page": 4,
+                "original_page": 4
+              },
+              "content": "The meaningful gap across commercial products: no mainstream consumer tool currently operationalizes true Bayesian or transformer-based fusion of continuous biometrics with structured subjective self-report at the individual level. WHOOP's Journal correlations require 90 days of logged behavior for sufficient statistical power and use simple correlation, not causal modeling. Oura's Resilience explicitly acknowledges it \"does not distinguish whether the body has been put to the test for a mental or physical reason\"—a limitation that the agent design in Part II directly addresses.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "key_design_decisions": {
+        "how_often_to_ask": {
+          "frequency_recommendation": {
+            "value": "Once-per-day at consistent timing is sufficient for the signal; higher frequency adds noise in high-achieving populations who may experience reactance.",
+            "citations": []
+          },
+          "ema_fluctuation_cycles": {
+            "value": "Key fluctuations in mood and mental health indicators occur at monthly, biweekly, and every-other-day cycles.",
+            "citations": []
+          },
+          "uema_completion_rate": {
+            "value": "80% completion rate over 12 months (ACM CHI 2025)",
+            "citations": []
+          },
+          "smartphone_ema_completion_rate": {
+            "value": "70.7% completion rate over 12 months",
+            "citations": []
+          },
+          "prompt_type_finding": {
+            "value": "Fixed-time prompts outperform random prompts for completion rate; slider-type response scales produce higher completion than Likert-type scales.",
+            "citations": []
+          }
+        },
+        "how_to_weight_signals": {
+          "psychological_constructs_weighting": {
+            "value": "Self-report should receive higher weighting than biometric signal for psychological constructs (mood, stress, motivation).",
+            "citations": []
+          },
+          "physiological_recovery_weighting": {
+            "value": "Biometrics should receive higher weighting for physiological recovery constructs (readiness, fatigue).",
+            "citations": []
+          },
+          "signal_agreement_protocol": {
+            "value": "When biometric and self-report signals agree (e.g., low HRV + low subjective energy), high confidence in the combined signal.",
+            "citations": []
+          },
+          "signal_divergence_protocol": {
+            "value": "When they diverge (e.g., low HRV + high subjective energy), flag as the most diagnostically interesting case—likely indicating a physiological stressor the user hasn't consciously registered, or a psychological override of physiological fatigue.",
+            "citations": []
+          },
+          "missing_self_report_protocol": {
+            "value": "When self-report is absent, down weight the biometric inference and communicate uncertainty explicitly.",
+            "citations": []
+          }
+        },
+        "how_to_handle_missing_data": {
+          "method_1": {
+            "value": "Mean/median imputation for isolated gaps",
+            "citations": []
+          },
+          "method_2": {
+            "value": "KNN or random forest imputation for structured missingness",
+            "citations": []
+          },
+          "method_3": {
+            "value": "Kalman filter interpolation for time-series continuity",
+            "citations": []
+          },
+          "method_4": {
+            "value": "Probabilistic model-based approaches (e.g., GP models) that naturally integrate missing values while preserving uncertainty",
+            "citations": []
+          },
+          "minimum_viable_window": {
+            "value": "10-15 days minimum viable window; below which the model acknowledges reduced confidence rather than fabricating precision.",
+            "citations": []
+          }
+        }
+      }
+    },
+    "PART_II_HRV_CONTEXTUALIZATION": {
+      "disambiguation_problem": {
+        "value": "An HRV reading 18% below a 14-day personalized baseline is a physiological observation without a clinical meaning until context is supplied. The same RMSSD deviation can indicate multiple different causes requiring different interventions.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.1111111111111111,
+              "top": 0.42613636363636365,
+              "width": 0.5255442527888349,
+              "height": 0.036345598845598855,
+              "page": 5,
+              "original_page": 5
+            },
+            "content": "Text: 'An HRV reading 18% below a 14-day personalized baseline is a physiological observation without a clinical meaning until context is supplied. The same RMSSD deviation can indicate:'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.1111111111111111,
+                "top": 0.42613636363636365,
+                "width": 0.7483660130718954,
+                "height": 0.03282828282828283,
+                "page": 5,
+                "original_page": 5
+              },
+              "content": "An HRV reading 18% below a 14-day personalized baseline is a physiological observation without a clinical meaning until context is supplied. The same RMSSD deviation can indicate:",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "hrv_drop_threshold_example": {
+        "value": "18% below a 14-day personalized baseline",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.2467172834045899,
+              "top": 0.42613636363636365,
+              "width": 0.3362020246695169,
+              "height": 0.010161135161135162,
+              "page": 5,
+              "original_page": 5
+            },
+            "content": "Text: 'An HRV reading 18% below a 14-day personalized baseline'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.1111111111111111,
+                "top": 0.42613636363636365,
+                "width": 0.7483660130718954,
+                "height": 0.03282828282828283,
+                "page": 5,
+                "original_page": 5
+              },
+              "content": "An HRV reading 18% below a 14-day personalized baseline is a physiological observation without a clinical meaning until context is supplied. The same RMSSD deviation can indicate:",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "hrv_drop_causes": [
+        {
+          "cause": {
+            "value": "Physical training load",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Sympathetic activation and parasympathetic withdrawal in response to muscle damage, metabolic stress, lactate accumulation",
+            "citations": []
+          }
+        },
+        {
+          "cause": {
+            "value": "Psychological/emotional stress",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "ANS dysregulation from interpersonal conflict, social evaluation threat, or anticipatory anxiety, operating through HPA axis activation",
+            "citations": []
+          }
+        },
+        {
+          "cause": {
+            "value": "Sleep disruption",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Fragmented sleep architecture reducing HRV restoration",
+            "citations": []
+          }
+        },
+        {
+          "cause": {
+            "value": "Illness or subclinical infection",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "Immune activation elevating sympathetic tone",
+            "citations": []
+          }
+        },
+        {
+          "cause": {
+            "value": "Combination of the above",
+            "citations": []
+          },
+          "mechanism": {
+            "value": "The most common real-world scenario",
+            "citations": []
+          }
+        }
+      ],
+      "sports_science_key_finding": {
+        "value": "The direct association between HRV (RMSSD) and subjective psychophysiological factors (stress, mood, fatigue) is not a simple negative correlation. The relationship is modulated by training status, adaptation level, coping strategies, and physiological resilience. Context is structurally necessary for correct interpretation.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.21900757429408546,
+              "top": 0.6725388808722143,
+              "width": 0.6693400061173895,
+              "height": 0.031515552348885686,
+              "page": 5,
+              "original_page": 5
+            },
+            "content": "Text: 'The key sports science finding (Frontiers in Sports, 2026) is that within trained athlete populations, the direct association between HRV (RMSSD) and subjective psychophysiological factors (stress, mood, fatigue) is not a simple negative correlation. The relationship is modulated by training status, adaptation level, coping strategies, and physiological resilience.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.1111111111111111,
+                "top": 0.6521464646464646,
+                "width": 0.7753267973856209,
+                "height": 0.09343434343434344,
+                "page": 5,
+                "original_page": 5
+              },
+              "content": "The key sports science finding (Frontiers in Sports, 2026) is that within trained athlete populations, the direct association between HRV (RMSSD) and subjective psychophysiological factors (stress, mood, fatigue) is not a simple negative correlation. The relationship is modulated by training status, adaptation level, coping strategies, and physiological resilience. This is precisely why context is not optional — it is structurally necessary for correct interpretation.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "scenario_a_interpersonal_conflict": {
+        "physiological_pathway": {
+          "value": "Interpersonal conflict activates the social evaluation system, triggering HPA axis activation (cortisol release), sympathetic nervous system dominance, and withdrawal of vagal tone—producing HRV suppression.",
+          "citations": []
+        },
+        "hrv_suppression_duration": {
+          "value": "12-36 hours depending on conflict resolution and rumination",
+          "citations": []
+        },
+        "agent_interpretation": {
+          "value": "HRV drop is primarily autonomic residue of an unresolved psychological stressor, not training-induced fatigue. Agent should recommend psychological load reduction, rumination interruption—not physical recovery protocols.",
+          "citations": []
+        },
+        "agent_recommendation_framing": {
+          "value": "\"Your autonomic system is showing signs of residual stress from yesterday. Based on what you've shared, this looks like an emotional processing demand rather than physical fatigue. Your body may benefit most from reducing decision load and cognitive demands today—consider blocking high-stakes calls, and if it's possible, moving toward resolution with your co-founder, which research shows activates social safety signals that directly restore HRV.\"",
+          "citations": []
+        }
+      },
+      "scenario_b_hard_training": {
+        "physiological_pathway": {
+          "value": "Acute high-intensity exercise produces sympathetic surge during the session, followed by parasympathetic rebound in the hours after—but RMSSD may remain suppressed depending on training volume, hydration, and nutrition. This is functional stress: the system is adapting, not failing.",
+          "citations": []
+        },
+        "rmssd_suppression_duration": {
+          "value": "24-48 hours depending on training volume, hydration, and nutrition",
+          "citations": []
+        },
+        "agent_interpretation": {
+          "value": "HRV drop is expected, anticipated, and physiologically constructive. There is no psychological component unless the user reports one. Training recommendations should reduce volume, not intensity, if continuing to train.",
+          "citations": []
+        },
+        "agent_recommendation_framing": {
+          "value": "\"Your HRV is reflecting the work you put in yesterday - this is your body adapting, not failing. Based on your training load, this is within the expected range of post-exercise autonomic suppression. Today is ideal for active recovery: low-intensity movement, prioritizing protein and sleep. Avoid stacking a hard cognitive day on top of this physical load if possible.\"",
+          "citations": []
+        }
+      },
+      "clinical_decision_support_framework": {
+        "step_1": {
+          "value": "Detect signal deviation (HRV 18% below baseline → trigger)",
+          "citations": []
+        },
+        "step_2": {
+          "value": "Query context (\"What was the primary stressor in the past 24 hours?\")",
+          "citations": []
+        },
+        "step_3": {
+          "value": "Route through decision branch based on context category: physical training load → readiness algorithm; psychological/interpersonal stressor → emotional processing algorithm; combination → blended protocol.",
+          "citations": []
+        },
+        "step_4": {
+          "value": "Calibrate recommendation intensity based on deviation magnitude and duration.",
+          "citations": []
+        },
+        "step_5": {
+          "value": "Monitor and adapt based on subsequent data.",
+          "citations": []
+        }
+      },
+      "llm_prompting_strategies": {
+        "physiologically_grounded_targets": {
+          "value": "For fatigue and readiness: Zero-shot prompting achieves lowest error; multi-step reasoning (COT, TOT) increases error by introducing variance.",
+          "citations": []
+        },
+        "subjective_psychological_targets": {
+          "value": "For stress and sleep quality: Few-shot prompting with self-consistency (multiple independent outputs averaged) produces most stable predictions.",
+          "citations": []
+        },
+        "hybrid_targets": {
+          "value": "For recovery interpretation involving both physical and psychological load: Chain-of-Thought + self-consistency.",
+          "citations": []
+        }
+      },
+      "example_llm_prompt_template": {
+        "system_role": {
+          "value": "You are a performance wellness agent. Your role is to interpret physiological signals in context, not in isolation. Never diagnose. Always distinguish between physical recovery and psychological processing demands.",
+          "citations": []
+        },
+        "user_input_fields": [
+          {
+            "value": "Biometric: HRV RMSSD 18% below 14-day personalized baseline",
+            "citations": []
+          },
+          {
+            "value": "User report: 'I had a difficult conversation with my co-founder last night'",
+            "citations": []
+          },
+          {
+            "value": "Sleep: 6.5h, sleep efficiency 81%, HRV trend during sleep also suppressed",
+            "citations": []
+          },
+          {
+            "value": "Training: No hard session in past 48h, light movement only",
+            "citations": []
+          }
+        ],
+        "reasoning_chain_steps": [
+          {
+            "value": "1. Primary stressor identification: Interpersonal/psychological (explicit user report)",
+            "citations": []
+          },
+          {
+            "value": "2. Physical training load: Low (no hard session → rules out exercise-induced suppression)",
+            "citations": []
+          },
+          {
+            "value": "3. Signal consistency: Biometric depression + low training load = psychological stressor",
+            "citations": []
+          },
+          {
+            "value": "4. Functional implication: Emotional processing demand, not physical fatigue",
+            "citations": []
+          },
+          {
+            "value": "5. Resource depletion category: Emotional regulation, cognitive load, motivational reserve",
+            "citations": []
+          },
+          {
+            "value": "6. Action domain: Psychological decompression, not physical recovery",
+            "citations": []
+          }
+        ]
+      }
+    },
+    "PART_III_MICRO_CHECK_IN_DESIGN": {
+      "minimum_viable_signal": {
+        "num_items": {
+          "value": "2-3 items",
+          "citations": []
+        },
+        "constructs": [
+          {
+            "construct": {
+              "value": "Mood valence (positive/negative affect)",
+              "citations": []
+            },
+            "why_it_matters": {
+              "value": "The primary predictor of wellbeing trajectories; negative affect variability (NA variability) is the strongest predictor of depression symptoms above all other EMA-derived indicators",
+              "citations": []
+            },
+            "empirical_basis": {
+              "value": "PMC 12077612 - latent factor EMA study, 14 days, n=109",
+              "citations": []
+            }
+          },
+          {
+            "construct": {
+              "value": "Energy/fatigue",
+              "citations": []
+            },
+            "why_it_matters": {
+              "value": "Distinguishes physical fatigue from emotional depletion; key for differentiating training load vs. psychological load in biometric fusion",
+              "citations": []
+            },
+            "empirical_basis": {
+              "value": "HybridSense - top predictor for fatigue targets",
+              "citations": []
+            }
+          },
+          {
+            "construct": {
+              "value": "Perceived stress/tension",
+              "citations": []
+            },
+            "why_it_matters": {
+              "value": "Captures subjective cognitive appraisal of demand-resource mismatch, which HRV alone cannot determine",
+              "citations": []
+            },
+            "empirical_basis": {
+              "value": "Wiley stress forecasting study - morning stress appraisal predicts day stress within and across domains",
+              "citations": []
+            }
+          }
+        ],
+        "sleep_quality_note": {
+          "value": "Sleep quality perception is the strongest night-before predictor and should be included if the check-in occurs at morning wake.",
+          "citations": []
+        },
+        "motivation_note": {
+          "value": "Motivation adds incremental signal in athletic/high-performing populations where willingness to engage is a meaningful metric distinct from energy.",
+          "citations": []
+        }
+      },
+      "check_in_versions": {
+        "one_question": {
+          "value": "Mood valence ('How positive is your mood right now, 1-5?') is the single strongest predictor of psychological state.",
+          "citations": []
+        },
+        "two_question": {
+          "value": "Add energy/fatigue to mood valence.",
+          "citations": []
+        },
+        "three_question_performance": {
+          "value": "Add motivation for performance context (performance context → motivation).",
+          "citations": []
+        },
+        "three_question_wellness": {
+          "value": "Add perceived stress for general wellness context (general wellness → stress).",
+          "citations": []
+        }
+      },
+      "response_formats": [
+        {
+          "format": {
+            "value": "Emoji slider/visual analog scale",
+            "citations": []
+          },
+          "completion_rate_impact": {
+            "value": "Higher than Likert for self-report; perceived as lower burden",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Mobile, real-time, high-frequency use",
+            "citations": []
+          }
+        },
+        {
+          "format": {
+            "value": "1-5 numeric scale",
+            "citations": []
+          },
+          "completion_rate_impact": {
+            "value": "Moderate; familiar but more cognitive load than emoji",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Desktop or structured daily review",
+            "citations": []
+          }
+        },
+        {
+          "format": {
+            "value": "μEMA single-question, smartwatch",
+            "citations": []
+          },
+          "completion_rate_impact": {
+            "value": "80% completion vs. 70.7% for smartphone EMA over 12 months (ACM CHI 2025)",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "High-frequency, low-burden capture",
+            "citations": []
+          }
+        },
+        {
+          "format": {
+            "value": "Free text",
+            "citations": []
+          },
+          "completion_rate_impact": {
+            "value": "Low completion for busy populations; high richness when completed",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Optional supplementary input, not primary signal",
+            "citations": []
+          }
+        },
+        {
+          "format": {
+            "value": "Voice",
+            "citations": []
+          },
+          "completion_rate_impact": {
+            "value": "High for mobile-native users; low for privacy-conscious or public contexts",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Commute, hands-free contexts",
+            "citations": []
+          }
+        },
+        {
+          "format": {
+            "value": "Fixed-schedule prompts",
+            "citations": []
+          },
+          "completion_rate_impact": {
+            "value": "Higher completion than random prompts in controlled settings (JMIR 2024)",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "All populations",
+            "citations": []
+          }
+        },
+        {
+          "format": {
+            "value": "Gamification (emoji game, streaks)",
+            "citations": []
+          },
+          "completion_rate_impact": {
+            "value": "+23% completion in adolescent psychiatric sample (PubMed 40193442)",
+            "citations": []
+          },
+          "best_use_case": {
+            "value": "Younger users, engagement-critical early phase",
+            "citations": []
+          }
+        }
+      ],
+      "optimal_timing": {
+        "morning_timing": {
+          "value": "Morning (30-60 minutes after waking) is strongly preferred for performance-trajectory prediction. Morning HRV measurements contextualized with a morning mood/energy report provides the highest-value combined signal for the day's recommendations.",
+          "citations": []
+        },
+        "evening_timing": {
+          "value": "Evening check-ins capture actual-vs-anticipated experience, identify the gap between morning prediction and evening reality, and facilitate next-day readiness forecasting.",
+          "citations": []
+        },
+        "first_ema_timing": {
+          "value": "First EMA 30 minutes after waking",
+          "citations": []
+        },
+        "last_ema_timing": {
+          "value": "Last EMA 60 minutes before bed",
+          "citations": []
+        },
+        "chronotype_finding": {
+          "value": "Evening chronotypes have significantly lower positive affect amplitudes on workdays and later acrophase times. Adaptive timing prompted relative to the user's inferred chronotype from sleep data outperforms fixed-time schedules (PubMed 25410882).",
+          "citations": []
+        }
+      },
+      "high_achieving_population_differences": {
+        "identity_anchoring": {
+          "value": "These populations respond to check-ins framed around performance optimization, not wellness monitoring. 'Readiness' (WHOOP's framing) produces higher compliance than 'how are you feeling?' Executives respond to leadership capacity and cognitive performance framing.",
+          "citations": []
+        },
+        "apsq_participation_rate": {
+          "value": "78.6% participation rate in professional sports populations",
+          "citations": []
+        },
+        "stigma_sensitivity": {
+          "value": "Elite athletes experience significant stigma around mental health disclosure. A check-in about 'mental readiness for high-stakes interactions' will be answered more accurately than one about 'emotional wellbeing'.",
+          "citations": []
+        },
+        "brevity_finding": {
+          "value": "High-stress working populations disengage rapidly when prompts require more than 30-45 seconds. μEMA (smartwatch, single question, 20-second window) is the format of choice.",
+          "citations": []
+        },
+        "autonomy_finding": {
+          "value": "Autonomy support—providing rationale for data collection, offering choices, acknowledging the user's perspective—is essential for sustained engagement. High-achievers disengage when they feel surveilled or managed rather than empowered (Self-Determination Theory, Frontiers in Psychology, 2022).",
+          "citations": []
+        }
+      }
+    },
+    "PART_IV_ENGAGEMENT_ETHICAL": {
+      "engagement_killers": {
+        "primary_killer": {
+          "value": "Deficit framing",
+          "citations": []
+        },
+        "deficit_framing_description": {
+          "value": "When a wellness tool frames its outputs around what is wrong, insufficient, or failing, it activates a threat response in populations who have built their identity around competence and performance. Research on wellness app notification design found that 'rough framing' triggers the same neural threat pathways as environmental danger signals.",
+          "citations": []
+        },
+        "failure_modes": [
+          {
+            "failure_mode": {
+              "value": "Negative alerts about score drops ('Your recovery is in the red') without forward-looking guidance.",
+              "citations": []
+            }
+          },
+          {
+            "failure_mode": {
+              "value": "Clinical language that implies pathology ('Your HRV suggests elevated sympathetic dominance consistent with chronic stress patterns').",
+              "citations": []
+            }
+          },
+          {
+            "failure_mode": {
+              "value": "Streaks and shame mechanics that punish missed check-ins or low scores, converting recovery days into failure experiences.",
+              "citations": []
+            }
+          },
+          {
+            "failure_mode": {
+              "value": "Frequency overload: excessive engagement paradoxically increases frustration and stress. Apps that send repetitive prompts produce users who feel annoyed and eventually abandon.",
+              "citations": []
+            }
+          },
+          {
+            "failure_mode": {
+              "value": "Unsolicited mental health suggestions: telling a high-performing executive their HRV pattern 'may indicate signs of burnout' without being asked causes immediate disengagement.",
+              "citations": []
+            }
+          }
+        ]
+      },
+      "engagement_sustainers": {
+        "design_philosophy": {
+          "value": "You are optimizing a high-performance system, not managing a health deficit.",
+          "citations": []
+        },
+        "whoop_approach": {
+          "value": "WHOOP frames all scores in terms of readiness to perform, not wellness to achieve. Recovery percentage drives strain decisions. The vocabulary is athletic: 'push,' 'strain,' 'performance.'",
+          "citations": []
+        },
+        "oura_resilience_scale": {
+          "value": "'Exceptional → Strong → Solid → Adequate → Limited' is a capability ladder, not a risk ladder.",
+          "citations": []
+        },
+        "strength_based_coaching_finding": {
+          "value": "The shift from 'What needs to be fixed?' to 'What can this athlete achieve at their peak?' produces measurably higher engagement, motivation, and resilience in elite athlete populations. Athletes who use their natural talents show greater training involvement, higher motivation levels, and increased self-belief.",
+          "citations": []
+        },
+        "agency_framing_definition": {
+          "value": "Language that positions the user as the decision-maker, with the AI as a data interpreter, not a prescriber—empirically associated with higher long-term engagement.",
+          "citations": []
+        },
+        "ai_iara_framework": {
+          "value": "The AI-IARA framework (Taylor & Francis, 2026) identifies 'Interpretation' (owning meaning-making rather than consuming AI-generated interpretations) and 'Action' (sustaining effortful choice) as two of six irreducible human capacities that AI wellness tools must preserve—or risk dependency and attrition.",
+          "citations": []
+        }
+      },
+      "commercial_wearables_mental_health_boundary": {
+        "whoop_boundary": {
+          "value": "Stays firmly on the performance side. WHOOP Journal allows tagging of mental health behaviors as behavioral variables to correlate with recovery—but the output is always framed as recovery impact, not mental health assessment. WHOOP Coach AI does not offer emotional or psychological interpretation.",
+          "citations": []
+        },
+        "oura_boundary": {
+          "value": "Moves closer to the boundary with its Daytime Stress feature and explicitly acknowledges it 'does not distinguish mental from physical stress'—framing this as a feature rather than a limitation. Emotional interpretation is always downstream of the user's own reflection.",
+          "citations": []
+        },
+        "apple_watch_boundary": {
+          "value": "Stays furthest from mental health interpretation. Mindfulness prompts (iOS 17+) are entirely optional, opt-in, and explicitly framed as self-reflection tools. Apple's Health app does not generate clinical-style mental health assessments.",
+          "citations": []
+        }
+      },
+      "ethical_guardrails": {
+        "five_core_requirements_jmir": {
+          "value": "Privacy, transparency, consent, accountability, and fairness (JMIR digital phenotyping ethics consensus, expert Delphi panel).",
+          "citations": []
+        },
+        "guardrail_1_scope_clarity": {
+          "value": "Users must understand explicitly that the tool is a performance optimization assistant, not a clinical screening tool. This sets the correct mental model for all subsequent interactions.",
+          "citations": []
+        },
+        "guardrail_2_pattern_to_signal": {
+          "value": "The agent may observe and reflect patterns but must not label clinical conditions or use DSM terminology. Pattern-to-signal, not pattern-to-diagnosis.",
+          "citations": []
+        },
+        "guardrail_3_triggered_resource_provision": {
+          "value": "When patterns consistent with clinical-level concern emerge (sustained HRV suppression, persistent low mood, activity decline over 3+ weeks), gently surface professional resource information—not triggered diagnosis.",
+          "citations": []
+        },
+        "guardrail_4_avoid_sycophancy": {
+          "value": "The agent must validate appropriately without over-affirming maladaptive patterns. If a user says 'I feel fine' but biometric data shows two weeks of suppression, gently surface the discrepancy without weaponizing it.",
+          "citations": []
+        },
+        "guardrail_5_data_minimization": {
+          "value": "The agent should communicate what data drives its recommendations, and users should be able to see and control what is retained. Transparency about inference chains, not just data collection, is the emerging standard.",
+          "citations": []
+        },
+        "guardrail_6_no_solo_crisis": {
+          "value": "For any signal that rises to acute safety concern (explicit ideation expressed in free-text, severe acute physiological crisis), the agent must immediately surface crisis resources and encourage human contact. The agent does not handle crisis alone (APA advisory, 2025; HBS health risk paper).",
+          "citations": []
+        }
+      },
+      "design_case_study": {
+        "bad_notification_text": {
+          "value": "Your recovery score is in the critical range. Your nervous system is showing signs of significant stress. Consider canceling your workout",
+          "citations": []
+        },
+        "bad_notification_problems": [
+          {
+            "value": "Uses deficit framing ('critical range')",
+            "citations": []
+          },
+          {
+            "value": "Implies clinical-level interpretation ('nervous system stress')",
+            "citations": []
+          },
+          {
+            "value": "Overrides the user's agency (prescribes canceling workout)",
+            "citations": []
+          },
+          {
+            "value": "Arrives at an intrusive time (6am)",
+            "citations": []
+          },
+          {
+            "value": "Creates anxiety about the very reading that was supposed to reduce it",
+            "citations": []
+          }
+        ],
+        "correct_notification_text": {
+          "value": "Your body put in a lot of work lately—your readiness today suggests prioritizing lighter activity. What are you planning for today?",
+          "citations": []
+        },
+        "correct_notification_principles": {
+          "value": "Respects agency (asks, doesn't tell), uses optimization language (readiness, work), avoids clinical framing, and positions the agent as a collaborator rather than a monitor. Delivered at morning review without a push notification.",
+          "citations": []
+        }
+      }
+    },
+    "INTEGRATED_DESIGN_FRAMEWORK": {
+      "architecture_layers": {
+        "biometric_stream": {
+          "value": "RMSSD, HF-HRV, RHR, Sleep architecture, Activity patterns, Temperature",
+          "citations": []
+        },
+        "self_report_stream": {
+          "value": "2-3 item μEMA at wake (Mood valence, energy, stress/motivation); Optional: free text context",
+          "citations": []
+        },
+        "personalized_baseline": {
+          "value": "EWMA 14-day window",
+          "citations": []
+        },
+        "contextual_attribution_engine": {
+          "value": "LLM-based reasoning: Deviation detection, Physical vs. psychological load, Congruence/divergence check",
+          "citations": []
+        },
+        "fusion_layer": {
+          "value": "Bayesian weight by signal type: Psychological constructs self-report leads; Physical recovery biometrics lead; Divergence surface discrepancy, query user",
+          "citations": []
+        },
+        "recommendation_engine": {
+          "value": "Agency-framed, optimization-language output; Scope-limited to performance & wellbeing; Clinical pattern monitoring → resource surfacing",
+          "citations": []
+        },
+        "engagement_layer": {
+          "value": "Morning brief + optional evening recap; No deficit framing; no unsolicited alerts; Autonomy preservation; user controls cadence",
+          "citations": []
+        }
+      },
+      "minimum_viable_fusion_prompt": {
+        "biometric_context_input": {
+          "value": "User's HRV % deviation from 14-day baseline, sleep metrics, activity level",
+          "citations": []
+        },
+        "user_report_input": {
+          "value": "2-3 item check-in: mood, energy, and/or stress",
+          "citations": []
+        },
+        "optional_context_input": {
+          "value": "Free text note from user",
+          "citations": []
+        },
+        "historical_pattern_input": {
+          "value": "7-30 day trend in biometrics + check-in scores",
+          "citations": []
+        }
+      },
+      "agent_tasks": [
+        {
+          "task": {
+            "value": "Attribute the primary driver of today's biometric state (physical load, psychological stressor, sleep deficit, or combination).",
+            "citations": []
+          }
+        },
+        {
+          "task": {
+            "value": "Assess congruence between biometric signal and self-report.",
+            "citations": []
+          }
+        },
+        {
+          "task": {
+            "value": "Generate one insight and one actionable recommendation.",
+            "citations": []
+          }
+        },
+        {
+          "task": {
+            "value": "Use optimization language. Do not diagnose. If pattern is persistent (3+ weeks), surface professional resource option.",
+            "citations": []
+          }
+        },
+        {
+          "task": {
+            "value": "Frame the user as the decision-maker. Offer, don't prescribe.",
+            "citations": []
+          }
+        }
+      ]
+    },
+    "CONCLUSION": {
+      "main_conclusion": {
+        "value": "Neither continuous biometrics nor periodic self-report alone is sufficient for generating personalized, trustworthy behavioral recommendations. The biometric stream tells you the body is mobilized; the self-report tells you whether it is mobilized by growth-productive challenge or by unproductive threat. Without that distinction, every intervention recommendation is a coin flip.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.5297534754642598,
+              "top": 0.755031715969216,
+              "width": 0.34889705882352945,
+              "height": 0.010912698412698417,
+              "page": 14,
+              "original_page": 14
+            },
+            "content": "Text: 'The evidence across machine learning, sports science, clinical decision support, and behavioral design converges on a single structural conclusion: neither continuous biometrics nor periodic self-report alone is sufficient for generating personalized, trustworthy behavioral recommendations. The biometric stream tells you the body is mobilized; the self-report tells you whether it is mobilized by growth-productive challenge or by unproductive threat.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.10947712418300654,
+                "top": 0.735479797979798,
+                "width": 0.7753267973856209,
+                "height": 0.1527777777777778,
+                "page": 14,
+                "original_page": 14
+              },
+              "content": "The evidence across machine learning, sports science, clinical decision support, and behavioral design converges on a single structural conclusion: neither continuous biometrics nor periodic self-report alone is sufficient for generating personalized, trustworthy behavioral recommendations. The biometric stream tells you the body is mobilized; the self-report tells you whether it is mobilized by growth-productive challenge or by unproductive threat. Without that distinction, every intervention recommendation is a coin flip-potentially reinforcing physiological overload in an athlete who needs rest, or pathologizing normal adaptive stress response in a founder facing a high-stakes week.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "implementation_requirements": {
+        "value": "Personalized EWMA baselines (not population norms), a μEMA check-in of 2-3 items in optimization language (not clinical constructs), morning timing aligned with wearable readiness output, an LLM-based contextual attribution layer using zero-shot prompting for physical targets and few-shot self-consistency for psychological ones, and a communication layer built entirely around agency, optimization, and user-controlled autonomy—with non-clinical guardrails embedded at the system level.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.6308256375466854,
+              "top": 0.9078282828282829,
+              "width": 0.05565312062324934,
+              "height": 0.0119498556998557,
+              "page": 14,
+              "original_page": 14
+            },
+            "content": "Text: 'The commercially viable implementation of this fusion requires: personalized EWMA baselines (not population norms), a µEMA check-in of 2-3 items in optimization language (not clinical'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.1111111111111111,
+                "top": 0.9078282828282829,
+                "width": 0.7671568627450981,
+                "height": 0.03345959595959596,
+                "page": 14,
+                "original_page": 14
+              },
+              "content": "The commercially viable implementation of this fusion requires: personalized EWMA baselines (not population norms), a µEMA check-in of 2-3 items in optimization language (not clinical",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          },
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.11029411764705882,
+              "top": 0.041035353535353536,
+              "width": 0.7704248366013072,
+              "height": 0.09132996632996633,
+              "page": 15,
+              "original_page": 15
+            },
+            "content": "Text: 'constructs), morning timing aligned with wearable readiness output, an LLM-based contextual attribution layer using zero-shot prompting for physical targets and few-shot self-consistency for psychological ones, and a communication layer built entirely around agency, optimization, and user-controlled autonomy-with non-clinical guardrails embedded at the system level, not bolted on as afterthoughts.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.11029411764705882,
+                "top": 0.041035353535353536,
+                "width": 0.7704248366013072,
+                "height": 0.0928030303030303,
+                "page": 15,
+                "original_page": 15
+              },
+              "content": "constructs), morning timing aligned with wearable readiness output, an LLM-based contextual attribution layer using zero-shot prompting for physical targets and few-shot self-consistency for psychological ones, and a communication layer built entirely around agency, optimization, and user-controlled autonomy-with non-clinical guardrails embedded at the system level, not bolted on as afterthoughts.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "market_gap_statement": {
+        "value": "No current consumer wellness product has operationalized this full stack. The tools exist. The science supports the design. What remains is the execution.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.3482966537309368,
+              "top": 0.15404040404040403,
+              "width": 0.32470171228213507,
+              "height": 0.01113816738816739,
+              "page": 15,
+              "original_page": 15
+            },
+            "content": "Text: 'The gap in the market is real: no current consumer wellness product has operationalized this full stack. The tools exist. The science supports the design. What remains is the execution.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.1111111111111111,
+                "top": 0.15404040404040403,
+                "width": 0.7491830065359477,
+                "height": 0.03282828282828283,
+                "page": 15,
+                "original_page": 15
+              },
+              "content": "The gap in the market is real: no current consumer wellness product has operationalized this full stack. The tools exist. The science supports the design. What remains is the execution.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      },
+      "research_sources_list": {
+        "value": "Research synthesized from post-2020 academic literature, commercial product documentation, and expert practitioner frameworks. Key sources: Biosensors (2025), Nature Medicine (2025), Bioengineering (2026), Frontiers in Sports (2026), JMIR (2024-2025), ACM CHI (2025), Cambridge Psychological Medicine (2025), and commercial documentation from Oura, WHOOP, Woebot Health, and HRV4Training.",
+        "citations": [
+          {
+            "type": "Text",
+            "bbox": {
+              "left": 0.11029411764705882,
+              "top": 0.20896464646464646,
+              "width": 0.7589869281045751,
+              "height": 0.09114583333333333,
+              "page": 15,
+              "original_page": 15
+            },
+            "content": "Text: 'Research synthesized from post-2020 academic literature, commercial product documentation, and expert practitioner frameworks. Key sources include studies from Biosensors (2025), Nature Medicine (2025), Bioengineering (2026), Frontiers in Sports (2026), JMIR (2024-2025), ACM CHI (2025), Cambridge Psychological Medicine (2025), and commercial documentation from Oura, WHOOP, Woebot Health, and HRV4Training.'",
+            "image_url": null,
+            "chart_data": null,
+            "confidence": null,
+            "granular_confidence": null,
+            "extra": null,
+            "parentBlock": {
+              "type": "Text",
+              "bbox": {
+                "left": 0.11029411764705882,
+                "top": 0.20896464646464646,
+                "width": 0.7589869281045751,
+                "height": 0.0928030303030303,
+                "page": 15,
+                "original_page": 15
+              },
+              "content": "Research synthesized from post-2020 academic literature, commercial product documentation, and expert practitioner frameworks. Key sources include studies from Biosensors (2025), Nature Medicine (2025), Bioengineering (2026), Frontiers in Sports (2026), JMIR (2024-2025), ACM CHI (2025), Cambridge Psychological Medicine (2025), and commercial documentation from Oura, WHOOP, Woebot Health, and HRV4Training.",
+              "image_url": null,
+              "chart_data": null,
+              "confidence": "low",
+              "granular_confidence": {
+                "extract_confidence": null,
+                "parse_confidence": null
+              },
+              "extra": null
+            }
+          }
+        ]
+      }
+    }
+  }
+}
