@@ -27,8 +27,8 @@ export default function History() {
   return (
     <div className="min-h-screen px-4 py-6 max-w-2xl mx-auto" style={{ background: "#0a0b0d" }}>
       <div className="mb-6">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: "rgba(255,92,53,0.5)" }}>Training</p>
-        <h1 className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>History</h1>
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: "rgba(255,92,53,0.5)" }}>Training log</p>
+        <h1 className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>Performance History</h1>
       </div>
 
       {/* Weekly Summary Card */}
@@ -38,10 +38,10 @@ export default function History() {
           <p className="text-xs font-black uppercase tracking-wider mb-3" style={{ color: "#FF5C35" }}>This Week</p>
           <div className="grid grid-cols-4 gap-3 mb-3">
             {[
-              { value: summary.completed, label: "completed", color: "#C2FF4A" },
-              { value: summary.total_sessions, label: "generated", color: "#FF5C35" },
-              { value: `${summary.completion_rate}%`, label: "completion", color: "#6EE7FF" },
-              { value: summary.streak, label: "streak", color: "#A78BFA" },
+              { value: summary.completed, label: "logged", color: "#C2FF4A" },
+              { value: summary.total_sessions, label: "prescribed", color: "#FF5C35" },
+              { value: `${summary.completion_rate}%`, label: "output rate", color: "#6EE7FF" },
+              { value: summary.streak, label: "consistency", color: "#A78BFA" },
             ].map(s => (
               <div key={s.label} className="text-center rounded-xl py-3" style={{ background: "rgba(255,255,255,0.02)" }}>
                 <p className="text-2xl font-black" style={{ color: s.color, fontFamily: "'Space Grotesk', sans-serif" }}>{s.value}</p>

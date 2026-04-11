@@ -1,0 +1,25 @@
+{
+  "name": "YU — Performance Intelligence",
+  "short_name": "YU",
+  "description": "Your wearable data becomes your training plan. AI-programmed workouts that adapt to your recovery.",
+  "start_url": "/today",
+  "display": "standalone",
+  "background_color": "#0a0b0d",
+  "theme_color": "#FF5C35",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["fitness", "health"],
+  "scope": "/"
+}

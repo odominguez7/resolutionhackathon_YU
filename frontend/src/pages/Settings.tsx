@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import WearableConnect from "@/components/WearableConnect";
-import { LogOut, Dumbbell, Target, Check } from "lucide-react";
+import { LogOut, Dumbbell, Target, Check, Shield, Eye, Database, Lock, Activity } from "lucide-react";
 import InjuryFlag from "@/components/InjuryFlag";
 import { api } from "@/lib/api";
 
@@ -32,6 +32,21 @@ export default function Settings() {
   const [rm, setRm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [alerts, setAlerts] = useState<Record<string, boolean>>(() => {
+    try {
+      const stored = localStorage.getItem("yu_alert_prefs");
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return { hrv_anomaly: true, sleep_debt: true, readiness_drop: true, overtraining: false };
+  });
+
+  const toggleAlert = (key: string) => {
+    setAlerts(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      try { localStorage.setItem("yu_alert_prefs", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (profile?.equipment) setEquipment(profile.equipment);
@@ -179,6 +194,94 @@ export default function Settings() {
       {/* Injury flags */}
       <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
         <InjuryFlag />
+      </div>
+
+      {/* Alert Thresholds */}
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center gap-2 mb-4">
+          <Activity className="w-4 h-4" style={{ color: "#FF5C35" }} />
+          <p className="text-[9px] uppercase tracking-[0.15em] font-bold" style={{ color: "#FF5C35" }}>Alert thresholds</p>
+        </div>
+        <p className="text-[11px] leading-relaxed mb-4" style={{ color: "rgba(255,255,255,0.3)" }}>
+          YU only alerts you when something actually shifts — no scheduled notifications, no noise. Alerts trigger when a metric deviates 2+ standard deviations from your personal baseline.
+        </p>
+        <div className="space-y-3">
+          {[
+            { key: "hrv_anomaly", label: "HRV anomaly", desc: "When overnight HRV deviates significantly", color: "#6EE7FF" },
+            { key: "sleep_debt", label: "Sleep debt", desc: "3+ nights under 6 hours", color: "#A78BFA" },
+            { key: "readiness_drop", label: "Readiness drop", desc: "Readiness below 60 for 2+ days", color: "#C2FF4A" },
+            { key: "overtraining", label: "Overtraining signal", desc: "HRV declining + high training load", color: "#FF5D6C" },
+          ].map(alert => {
+            const enabled = !!alerts[alert.key];
+            return (
+              <button key={alert.key} onClick={() => toggleAlert(alert.key)}
+                className="flex items-center justify-between py-2 w-full border-0 bg-transparent cursor-pointer"
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center gap-3 text-left">
+                  <div className="w-2 h-2 rounded-full" style={{ background: alert.color }} />
+                  <div>
+                    <p className="text-xs font-bold text-white">{alert.label}</p>
+                    <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.25)" }}>{alert.desc}</p>
+                  </div>
+                </div>
+                <div className="w-9 h-5 rounded-full relative transition-all flex-shrink-0" style={{
+                  background: enabled ? `${alert.color}30` : "rgba(255,255,255,0.06)",
+                }}>
+                  <div className="absolute top-0.5 w-4 h-4 rounded-full transition-all" style={{
+                    background: enabled ? alert.color : "rgba(255,255,255,0.2)",
+                    left: enabled ? "18px" : "2px",
+                  }} />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Privacy & Data Governance */}
+      <div className="rounded-2xl p-5 mb-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none" style={{ background: "radial-gradient(circle at 100% 0%, rgba(110,231,255,0.04), transparent 70%)" }} />
+        <div className="flex items-center gap-2 mb-4">
+          <Shield className="w-4 h-4" style={{ color: "#6EE7FF" }} />
+          <p className="text-[9px] uppercase tracking-[0.15em] font-bold" style={{ color: "#6EE7FF" }}>Privacy & Data</p>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+            <Database className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-white mb-1">What we collect</p>
+              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
+                Oura biometrics (HRV, sleep, readiness, activity), workout logs, check-in ratings, and hypothesis adherence. No location, contacts, or browsing data.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+            <Lock className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-white mb-1">Where it lives</p>
+              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
+                All data stored in Google Cloud (US-East1), encrypted at rest. Your biometric data is never shared with third parties or used for advertising.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+            <Eye className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-white mb-1">AI processing</p>
+              <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
+                Gemini generates workout plans and insights from your data. Your biometrics are sent to the model only at the moment of generation and are not retained by Google.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-[10px] font-bold" style={{ color: "rgba(255,255,255,0.2)" }}>Data retention</p>
+            <p className="text-[10px] font-bold" style={{ color: "#6EE7FF" }}>Delete account erases all data</p>
+          </div>
+        </div>
       </div>
 
       {/* Sign out */}

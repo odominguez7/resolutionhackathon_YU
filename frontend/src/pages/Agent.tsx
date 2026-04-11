@@ -504,7 +504,7 @@ export default function Agent() {
             </h1>
 
             <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 18px" }}>
-              first, how do you actually feel
+              rate your readiness to perform
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 10, maxWidth: 460, margin: "0 auto 10px" }}>
               {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
@@ -533,14 +533,21 @@ export default function Agent() {
               ))}
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", maxWidth: 480, margin: "0 auto", fontSize: 11, color: YU.label }}>
-              <span>drained</span>
-              <span>peak</span>
+              <span>depleted</span>
+              <span>peak capacity</span>
             </div>
             {loading && (
-              <p style={{ marginTop: 28, fontSize: 13, color: YU.muted }}>
-                <RefreshCw size={14} className="animate-spin" style={{ display: "inline", marginRight: 8, verticalAlign: "middle" }} />
-                Reading your data
-              </p>
+              <div style={{ marginTop: 28, textAlign: "center" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "10px 20px", borderRadius: 16, background: `${sp.color}08`, border: `1px solid ${sp.color}15` }}>
+                  <RefreshCw size={14} className="animate-spin" style={{ color: sp.color }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: sp.color }}>
+                    Comparing your felt state to overnight data...
+                  </span>
+                </div>
+                <p style={{ fontSize: 11, color: YU.label, margin: "12px 0 0" }}>
+                  Checking HRV, sleep architecture, and recovery signals
+                </p>
+              </div>
             )}
           </div>
         )}
@@ -574,6 +581,29 @@ export default function Agent() {
                 <span style={{ fontSize: 10, color: YU.muted, fontWeight: 500, marginLeft: 2 }}>{delta > 0 ? "+" : ""}{Math.round(delta)}%</span>
               </span>
             </div>
+            {/* Prediction-confirmation: your feel vs the data */}
+            {mood != null && (() => {
+              const moodHigh = mood >= 7;
+              const moodLow = mood <= 3;
+              const dataGood = delta > 5;
+              const dataBad = delta < -5;
+              const agrees = (moodHigh && dataGood) || (moodLow && dataBad) || (!moodHigh && !moodLow && !dataGood && !dataBad);
+              const msg = agrees
+                ? `You rated ${mood}/10 — your ${card.metric_label || "data"} confirms that read.`
+                : moodHigh && dataBad
+                ? `You feel strong (${mood}/10) but your ${card.metric_label || "metrics"} are lagging. Trust the data today.`
+                : moodLow && dataGood
+                ? `You rated ${mood}/10 — but your ${card.metric_label || "data"} says you have more in the tank than you think.`
+                : null;
+              if (!msg) return null;
+              return (
+                <div style={{ padding: "10px 14px", borderRadius: 12, marginBottom: 16, background: agrees ? "rgba(0,191,166,0.06)" : "rgba(245,158,11,0.06)", border: `1px solid ${agrees ? "rgba(0,191,166,0.12)" : "rgba(245,158,11,0.12)"}` }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: agrees ? YU.teal : YU.amber, margin: 0 }}>
+                    {agrees ? "✓ Body confirms" : "⚡ Mismatch"} — {msg}
+                  </p>
+                </div>
+              );
+            })()}
             {(card as any).state_copy && (
               <p style={{ fontFamily: display, fontSize: 17, fontWeight: 600, color: cc, margin: "0 0 14px", letterSpacing: "-0.01em" }}>
                 {(card as any).state_copy}
@@ -915,14 +945,26 @@ function buildStateCardSVG(agent: any, ritual: Ritual, fmt: { w: number; h: numb
       <stop offset="100%" stop-color="#111215"/>
     </linearGradient>
     <radialGradient id="yu-glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="${color}" stop-opacity="0.10"/>
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.12"/>
       <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
     </radialGradient>
+    <radialGradient id="yu-edge" cx="50%" cy="0%" r="80%">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="yu-noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.04"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" mode="overlay"/>
+    </filter>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#yu-bg)"/>
+  <rect width="${W}" height="${H}" fill="url(#yu-edge)"/>
+  <rect width="${W}" height="${H}" filter="url(#yu-noise)" opacity="0.5"/>
 
   <!-- Glow behind ring -->
-  <circle cx="${cx}" cy="${ringCY}" r="${ringR * 2.2}" fill="url(#yu-glow)"/>
+  <circle cx="${cx}" cy="${ringCY}" r="${ringR * 2.5}" fill="url(#yu-glow)"/>
 
   <!-- Ring around the glyph -->
   <circle cx="${cx}" cy="${ringCY}" r="${ringR}" fill="none" stroke="${color}" stroke-width="${Math.max(2, base * 0.005)}" opacity="0.35"/>
@@ -1030,7 +1072,7 @@ function ShareStateModal({ agent, ritual, onClose }: { agent: any; ritual: Ritua
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: YU.label, margin: "0 0 4px" }}>
-              share your state
+              share your state · optimized for ig stories
             </p>
             <h3 style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: YU.ink, margin: 0, letterSpacing: "-0.01em" }}>
               {agent.state_glyph} {agent.state_label}

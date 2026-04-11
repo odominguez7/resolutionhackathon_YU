@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#050816" />
+    <meta name="theme-color" content="#0a0b0d" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
-    <title>YU RestOS</title>
-    <meta name="description" content="Your body. Your workouts. Your performance." />
+    <link rel="manifest" href="/manifest.json" />
+    <title>YU — Performance Intelligence</title>
+    <meta name="description" content="Your wearable data becomes your training plan. AI-programmed workouts that adapt to your recovery." />
     <meta name="author" content="Omar Dominguez, MIT Sloan" />
 
     <meta property="og:title" content="YU RestOS" />
@@ -22,5 +23,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

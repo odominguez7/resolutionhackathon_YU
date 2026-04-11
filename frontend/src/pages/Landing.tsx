@@ -311,8 +311,8 @@ const Landing = () => {
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }}
                 className="text-base md:text-lg max-w-xl leading-relaxed mb-10"
                 style={{ color: "rgba(255,255,255,0.4)" }}>
-                YU reads your wearable, programs today's workout, tracks every set,
-                and adjusts tomorrow based on how your body responded.
+                Your wearable collects data every night. YU turns it into your training plan,
+                adjusts load in real-time, and gets sharper with every session you log.
               </motion.p>
 
               {/* CTAs */}
@@ -580,10 +580,10 @@ const Landing = () => {
           viewport={{ once: true }} transition={{ duration: 0.8, ease }}>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-5 tracking-tight"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            Ready to stop guessing?
+            Ready to train smarter?
           </h2>
           <p className="text-base mb-10" style={{ color: "rgba(255,255,255,0.35)" }}>
-            Connect your wearable. Get your first AI workout in under 3 minutes.
+            Connect your wearable. Your first AI-programmed session in under 3 minutes.
           </p>
           <Link to="/onboarding" className="no-underline">
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}

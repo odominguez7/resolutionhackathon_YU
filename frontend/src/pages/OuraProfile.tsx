@@ -205,6 +205,7 @@ const OuraProfile = () => {
   const [range, setRange] = useState<Interval>("ALL");
   const [workout, setWorkout] = useState<any>(null);
   const [workoutLoading, setWorkoutLoading] = useState(false);
+  const [dataTab, setDataTab] = useState<"summary" | "trends" | "details">("summary");
 
   useEffect(() => {
     // Auto-refresh from Oura API first, then load all data
@@ -338,6 +339,27 @@ const OuraProfile = () => {
         </div>
       </div>
 
+      {/* 3-TAB PROGRESSIVE DISCLOSURE BAR */}
+      <div className="max-w-6xl mx-auto px-4 md:px-6 pt-4">
+        <div className="flex gap-1 p-1 rounded-2xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          {([
+            { key: "summary" as const, label: "Summary", desc: "Today's snapshot" },
+            { key: "trends" as const, label: "Trends", desc: "Your patterns" },
+            { key: "details" as const, label: "Details", desc: "Full deep-dive" },
+          ]).map(tab => (
+            <button key={tab.key} onClick={() => setDataTab(tab.key)}
+              className="flex-1 py-3 px-4 rounded-xl text-center cursor-pointer border-0 transition-all duration-200"
+              style={{
+                background: dataTab === tab.key ? "rgba(255,255,255,0.06)" : "transparent",
+                boxShadow: dataTab === tab.key ? "0 2px 8px rgba(0,0,0,0.2)" : "none",
+              }}>
+              <p className="text-xs font-bold" style={{ color: dataTab === tab.key ? "#fff" : "rgba(255,255,255,0.35)" }}>{tab.label}</p>
+              <p className="text-[9px] mt-0.5" style={{ color: dataTab === tab.key ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)" }}>{tab.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Sticky bar removed — data lives in the orbit now */}
       {false && todayData && (() => {
         const hrTime = todayData.latestHeartRateTime ? new Date(todayData.latestHeartRateTime) : null;
@@ -453,13 +475,108 @@ const OuraProfile = () => {
 
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 space-y-7">
 
-        {/* ═══════ THE HERO: PLAN YOUR DAY ═══════ */}
-        <PlanOrbit todayData={todayData} calendarEvents={calendarEvents} stats={stats} sleepHistory={sleepHistory} stressData={stressData} />
+        {/* ═══════ SUMMARY TAB: THE HERO ═══════ */}
+        {dataTab === "summary" && (
+          <PlanOrbit todayData={todayData} calendarEvents={calendarEvents} stats={stats} sleepHistory={sleepHistory} stressData={stressData} />
+        )}
 
+        {/* ═══════ TRENDS TAB: Key metrics over time ═══════ */}
+        {dataTab === "trends" && (
+          <div className="space-y-6" style={{ animation: "oura-fade-up .5s ease-out both" }}>
+            {/* Time range selector */}
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] uppercase tracking-[0.2em] font-bold" style={{ color: "rgba(255,255,255,0.25)" }}>Performance trends</p>
+              <div className="flex gap-1">
+                {(["7D", "14D", "30D", "ALL"] as Interval[]).map(r => (
+                  <button key={r} onClick={() => setRange(r)}
+                    className="px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer border-0 transition-all"
+                    style={{ background: range === r ? "rgba(255,255,255,0.08)" : "transparent", color: range === r ? "#fff" : "rgba(255,255,255,0.3)" }}>
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {/* Everything below the orbit is hidden -- the orbit IS the product */}
-        {false && (
-        <div>
+            {/* Vital stat cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <StatCard icon={Brain} label="HRV" subtitle="Autonomic resilience" value={avgHRV} unit="ms" spark={sparkPoints(chart, "hrv")} change={pctChange(avgHRV, overallAvgHRV)} color="#A78BFA" daysLabel={daysLabel} delay={0} />
+              <StatCard icon={Heart} label="Resting HR" subtitle="Cardiac efficiency" value={avgHR} unit="bpm" spark={sparkPoints(chart, "avgHeartRate")} change={-pctChange(avgHR, overallAvgHR)} color="#F87171" daysLabel={daysLabel} delay={60} />
+              <StatCard icon={TrendingUp} label="Readiness" subtitle="Capacity to perform" value={avgReadiness} unit="" spark={sparkPoints(chart, "readinessScore")} change={pctChange(avgReadiness, overallAvgReadiness)} color="#4ADE80" daysLabel={daysLabel} delay={120} />
+              <StatCard icon={Moon} label="Deep Sleep" subtitle="Recovery phase" value={avgDeep} unit="min" spark={sparkPoints(chart, "deepSleepMin")} change={pctChange(avgDeep, overallAvgDeep)} color="#60A5FA" daysLabel={daysLabel} delay={180} />
+            </div>
+
+            {/* HRV chart */}
+            <Glass delay={200}>
+              <SectionHeader icon={Brain} title="HRV Over Time" description="Your nervous system's ability to adapt. Higher is generally better." />
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={chart}>
+                  <defs><linearGradient id="hrvGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#A78BFA" stopOpacity={0.3} /><stop offset="95%" stopColor="#A78BFA" stopOpacity={0} /></linearGradient></defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} interval={ti} />
+                  <YAxis tick={{ fill: "#475569", fontSize: 10 }} width={35} />
+                  <Tooltip content={<Tip />} />
+                  {overallAvgHRV > 0 && <ReferenceLine y={overallAvgHRV} stroke="rgba(167,139,250,0.3)" strokeDasharray="4 4" label={{ value: `avg ${overallAvgHRV}`, fill: "#94A3B8", fontSize: 9 }} />}
+                  <Area type="monotone" dataKey="hrv" stroke="#A78BFA" fill="url(#hrvGrad)" strokeWidth={2} name="HRV" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </Glass>
+
+            {/* Readiness chart */}
+            <Glass delay={260}>
+              <SectionHeader icon={TrendingUp} title="Readiness Score" description="Your body's capacity to handle training load today." />
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={chart}>
+                  <defs><linearGradient id="readyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#4ADE80" stopOpacity={0.3} /><stop offset="95%" stopColor="#4ADE80" stopOpacity={0} /></linearGradient></defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} interval={ti} />
+                  <YAxis tick={{ fill: "#475569", fontSize: 10 }} width={35} domain={[0, 100]} />
+                  <Tooltip content={<Tip />} />
+                  <Area type="monotone" dataKey="readinessScore" stroke="#4ADE80" fill="url(#readyGrad)" strokeWidth={2} name="Readiness" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </Glass>
+
+            {/* Sleep duration chart */}
+            <Glass delay={320}>
+              <SectionHeader icon={Moon} title="Sleep Duration" description="Total hours of sleep per night. Consistency matters more than one great night." />
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={chart}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} interval={ti} />
+                  <YAxis tick={{ fill: "#475569", fontSize: 10 }} width={35} />
+                  <Tooltip content={<Tip />} />
+                  <ReferenceLine y={7} stroke="rgba(96,165,250,0.3)" strokeDasharray="4 4" label={{ value: "7h target", fill: "#94A3B8", fontSize: 9 }} />
+                  <Bar dataKey="sleepHrs" fill="#60A5FA" radius={[4, 4, 0, 0]} name="Sleep (hrs)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Glass>
+
+            {/* More stat cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <StatCard icon={Wind} label="Resp Rate" subtitle="Breathing efficiency" value={avgResp} unit="br/m" spark={sparkPoints(chart, "avgRespRate")} change={0} color="#22D3EE" daysLabel={daysLabel} delay={380} />
+              <StatCard icon={Droplets} label="SpO2" subtitle="Blood oxygen" value={avgSpO2} unit="%" spark={sparkPoints(chart, "spo2Avg")} change={0} color="#F0ABFC" daysLabel={daysLabel} delay={420} />
+              <StatCard icon={Footprints} label="Steps" subtitle="Daily movement" value={avgSteps.toLocaleString()} unit="" spark={sparkPoints(chart, "steps")} change={pctChange(avgSteps, overallAvgSteps)} color="#FCD34D" daysLabel={daysLabel} delay={460} />
+              <StatCard icon={Gauge} label="Efficiency" subtitle="Time in bed vs asleep" value={avgEfficiency} unit="%" spark={sparkPoints(chart, "efficiency")} change={pctChange(avgEfficiency, overallAvgEfficiency)} color="#34D399" daysLabel={daysLabel} delay={500} />
+            </div>
+          </div>
+        )}
+
+        {/* ═══════ DETAILS TAB: Full deep-dive (previously hidden) ═══════ */}
+        {dataTab === "details" && (
+        <div className="space-y-7" style={{ animation: "oura-fade-up .5s ease-out both" }}>
+          {/* Time range selector */}
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold" style={{ color: "rgba(255,255,255,0.25)" }}>Full data deep-dive</p>
+            <div className="flex gap-1">
+              {(["7D", "14D", "30D", "ALL"] as Interval[]).map(r => (
+                <button key={r} onClick={() => setRange(r)}
+                  className="px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer border-0 transition-all"
+                  style={{ background: range === r ? "rgba(255,255,255,0.08)" : "transparent", color: range === r ? "#fff" : "rgba(255,255,255,0.3)" }}>
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
         {/* ═══════ WHAT YOUR BODY IS SAYING — instant, data-driven ═══════ */}
         {latest && (() => {
           const insights: { text: string; type: "good" | "warn" | "bad"; question?: string }[] = [];
