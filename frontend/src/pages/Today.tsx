@@ -234,6 +234,28 @@ export default function Today() {
         </motion.div>
       )}
 
+      {/* HRV STRATEGY — multi-week context */}
+      {todayData?.strategy?.reasoning && (
+        <motion.div className="rounded-xl p-3.5 mb-4" style={{ background: "rgba(110,231,255,0.04)", border: "1px solid rgba(110,231,255,0.1)" }}
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, ease }}>
+          <div className="flex items-center gap-2 mb-1.5">
+            <Activity className="w-3.5 h-3.5" style={{ color: "#6EE7FF" }} />
+            <p className="text-[10px] font-black uppercase tracking-wider" style={{ color: "#6EE7FF" }}>
+              HRV Strategy: {todayData.strategy.strategy?.replace("_", " ")}
+            </p>
+            {todayData.strategy.hrv_trend && (
+              <span className="text-[9px] px-2 py-0.5 rounded-full ml-auto" style={{
+                background: todayData.strategy.hrv_trend.direction === "improving" ? "rgba(194,255,74,.12)" :
+                           todayData.strategy.hrv_trend.direction === "declining" ? "rgba(255,93,108,.12)" : "rgba(255,255,255,.04)",
+                color: todayData.strategy.hrv_trend.direction === "improving" ? "#C2FF4A" :
+                       todayData.strategy.hrv_trend.direction === "declining" ? "#FF5D6C" : "#94A3B8",
+              }}>{todayData.strategy.hrv_trend.direction} {todayData.strategy.hrv_trend.slope_ms_per_week > 0 ? "+" : ""}{todayData.strategy.hrv_trend.slope_ms_per_week}ms/wk</span>
+            )}
+          </div>
+          <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>{todayData.strategy.reasoning}</p>
+        </motion.div>
+      )}
+
       {/* TODAY'S ACTION */}
       <motion.div className="rounded-2xl p-5 mb-4" style={{ background: `${color}06`, border: `1.5px solid ${color}18` }}
         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, ease }}>

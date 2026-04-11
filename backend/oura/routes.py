@@ -914,9 +914,24 @@ async def get_daily_action(request: Request):
     if confidence < 0.4:
         ctx["intensity_tier"] = "easy"  # don't push when data is unreliable
 
-    # Agent picks the action
+    # HRV OPTIMIZATION LOOP — the strategic layer
+    from .hrv_optimizer import compute_hrv_trend, compute_strategy, apply_strategy_to_action
+    hrv_trend = compute_hrv_trend(data["sleep_by_day"], window_days=30)
+    acwr_data = universal.get("load_ledger", {}).get("acwr", {})
+    strategy = compute_strategy(hrv_trend, ctx.get("adherence_profile", {}), acwr_data)
+
+    # Count push days this week from Oura real workouts
+    from .normalize import get_oura_workout_history
+    this_week = [w for w in get_oura_workout_history() if w.get("intensity") == "push"
+                 and w.get("day", "") >= (datetime.now(BOSTON_TZ) - timedelta(days=7)).strftime("%Y-%m-%d")]
+    weekly_push_count = len(this_week)
+
+    # Agent picks the action (tactical)
     action = pick_daily_action(ctx)
     action = adapt_for_time_of_day(action)
+
+    # Strategy overrides tactical if needed (HRV is the northstar)
+    action = apply_strategy_to_action(action, strategy, weekly_push_count)
 
     # Check if a workout is already generated today
     entries = _recent(2)
@@ -948,6 +963,7 @@ async def get_daily_action(request: Request):
             "total": total_7d,
         },
         "calendar_cognitive_load": calendar_load,
+        "strategy": strategy,
         "universal_context": universal,
         "last_trained": _get_last_trained(),
         "user_id": user_id,
@@ -1184,6 +1200,31 @@ def workout_unblock_movement(payload: dict):
     if not name:
         return {"error": "movement_name required"}
     return unblock_movement(name)
+
+
+@router.get("/hrv-strategy")
+async def get_hrv_strategy(request: Request):
+    """The HRV optimization strategy — multi-week view.
+    Shows whether HRV is improving/flat/declining and what the system
+    is doing about it."""
+    from backend.wearable.user_data import load_user_biometrics
+    from .hrv_optimizer import compute_hrv_trend, compute_strategy
+    from .normalize import build_universal_context, get_oura_workout_history
+    from .athlete_context import build_athlete_context
+
+    user_id = getattr(request.state, "user_id", "omar")
+    data = load_user_biometrics(user_id)
+    hrv_trend = compute_hrv_trend(data["sleep_by_day"], window_days=30)
+    ctx = build_athlete_context(
+        sleep_by_day=data["sleep_by_day"], score_by_day=data["score_by_day"],
+        readiness_by_day=data["readiness_by_day"], stress_by_day=data["stress_by_day"],
+        user_id=user_id,
+    )
+    oura_log = get_oura_workout_history()
+    uc = build_universal_context(ctx, oura_log)
+    acwr = uc.get("load_ledger", {}).get("acwr", {})
+    strategy = compute_strategy(hrv_trend, ctx.get("adherence_profile", {}), acwr)
+    return strategy
 
 
 @router.get("/universal-context")
