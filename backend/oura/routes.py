@@ -891,73 +891,137 @@ async def morning_checkin(request: Request, payload: dict = {}):
     hrv = data["sleep_by_day"].get(latest_day, {}).get("average_hrv") if latest_day else None
     readiness = (data["readiness_by_day"].get(latest_day, {}) or {}).get("score") if latest_day else None
 
-    # Fuse: compare subjective energy to readiness using the athlete's OWN
-    # readiness distribution. A 1-5 score maps to percentile ranges of their
-    # personal readiness history, not a fixed /20 formula.
+    # Fuse: compare subjective energy to NERVOUS SYSTEM STATE.
+    # Not readiness percentiles. Not fixed formulas.
+    # The question: does the athlete's felt state match their autonomic state?
     #
-    # 1 (Drained) = bottom 20% of YOUR readiness scores
-    # 2 (Low)     = 20-40th percentile
-    # 3 (Okay)    = 40-60th percentile
-    # 4 (Good)    = 60-80th percentile
-    # 5 (Peak)    = top 20% of YOUR readiness scores
+    # Nervous system state is derived from HRV deviation + RHR deviation:
+    #   sympathetic_dominant = stressed, under-recovered (HRV below baseline, RHR above)
+    #   parasympathetic_dominant = recovered, ready to push (HRV above baseline, RHR below)
+    #   balanced = mixed signals, normal day
+    #
+    # The valuable signal is the MISMATCH between felt state and body state.
     fusion = None
     if hrv and readiness:
-        # Build the athlete's readiness distribution
-        all_readiness = sorted([
-            (data["readiness_by_day"].get(d, {}) or {}).get("score", 0)
-            for d in days if (data["readiness_by_day"].get(d, {}) or {}).get("score")
-        ])
-        if len(all_readiness) >= 10:
-            # Compute percentile thresholds
-            n = len(all_readiness)
-            p20 = all_readiness[int(n * 0.2)]
-            p40 = all_readiness[int(n * 0.4)]
-            p60 = all_readiness[int(n * 0.6)]
-            p80 = all_readiness[int(n * 0.8)]
+        from .normalize import detect_nervous_system_state
+        from .athlete_context import compute_baseline_with_limits
 
-            # Where does today's readiness fall in YOUR distribution?
-            if readiness <= p20: body_zone = 1
-            elif readiness <= p40: body_zone = 2
-            elif readiness <= p60: body_zone = 3
-            elif readiness <= p80: body_zone = 4
-            else: body_zone = 5
+        # Compute baselines
+        all_hrvs = [data["sleep_by_day"][d].get("average_hrv") for d in days if data["sleep_by_day"][d].get("average_hrv")]
+        all_rhrs = [data["sleep_by_day"][d].get("average_heart_rate") for d in days if data["sleep_by_day"][d].get("average_heart_rate")]
+        hrv_bl = compute_baseline_with_limits(all_hrvs)
+        rhr_bl = compute_baseline_with_limits(all_rhrs)
 
-            zone_labels = {1: "bottom 20%", 2: "below average", 3: "your middle range", 4: "above average", 5: "top 20%"}
-            body_label = zone_labels[body_zone]
+        hrv_ewma = hrv_bl.get("ewma") or (sum(all_hrvs) / len(all_hrvs) if all_hrvs else hrv)
+        rhr = data["sleep_by_day"].get(latest_day, {}).get("average_heart_rate")
+        rhr_ewma = rhr_bl.get("ewma") or (sum(all_rhrs) / len(all_rhrs) if all_rhrs else rhr or 60)
 
-            gap = energy - body_zone
+        hrv_dev = round(hrv - hrv_ewma, 1)
+        rhr_dev = round((rhr or rhr_ewma) - rhr_ewma, 1)
 
-            if abs(gap) <= 1:
-                fusion = {
-                    "alignment": "confirmed",
-                    "message": f"Your body agrees. Readiness {readiness} is {body_label} for you, and you feel it."
-                }
-            elif gap >= 2:
+        # For the check-in fusion, use a MORE SENSITIVE detection than
+        # the general nervous system classifier. HRV is the northstar —
+        # if HRV alone is significantly off, that's enough signal.
+        # The general classifier requires BOTH HRV + RHR to agree.
+        if hrv_dev < -5:
+            ns_state = "sympathetic_dominant"
+        elif hrv_dev > 3:
+            ns_state = "parasympathetic_dominant"
+        elif rhr_dev > 3:
+            ns_state = "sympathetic_dominant"
+        elif rhr_dev < -2:
+            ns_state = "parasympathetic_dominant"
+        else:
+            ns_state = "balanced"
+
+        # Subjective: 1-2 = feels bad, 3 = neutral, 4-5 = feels good
+        feels_good = energy >= 4
+        feels_bad = energy <= 2
+        feels_neutral = energy == 3
+
+        if ns_state == "sympathetic_dominant":
+            if feels_good:
                 fusion = {
                     "alignment": "mismatch_high",
+                    "ns_state": ns_state,
                     "message": (
-                        f"You feel strong ({energy}/5) but readiness {readiness} puts you in {body_label} of your personal range. "
-                        f"HRV is {hrv}ms. Your nervous system is carrying load you may not feel yet."
+                        f"You feel strong ({energy}/5) but your nervous system disagrees. "
+                        f"HRV {hrv}ms is {abs(hrv_dev)}ms below your baseline. RHR is elevated. "
+                        f"Your body is carrying load you may not feel yet. Trust the data today."
+                    )
+                }
+            elif feels_bad:
+                fusion = {
+                    "alignment": "confirmed",
+                    "ns_state": ns_state,
+                    "message": (
+                        f"Your body confirms it. HRV {hrv}ms, {abs(hrv_dev)}ms below baseline. "
+                        f"Nervous system is activated. Lighter session today."
                     )
                 }
             else:
                 fusion = {
-                    "alignment": "mismatch_low",
+                    "alignment": "noted",
+                    "ns_state": ns_state,
                     "message": (
-                        f"You rated low ({energy}/5) but readiness {readiness} is {body_label} for you. "
-                        f"HRV {hrv}ms is holding. Your body is more recovered than you think. You can push."
+                        f"HRV {hrv}ms is {abs(hrv_dev)}ms below your baseline. "
+                        f"Your nervous system is running hot. The session will reflect that."
                     )
                 }
-            fusion["body_zone"] = body_zone
-            fusion["thresholds"] = {"p20": p20, "p40": p40, "p60": p60, "p80": p80}
-        else:
-            # Not enough history — simple comparison
-            if energy >= 4 and readiness >= 75:
-                fusion = {"alignment": "confirmed", "message": f"Recovery at {readiness}, HRV {hrv}ms. You feel good and your body confirms it."}
-            elif energy <= 2 and readiness <= 60:
-                fusion = {"alignment": "confirmed", "message": f"Readiness {readiness}, HRV {hrv}ms. Your body confirms the fatigue. Lighter session today."}
+
+        elif ns_state == "parasympathetic_dominant":
+            if feels_bad:
+                fusion = {
+                    "alignment": "mismatch_low",
+                    "ns_state": ns_state,
+                    "message": (
+                        f"You feel low ({energy}/5) but your body recovered well. "
+                        f"HRV {hrv}ms is {hrv_dev}ms above baseline. RHR is down. "
+                        f"You can push more than you think."
+                    )
+                }
+            elif feels_good:
+                fusion = {
+                    "alignment": "confirmed",
+                    "ns_state": ns_state,
+                    "message": (
+                        f"Your body agrees. HRV {hrv}ms, {hrv_dev}ms above baseline. "
+                        f"Nervous system is recovered. You're ready."
+                    )
+                }
             else:
-                fusion = {"alignment": "noted", "message": f"Readiness {readiness}, HRV {hrv}ms. Still building your personal baseline — data gets sharper after 14 days."}
+                fusion = {
+                    "alignment": "noted",
+                    "ns_state": ns_state,
+                    "message": (
+                        f"HRV {hrv}ms is above your baseline. "
+                        f"Good recovery overnight. The session will reflect that."
+                    )
+                }
+
+        else:  # balanced
+            if feels_good:
+                fusion = {
+                    "alignment": "confirmed",
+                    "ns_state": ns_state,
+                    "message": f"Steady state. HRV {hrv}ms near baseline, and you feel it. Solid day ahead."
+                }
+            elif feels_bad:
+                fusion = {
+                    "alignment": "noted",
+                    "ns_state": ns_state,
+                    "message": (
+                        f"Your data shows a normal day (HRV {hrv}ms near baseline) "
+                        f"but you feel off ({energy}/5). Could be cognitive fatigue, stress, or fuel. "
+                        f"The session will be moderate."
+                    )
+                }
+            else:
+                fusion = {
+                    "alignment": "confirmed",
+                    "ns_state": ns_state,
+                    "message": f"Normal day. HRV {hrv}ms, baseline range. Steady as you go."
+                }
 
     return {"energy": energy, "fusion": fusion, "stored": True}
 
