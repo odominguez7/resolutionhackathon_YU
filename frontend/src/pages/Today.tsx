@@ -39,20 +39,28 @@ export default function Today() {
     // This just loads the daily action with the fresh data.
     api.get("/api/oura/daily-action").then(d => {
       setTodayData(d);
-      if (d?.existing_workout?.full_workout) {
+      const actionType = d?.action?.action;
+      // Only restore a cached workout if the action type is "workout".
+      // If the agent says stretch/walk/rest, don't show a stale crossfit workout.
+      if (actionType === "workout" && d?.existing_workout?.full_workout) {
         setWorkout(d.existing_workout.full_workout);
         if (d.existing_workout.user_feedback?.completed) {
           setFeedback(d.existing_workout.user_feedback.completed);
         }
+      } else {
+        setWorkout(null);  // clear any stale workout for non-workout actions
       }
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const generateWorkout = async (sessionType: string = "crossfit") => {
     setGenerating(true);
+    setWorkout(null);  // clear any stale workout before generating
     try {
       const w = await api.get(`/api/oura/workout?session_type=${sessionType}`);
-      if (w && !w.error) setWorkout(w);
+      if (w && !w.error) {
+        setWorkout(w);
+      }
     } catch {}
     setGenerating(false);
   };
@@ -242,8 +250,8 @@ export default function Today() {
 
         <p className="text-xs leading-relaxed mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>{action.reasoning}</p>
 
-        {/* WORKOUT CONTENT (if workout action and we have one) */}
-        {action.action === "workout" && workout && !generating && (
+        {/* WORKOUT CONTENT (only for actual workout action with crossfit-style blocks) */}
+        {action.action === "workout" && workout && !generating && workout.session_type !== "rest" && (
           <>
             <div className="mb-3">
               <p className="text-sm font-black text-white">{workout.title}</p>
