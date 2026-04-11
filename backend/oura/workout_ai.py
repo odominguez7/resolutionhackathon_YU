@@ -38,19 +38,8 @@ ATHLETE CONTEXT:
 
 EQUIPMENT CONSTRAINT: ONLY use movements possible with dumbbells, treadmill, pull-up bar, and bodyweight. NO box jumps, NO step-ups, NO bench press, NO HSPU, NO toes-to-bar, NO pistol squats, NO kettlebell moves, NO rope climbs. If a movement requires equipment not listed, DO NOT include it.
 
-MOVEMENT CATALOG (ONLY use these):
-Squat: DB front squat, goblet squat, air squat, tempo squat, jump squat, sumo squat, DB overhead squat, DB back squat, zercher DB squat
-Lunge (BODYWEIGHT ONLY): forward lunge, reverse lunge, walking lunge, lateral lunge, curtsy lunge, split squat, jump lunge
-Hinge: DB deadlift, DB Romanian deadlift, single-leg DB RDL, staggered-stance DB deadlift, glute bridge, hip thrust
-Horizontal Push: push-up, hand-release push-up, diamond push-up, decline push-up, archer push-up, plyometric push-up, DB floor press, alternating DB floor press
-Vertical Push: DB strict press, DB push press, DB push jerk, Arnold press, Z-press, DB lateral raise
-Pull (bar): strict pull-up, strict chin-up, tempo pull-up, chest-to-bar pull-up, weighted pull-up, hanging knee raise, hanging leg raise, L-hang
-Pull (DB): DB bent-over row, single-arm DB row, renegade row, DB reverse fly, DB seal row
-Olympic: DB power clean, DB hang power clean, DB squat clean, single-arm DB power snatch, alternating DB snatch, man maker, devil press, cluster
-Core: V-up, tuck-up, hollow hold, hollow rock, dead bug, Russian twist, DB weighted sit-up, plank hold, side plank, butterfly sit-up, DB side bend
-Cardio: treadmill run, burpees, burpee to pull-up, lateral burpee over DB, burpee broad jump, treadmill incline sprint
-HARD BAN: NEVER prescribe ANY carry variation. Forbidden movements include but are not limited to: farmer carry, single-arm farmer carry, suitcase carry, front rack carry, overhead carry, cross-body carry, sandbag carry. If a movement contains the word "carry" it is BANNED. Use a different movement instead.
-Plyo: tuck jump, squat jump, broad jump, skater jump
+MOVEMENT CATALOG: See the ALLOWED MOVEMENT CATALOG section injected below from the catalog service. Use ONLY movements from that list.
+HARD BAN: NEVER prescribe ANY carry variation (farmer carry, front rack carry, overhead carry, suitcase carry, cross-body carry). If a movement contains the word "carry" it is BANNED.
 
 FORMAT OPTIONS (choose based on recovery state):
 - AMRAP (high readiness): long grinders, 20-30 min, high volume

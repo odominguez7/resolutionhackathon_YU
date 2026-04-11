@@ -332,7 +332,7 @@ export default function Today() {
 
         {/* STRETCH / WALK / REST — generate a real session via Gemini */}
         {action.action !== "workout" && !workout && !generating && !overriding && (
-          <button onClick={() => generateWorkout(action.action === "walk" ? "rest" : "rest")}
+          <button onClick={() => generateWorkout("rest")}
             className="w-full py-3.5 rounded-xl text-sm font-black cursor-pointer border-0"
             style={{ background: color, color: "#fff" }}>
             Generate my {ACTION_LABELS[action.action] || "session"}

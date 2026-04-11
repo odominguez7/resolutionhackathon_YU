@@ -16,7 +16,7 @@ const Landing = lazy(() => import("@/pages/Landing"));
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const Today = lazy(() => import("@/pages/Today"));
 const Agent = lazy(() => import("@/pages/Agent"));
-const AskYU = lazy(() => import("@/pages/AskYU"));
+// AskYU removed — chat functionality absorbed into /today
 const OuraProfile = lazy(() => import("@/pages/OuraProfile"));
 // Removed: Drift, Recovery, Employer — functionality absorbed into workout pipeline
 const Settings = lazy(() => import("@/pages/Settings"));

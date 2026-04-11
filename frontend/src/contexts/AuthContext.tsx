@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { auth, onAuthStateChanged, signInWithGoogle, signInWithApple, signOut, getToken, type User } from "@/lib/firebase";
 import { api } from "@/lib/api";
 
@@ -32,16 +32,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { setProfile(null); }
   };
 
+  const refreshedRef = useRef(false);
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
-        // HARD CONSTRAINT: always pull fresh wearable data on app load.
-        // This ensures every page sees the latest Oura data, not stale cache.
-        try { await fetch("/api/oura/refresh"); } catch {}
+        // HARD CONSTRAINT: pull fresh wearable data on app load.
+        // Debounced: only once per session (not on every token refresh).
+        if (!refreshedRef.current) {
+          refreshedRef.current = true;
+          try { await fetch("/api/oura/refresh"); } catch {}
+        }
         await loadProfile(u.uid);
       } else {
         setProfile(null);
+        refreshedRef.current = false;
       }
       setLoading(false);
     });

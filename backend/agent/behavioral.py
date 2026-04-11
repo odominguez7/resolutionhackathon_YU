@@ -239,10 +239,8 @@ def _dispatch_whatsapp(msg: str) -> bool:
 
 def pre_generate(state: AgentState) -> AgentState:
     """Pre-generate today's workout so it's ready when the user opens the app.
-    This is the 'wow moment' fix — zero wait time on first open.
-    Uses httpx.AsyncClient in a sync context via a new event loop in a thread."""
-    if state.get("action") == "no_op":
-        return state
+    Runs for ALL action types (including no_op) because the athlete may open
+    the app regardless of whether a nudge was sent."""
     try:
         import asyncio
         import concurrent.futures
@@ -300,9 +298,9 @@ def build_behavioral_graph():
 
     graph.add_edge(START, "perceive")
     graph.add_edge("perceive", "assess")
-    graph.add_conditional_edges("assess", should_compose, {"compose": "compose", "observe": "observe"})
-    graph.add_edge("compose", "dispatch")
     graph.add_node("pre_generate", pre_generate)
+    graph.add_conditional_edges("assess", should_compose, {"compose": "compose", "observe": "pre_generate"})
+    graph.add_edge("compose", "dispatch")
     graph.add_edge("dispatch", "pre_generate")
     graph.add_edge("pre_generate", "observe")
     graph.add_edge("observe", END)

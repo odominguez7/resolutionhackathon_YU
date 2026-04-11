@@ -19,7 +19,7 @@ being the system and becomes one collaborator inside it.
 
 from __future__ import annotations
 
-import random
+# random removed — skeleton is deterministic (date-seeded)
 
 # Block structure templates keyed by intensity tier
 BLOCK_TEMPLATES = {
@@ -105,12 +105,30 @@ def build_skeleton(ctx: dict) -> dict:
     equipment = ctx.get("equipment") or {}
     db_weights = equipment.get("dumbbells", [])
     max_db = max(db_weights) if isinstance(db_weights, list) and db_weights else 50
+    body_weight = ctx.get("body_weight_lbs")
+    estimated_1rm = ctx.get("estimated_1rm") or {}
 
     load_hints = {}
+    # First: seed from 1RM estimates (onboarding input) for movements with no progression history
+    onboarding_map = {
+        "db_front_squat": ["db front squat", "double db front squat", "goblet squat"],
+        "db_press": ["strict press", "db strict press", "push press", "db push press"],
+        "db_row": ["db bent-over row", "single-arm db row", "renegade row"],
+    }
+    for rm_key, movement_names in onboarding_map.items():
+        rm_val = estimated_1rm.get(rm_key)
+        if rm_val and isinstance(rm_val, (int, float)):
+            # Working weight = ~70% of 5RM estimate, capped to available DBs
+            working = min(int(rm_val * 0.7), max_db)
+            for name in movement_names:
+                if name not in {n.lower() for n in progression.keys()}:
+                    load_hints[name] = f"{working}lb"
+
+    # Then: override with progression ledger data (more accurate, from actual sessions)
     for name, rec in progression.items():
         nxt = rec.get("next_lbs")
         if nxt:
-            capped = min(int(nxt), max_db)  # never exceed heaviest available DB
+            capped = min(int(nxt), max_db)
             load_hints[name.lower()] = f"{capped}lb"
 
     skeleton = {

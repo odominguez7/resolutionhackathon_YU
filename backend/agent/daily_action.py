@@ -39,7 +39,9 @@ def pick_daily_action(ctx: dict) -> dict:
     bio = ctx.get("biometrics") or {}
     adherence = ctx.get("adherence_profile") or {}
     intensity = ctx.get("intensity_tier", "work")
-    readiness = bio.get("readiness", 0)
+    # Prefer ML readiness prediction over raw Oura score when available
+    ml_readiness = ctx.get("readiness_ml") or {}
+    readiness = ml_readiness.get("score") if ml_readiness.get("source") == "xgboost" else bio.get("readiness", 0)
     hrv = bio.get("hrv")
     hrv_bl = bio.get("hrv_baseline")
     overtraining = ctx.get("overtraining_risk", "none")

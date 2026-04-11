@@ -84,6 +84,9 @@ def create_profile(user_id: str, data: dict) -> dict:
         "goals": data.get("goals", ["hybrid"]),
         "equipment": data.get("equipment", DEFAULT_PROFILE["equipment"]),
         "tone_preference": data.get("tone_preference", "coach"),
+        "preferred_channel": data.get("preferred_channel", "telegram"),
+        "body_weight_lbs": data.get("body_weight_lbs"),
+        "estimated_1rm": data.get("estimated_1rm", {}),
         "created_at": datetime.now(BOSTON_TZ).isoformat(),
     }
     try:
