@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YU RestOS — Landing Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #0a0b0d; color: #fff; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  a { text-decoration: none; color: inherit; }
+
+  /* ── Keyframes ── */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes glowBreathe { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+  @keyframes drawRing { from { stroke-dashoffset: 754; } to { stroke-dashoffset: 136; } }
+  @keyframes drawRing2 { from { stroke-dashoffset: 654; } to { stroke-dashoffset: 196; } }
+  @keyframes numberPop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes scrollBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+  @keyframes floatTag { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(194,255,74,0.4); } 50% { box-shadow: 0 0 8px 2px rgba(194,255,74,0.15); } }
+  @keyframes nodeReveal { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+
+  .text-glow-pulse {
+    background: linear-gradient(135deg, #FF5C35, #FF8F6B);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── NAV ── */
+  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(10,11,13,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .nav-brand { display: flex; align-items: center; gap: 8px; position: relative; }
+  .nav-brand .glow { position: absolute; width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle, rgba(255,92,53,0.2), transparent 70%); left: 50%; top: 50%; transform: translate(-50%,-50%); animation: glowBreathe 3s ease-in-out infinite; pointer-events: none; }
+  .nav-brand span { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.03em; position: relative; z-index: 1; }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: #C2FF4A; animation: pulseGlow 2s ease-in-out infinite; }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-links a { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 14px; color: rgba(255,255,255,0.4); transition: color 0.2s; display: flex; align-items: center; gap: 6px; border-bottom: 2px solid transparent; }
+  .nav-links a:hover { color: rgba(255,255,255,0.7); }
+  .nav-links a.active { color: #fff; border-bottom-color: #FF5C35; }
+
+  /* ── HERO ── */
+  .hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 24px 40px; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; z-index: 0; }
+  .hero-bg img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.15) saturate(1.3); }
+  .hero-bg .overlay-grad { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,11,13,0.3) 0%, rgba(10,11,13,0.95) 85%, #0a0b0d 100%); }
+  .hero-bg .overlay-glow { position: absolute; inset: 0; background: radial-gradient(ellipse 800px 600px at 50% 35%, rgba(255,92,53,0.08) 0%, transparent 70%); }
+  .hero-content { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+
+  .hero-layout { display: flex; align-items: center; gap: 80px; }
+  @media (max-width: 900px) { .hero-layout { flex-direction: column; gap: 48px; text-align: center; } .hero-left { align-items: center; } }
+  .hero-left { flex: 1; display: flex; flex-direction: column; animation: fadeUp 0.9s ease-out; }
+
+  .badge { display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); margin-bottom: 32px; animation: fadeUp 0.6s ease-out; }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #C2FF4A; box-shadow: 0 0 8px rgba(194,255,74,0.5); }
+  .badge-text { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+
+  .hero h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(40px, 6vw, 72px); font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 24px; animation: fadeUp 0.9s ease-out 0.15s both; }
+  .hero p.sub { font-size: 18px; color: rgba(255,255,255,0.4); line-height: 1.6; max-width: 520px; margin-bottom: 40px; animation: fadeUp 0.8s ease-out 0.5s both; }
+
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; animation: fadeUp 0.5s ease-out 0.7s both; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: 16px; font-weight: 900; font-size: 14px; letter-spacing: 0.02em; border: 0; cursor: pointer; background: linear-gradient(135deg, #FF5C35, #FF7A54); color: #fff; box-shadow: 0 0 40px rgba(255,92,53,0.25), 0 4px 20px rgba(255,92,53,0.2); transition: transform 0.2s, box-shadow 0.2s; }
+  .btn-primary:hover { transform: scale(1.03); box-shadow: 0 0 60px rgba(255,92,53,0.35), 0 4px 30px rgba(255,92,53,0.25); }
+  .btn-primary svg { transition: transform 0.2s; }
+  .btn-primary:hover svg { transform: translateX(3px); }
+  .btn-secondary { padding: 16px 24px; border-radius: 16px; font-weight: 700; font-size: 14px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); cursor: pointer; transition: transform 0.2s, background 0.2s; }
+  .btn-secondary:hover { transform: scale(1.02); background: rgba(255,255,255,0.06); }
+
+  /* ── RING ── */
+  .ring-container { position: relative; width: 280px; height: 280px; flex-shrink: 0; animation: fadeIn 1s ease-out 0.4s both; }
+  .ring-glow { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(255,92,53,0.15) 0%, transparent 70%); animation: glowBreathe 4s ease-in-out infinite; }
+  .ring-svg { position: relative; z-index: 2; }
+  .ring-svg .track { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 6; }
+  .ring-svg .main { fill: none; stroke: url(#rg1); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 754; stroke-dashoffset: 136; animation: drawRing 2s ease-out 0.5s both; }
+  .ring-svg .inner-track { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 4; }
+  .ring-svg .inner { fill: none; stroke: url(#rg2); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 654; stroke-dashoffset: 196; animation: drawRing2 2.2s ease-out 0.8s both; }
+  .ring-score { font-family: 'Space Grotesk', sans-serif; font-size: 56px; font-weight: 900; fill: white; animation: numberPop 0.8s ease-out 1.2s both; }
+  .ring-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; fill: rgba(255,255,255,0.35); text-transform: uppercase; }
+
+  .float-tag { position: absolute; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); animation: floatTag 3s ease-in-out infinite; }
+  .float-tag .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .float-tag .lbl { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5); }
+  .float-tag .val { font-size: 11px; font-weight: 900; color: #fff; }
+  .ft-1 { left: -60px; top: 40px; animation-delay: 0s; opacity: 0; animation: fadeUp 0.6s ease-out 1.5s both, floatTag 3s ease-in-out 1.5s infinite; }
+  .ft-2 { right: -80px; top: 60px; animation-delay: 0.3s; opacity: 0; animation: fadeUp 0.6s ease-out 1.7s both, floatTag 3s ease-in-out 1.7s infinite; }
+  .ft-3 { right: -70px; bottom: 50px; animation-delay: 0.5s; opacity: 0; animation: fadeUp 0.6s ease-out 1.9s both, floatTag 3s ease-in-out 1.9s infinite; }
+
+  /* ── Stats ── */
+  .stats-bar { margin-top: 80px; width: 100%; max-width: 640px; display: flex; align-items: center; justify-content: center; gap: 80px; padding: 24px 32px; border-radius: 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(8px); animation: fadeUp 0.6s ease-out 1.2s both; }
+  @media (max-width: 600px) { .stats-bar { gap: 32px; padding: 20px 16px; } }
+  .stat { text-align: center; }
+  .stat .num { font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 900; letter-spacing: -0.02em; }
+  .stat .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 8px; }
+
+  /* ── Scroll indicator ── */
+  .scroll-ind { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); opacity: 0; animation: fadeIn 1s ease-out 2s both; }
+  .scroll-pill { width: 24px; height: 40px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.1); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; animation: scrollBounce 2s ease-in-out infinite; }
+  .scroll-dot { width: 4px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.3); }
+
+  /* ── Partner strip ── */
+  .partners { padding: 48px 24px; text-align: center; }
+  .partners .label { font-size: 10px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.15); margin-bottom: 24px; }
+  .partners .logos { display: flex; align-items: center; justify-content: center; gap: 48px; flex-wrap: wrap; }
+  .partners .logos span { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.15); }
+  .partners .logos img { height: 24px; object-fit: contain; filter: brightness(0.5) grayscale(0.5); opacity: 0.5; }
+
+  /* ── Section headers ── */
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 16px; }
+  .section-title { font-family: 'Space Grotesk', sans-serif; font-weight: 900; letter-spacing: -0.02em; line-height: 1.05; }
+
+  /* ── How it works ── */
+  .how-section { padding: 96px 24px; }
+  .how-inner { max-width: 1100px; margin: 0 auto; }
+  .how-header { text-align: center; margin-bottom: 80px; }
+  .step-row { display: flex; align-items: center; gap: 48px; margin-bottom: 120px; }
+  .step-row.reverse { flex-direction: row-reverse; }
+  @media (max-width: 768px) { .step-row, .step-row.reverse { flex-direction: column; } }
+  .step-content { flex: 1; }
+  .step-badge { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; }
+  .step-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+  .step-content h3 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(24px, 3vw, 32px); font-weight: 900; margin-bottom: 16px; }
+  .step-content p { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.4); }
+  .step-image { flex: 1; position: relative; }
+  .step-image img { width: 100%; height: 256px; object-fit: cover; border-radius: 16px; filter: brightness(0.35) saturate(1.2); }
+  .step-image .color-overlay { position: absolute; inset: 0; border-radius: 16px; }
+
+  /* ── Features ── */
+  .features-section { padding: 96px 24px; }
+  .features-inner { max-width: 1100px; margin: 0 auto; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .feature-card { position: relative; overflow: hidden; border-radius: 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s; }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .feature-card .img-area { position: relative; height: 192px; overflow: hidden; }
+  .feature-card .img-area img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.4) saturate(1.2); transition: transform 0.7s; }
+  .feature-card:hover .img-area img { transform: scale(1.05); }
+  .feature-card .img-area .grad { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 0%, #0a0b0d 100%); }
+  .feature-card .icon-badge { position: absolute; top: 16px; left: 16px; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
+  .feature-card .card-body { padding: 24px; padding-top: 0; margin-top: -24px; position: relative; z-index: 2; }
+  .feature-card h3 { font-size: 15px; font-weight: 900; margin-bottom: 8px; }
+  .feature-card p { font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.35); }
+
+  /* ── Loop ── */
+  .loop-section { padding: 96px 24px; position: relative; }
+  .loop-glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 800px 500px at 50% 50%, rgba(255,92,53,0.04) 0%, transparent 70%); }
+  .loop-inner { max-width: 800px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+  .loop-diagram { position: relative; width: 340px; height: 340px; margin: 0 auto; }
+  .loop-diagram .orbit { position: absolute; inset: 0; }
+  .loop-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1; }
+  .loop-center .inner-glow { width: 96px; height: 96px; border-radius: 50%; background: radial-gradient(circle, rgba(255,92,53,0.2) 0%, transparent 70%); animation: glowBreathe 3s ease-in-out infinite; display: flex; align-items: center; justify-content: center; }
+  .loop-center p { font-size: 10px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,92,53,0.6); line-height: 1.5; }
+  .loop-node { position: absolute; display: flex; flex-direction: column; align-items: center; z-index: 10; }
+  .loop-node .circle { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .loop-node .node-label { font-size: 8px; font-weight: 700; text-align: center; margin-top: 6px; white-space: pre-line; line-height: 1.3; color: rgba(255,255,255,0.4); }
+
+  /* ── Quote ── */
+  .quote-section { padding: 80px 24px; }
+  .quote-card { max-width: 720px; margin: 0 auto; border-radius: 24px; padding: 56px; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+  .quote-card .qglow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 0%, rgba(255,92,53,0.04) 0%, transparent 60%); }
+  .quote-card blockquote { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 900; line-height: 1.5; margin-bottom: 24px; position: relative; z-index: 2; }
+  .quote-author { display: flex; align-items: center; justify-content: center; gap: 12px; position: relative; z-index: 2; }
+  .quote-author img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,92,53,0.3); }
+  .quote-author .name { font-size: 14px; font-weight: 700; }
+  .quote-author .role { font-size: 10px; color: rgba(255,255,255,0.3); }
+
+  /* ── CTA ── */
+  .cta-section { padding: 96px 24px; text-align: center; position: relative; }
+  .cta-glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 600px 400px at 50% 80%, rgba(255,92,53,0.06) 0%, transparent 70%); }
+
+  /* ── Footer ── */
+  .footer { padding: 48px 24px; border-top: 1px solid rgba(255,255,255,0.04); }
+  .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .footer-brand { display: flex; align-items: center; gap: 8px; }
+  .footer-brand span:first-child { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 900; letter-spacing: -0.03em; }
+  .footer-brand span:last-child { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links span { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.12); }
+  .footer .copy { font-size: 10px; color: rgba(255,255,255,0.1); }
+
+  /* ── SVG icons inline ── */
+  .icon { width: 20px; height: 20px; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="glow"></div>
+      <span>YU</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="active">Today</a>
+      <a href="#">Agent</a>
+      <a href="#">History</a>
+      <a href="#">Settings</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=1600&q=80&auto=format" alt="">
+    <div class="overlay-grad"></div>
+    <div class="overlay-glow"></div>
+  </div>
+
+  <div class="hero-content">
+    <div style="text-align:center;">
+      <div class="badge" style="display:inline-flex;">
+        <div class="badge-dot"></div>
+        <span class="badge-text">AI Training OS</span>
+      </div>
+    </div>
+
+    <div class="hero-layout">
+      <div class="hero-left">
+        <h1>Your body<br>already knows.<br><span class="text-glow-pulse">YU listens.</span></h1>
+        <p class="sub">YU reads your wearable, programs today's workout, tracks every set, and adjusts tomorrow based on how your body responded.</p>
+        <div class="cta-row">
+          <button class="btn-primary">
+            Start training
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <a href="#how"><button class="btn-secondary">See how it works</button></a>
+        </div>
+      </div>
+
+      <!-- Ring -->
+      <div class="ring-container">
+        <div class="ring-glow"></div>
+        <svg class="ring-svg" width="280" height="280" viewBox="0 0 280 280">
+          <defs>
+            <linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF5C35"/><stop offset="100%" stop-color="#FF8F6B"/></linearGradient>
+            <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6EE7FF"/><stop offset="100%" stop-color="#A78BFA"/></linearGradient>
+          </defs>
+          <circle cx="140" cy="140" r="120" class="track"/>
+          <circle cx="140" cy="140" r="120" class="main" transform="rotate(-90 140 140)"/>
+          <circle cx="140" cy="140" r="104" class="inner-track"/>
+          <circle cx="140" cy="140" r="104" class="inner" transform="rotate(-90 140 140)"/>
+          <text x="140" y="128" text-anchor="middle" class="ring-score">82</text>
+          <text x="140" y="154" text-anchor="middle" class="ring-label">READINESS</text>
+        </svg>
+        <div class="float-tag ft-1"><div class="dot" style="background:#6EE7FF"></div><span class="lbl">HRV</span><span class="val">48ms</span></div>
+        <div class="float-tag ft-2"><div class="dot" style="background:#A78BFA"></div><span class="lbl">Sleep</span><span class="val">7h 42m</span></div>
+        <div class="float-tag ft-3"><div class="dot" style="background:#C2FF4A"></div><span class="lbl">Strain</span><span class="val">Low</span></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat"><div class="num">183+</div><div class="lbl">days trained</div></div>
+      <div class="stat"><div class="num">8</div><div class="lbl">auto-progressed</div></div>
+      <div class="stat"><div class="num">3</div><div class="lbl">ML models</div></div>
+    </div>
+  </div>
+
+  <div class="scroll-ind"><div class="scroll-pill"><div class="scroll-dot"></div></div></div>
+</section>
+
+<!-- ═══ PARTNERS ═══ -->
+<div class="partners">
+  <div class="label">Powered by</div>
+  <div class="logos">
+    <span>Oura Ring</span>
+    <span>Eight Sleep</span>
+    <span>Apple Watch</span>
+    <span>Google Gemini</span>
+    <span>XGBoost</span>
+  </div>
+</div>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <div class="how-header">
+      <div class="section-label" style="color:#FF5C35;">How it works</div>
+      <h2 class="section-title" style="font-size:clamp(28px,4vw,48px);">Three steps. Zero guesswork.</h2>
+    </div>
+
+    <div class="step-row">
+      <div class="step-content">
+        <div class="step-badge">
+          <div class="step-num" style="background:rgba(110,231,255,0.1);color:#6EE7FF;border:1px solid rgba(110,231,255,0.2);">1</div>
+          <div class="step-tag" style="color:#6EE7FF;">Connect</div>
+        </div>
+        <h3>Your ring talks to YU.</h3>
+        <p>One tap connects your Oura Ring or Apple Watch. YU instantly reads 170+ days of sleep, HRV, readiness, and stress data. No CSV exports. No manual entry.</p>
+      </div>
+      <div class="step-image">
+        <img src="https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=800&q=80&auto=format" alt="Wearable">
+        <div class="color-overlay" style="background:linear-gradient(135deg, rgba(110,231,255,0.05) 0%, transparent 50%); border:1px solid rgba(110,231,255,0.1); border-radius:16px;"></div>
+      </div>
+    </div>
+
+    <div class="step-row reverse">
+      <div class="step-content">
+        <div class="step-badge">
+          <div class="step-num" style="background:rgba(255,92,53,0.1);color:#FF5C35;border:1px solid rgba(255,92,53,0.2);">2</div>
+          <div class="step-tag" style="color:#FF5C35;">Train</div>
+        </div>
+        <h3>AI writes your session.</h3>
+        <p>Based on your readiness, recovery state, and training history — YU generates the exact workout for today. Structure, loads, movements, rest times. Then validates everything.</p>
+      </div>
+      <div class="step-image">
+        <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&q=80&auto=format" alt="Training">
+        <div class="color-overlay" style="background:linear-gradient(135deg, rgba(255,92,53,0.05) 0%, transparent 50%); border:1px solid rgba(255,92,53,0.1); border-radius:16px;"></div>
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-content">
+        <div class="step-badge">
+          <div class="step-num" style="background:rgba(194,255,74,0.1);color:#C2FF4A;border:1px solid rgba(194,255,74,0.2);">3</div>
+          <div class="step-tag" style="color:#C2FF4A;">Adapt</div>
+        </div>
+        <h3>Tomorrow adjusts automatically.</h3>
+        <p>Your next-morning HRV tells YU whether yesterday's session was too much, just right, or not enough. After 30 sessions, it knows your body better than any coach.</p>
+      </div>
+      <div class="step-image">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80&auto=format" alt="Recovery">
+        <div class="color-overlay" style="background:linear-gradient(135deg, rgba(194,255,74,0.05) 0%, transparent 50%); border:1px solid rgba(194,255,74,0.1); border-radius:16px;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features-section">
+  <div class="features-inner">
+    <div style="text-align:center;margin-bottom:64px;">
+      <div class="section-label" style="color:rgba(255,255,255,0.3);">The System</div>
+      <h2 class="section-title" style="font-size:clamp(24px,3.5vw,40px);">Not an app. <span class="text-glow-pulse">A training OS.</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" style="--accent:#6EE7FF;">
+        <div class="img-area">
+          <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80&auto=format" alt="Reads body">
+          <div class="grad"></div>
+          <div class="icon-badge" style="background:rgba(110,231,255,0.15);border:1px solid rgba(110,231,255,0.25);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6EE7FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+        </div>
+        <div class="card-body"><h3>Reads your body</h3><p>HRV, readiness, sleep, heart rate, respiratory rate, stress — all from your Oura Ring or Apple Watch.</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="img-area">
+          <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80&auto=format" alt="Programs workout">
+          <div class="grad"></div>
+          <div class="icon-badge" style="background:rgba(255,92,53,0.15);border:1px solid rgba(255,92,53,0.25);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5C35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>
+          </div>
+        </div>
+        <div class="card-body"><h3>Programs your workout</h3><p>AI picks structure, loads, and movements. A validator checks every exercise against your equipment.</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="img-area">
+          <img src="https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=800&q=80&auto=format" alt="Progressive">
+          <div class="grad"></div>
+          <div class="icon-badge" style="background:rgba(194,255,74,0.15);border:1px solid rgba(194,255,74,0.25);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C2FF4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          </div>
+        </div>
+        <div class="card-body"><h3>Gets harder as you do</h3><p>Hit the prescribed weight twice cleanly — it bumps. Grind at RPE 10 — it holds. Your progression.</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="img-area">
+          <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&q=80&auto=format" alt="Overtraining">
+          <div class="grad"></div>
+          <div class="icon-badge" style="background:rgba(255,195,107,0.15);border:1px solid rgba(255,195,107,0.25);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC36B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+          </div>
+        </div>
+        <div class="card-body"><h3>Catches overtraining</h3><p>Four biometric signals vs your baselines. If your body needs rest, the system forces it.</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="img-area">
+          <img src="https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=800&q=80&auto=format" alt="Patterns">
+          <div class="grad"></div>
+          <div class="icon-badge" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.25);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M12 18a7 7 0 0 0 0-13"/></svg>
+          </div>
+        </div>
+        <div class="card-body"><h3>Learns your patterns</h3><p>Tracks your streak, skip patterns, and preferred training time. Nudges when you're most likely to show up.</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="img-area">
+          <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80&auto=format" alt="Loop">
+          <div class="grad"></div>
+          <div class="icon-badge" style="background:rgba(255,93,108,0.15);border:1px solid rgba(255,93,108,0.25);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5D6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+        </div>
+        <div class="card-body"><h3>Closes the loop daily</h3><p>Tomorrow's HRV judges yesterday's workout. That verdict shapes the next session. Every day sharper.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ QUOTE ═══ -->
+<section class="quote-section">
+  <div class="quote-card">
+    <div class="qglow"></div>
+    <blockquote>"I stopped guessing what to do in the gym. YU reads my Oura data, builds the workout, and adjusts when I'm crushed. 183 days in and my HRV baseline has gone up 12%."</blockquote>
+    <div class="quote-author">
+      <img src="/me.png" alt="Omar" onerror="this.style.display='none'">
+      <div style="text-align:left;">
+        <div class="name">Omar</div>
+        <div class="role">Founder &middot; 183-day streak</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BOTTOM CTA ═══ -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div style="position:relative;z-index:2;max-width:640px;margin:0 auto;">
+    <h2 class="section-title" style="font-size:clamp(28px,4vw,48px);margin-bottom:20px;">Ready to stop guessing?</h2>
+    <p style="font-size:16px;color:rgba(255,255,255,0.35);margin-bottom:40px;">Connect your wearable. Get your first AI workout in under 3 minutes.</p>
+    <button class="btn-primary" style="margin:0 auto;font-size:16px;padding:20px 48px;">
+      Start training free
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><span>YU</span><span>RestOS</span></div>
+    <div class="footer-links">
+      <span>MIT Sloan</span>
+      <span>Harvard Resolution Hackathon</span>
+    </div>
+    <div class="copy">&copy; 2026 YU</div>
+  </div>
+</footer>
+
+</body>
+</html>

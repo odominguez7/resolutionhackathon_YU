@@ -26,7 +26,10 @@ export default function History() {
 
   return (
     <div className="min-h-screen px-4 py-6 max-w-2xl mx-auto" style={{ background: "#0a0b0d" }}>
-      <h1 className="text-2xl font-black text-white mb-6">Training History</h1>
+      <div className="mb-6">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: "rgba(255,92,53,0.5)" }}>Training</p>
+        <h1 className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>History</h1>
+      </div>
 
       {/* Weekly Summary Card */}
       {summary && (
@@ -34,22 +37,17 @@ export default function History() {
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-xs font-black uppercase tracking-wider mb-3" style={{ color: "#FF5C35" }}>This Week</p>
           <div className="grid grid-cols-4 gap-3 mb-3">
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">{summary.completed}</p>
-              <p className="text-[9px] text-slate-500 uppercase">completed</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">{summary.total_sessions}</p>
-              <p className="text-[9px] text-slate-500 uppercase">generated</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">{summary.completion_rate}%</p>
-              <p className="text-[9px] text-slate-500 uppercase">completion</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">{summary.streak}</p>
-              <p className="text-[9px] text-slate-500 uppercase">streak</p>
-            </div>
+            {[
+              { value: summary.completed, label: "completed", color: "#C2FF4A" },
+              { value: summary.total_sessions, label: "generated", color: "#FF5C35" },
+              { value: `${summary.completion_rate}%`, label: "completion", color: "#6EE7FF" },
+              { value: summary.streak, label: "streak", color: "#A78BFA" },
+            ].map(s => (
+              <div key={s.label} className="text-center rounded-xl py-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+                <p className="text-2xl font-black" style={{ color: s.color, fontFamily: "'Space Grotesk', sans-serif" }}>{s.value}</p>
+                <p className="text-[8px] uppercase tracking-[0.12em] font-bold" style={{ color: "rgba(255,255,255,0.25)" }}>{s.label}</p>
+              </div>
+            ))}
           </div>
           <div className="flex gap-2 flex-wrap">
             <span className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: "rgba(110,231,255,.1)", color: "#6EE7FF" }}>
@@ -81,11 +79,15 @@ export default function History() {
                     <p className="text-sm text-white font-bold">{p.movement_name}</p>
                     <p className="text-[10px] text-slate-500">{p.consecutive_clean} clean hit{p.consecutive_clean !== 1 ? "s" : ""} at {p.current_load_lbs}lb</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-black" style={{ color: bumped ? "#C2FF4A" : "#94A3B8" }}>
-                      {p.next_prescribed_lbs}lb {bumped && <span className="text-[9px]">+{p.next_prescribed_lbs - p.current_load_lbs}</span>}
+                  <div className="text-right flex items-center gap-2">
+                    <p className="text-sm font-black" style={{ color: bumped ? "#C2FF4A" : "#94A3B8", fontFamily: "'Space Grotesk', sans-serif" }}>
+                      {p.next_prescribed_lbs}lb
                     </p>
-                    {bumped && <p className="text-[9px]" style={{ color: "#C2FF4A" }}>BUMP</p>}
+                    {bumped && (
+                      <span className="text-[10px] font-black px-2.5 py-1 rounded-full" style={{ background: "rgba(194,255,74,0.15)", color: "#C2FF4A", letterSpacing: "0.08em" }}>
+                        ▲ +{p.next_prescribed_lbs - p.current_load_lbs}lb
+                      </span>
+                    )}
                   </div>
                 </div>
               );

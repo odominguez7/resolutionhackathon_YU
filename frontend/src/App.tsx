@@ -16,9 +16,7 @@ const Landing = lazy(() => import("@/pages/Landing"));
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const Today = lazy(() => import("@/pages/Today"));
 const Agent = lazy(() => import("@/pages/Agent"));
-// AskYU removed — chat functionality absorbed into /today
 const OuraProfile = lazy(() => import("@/pages/OuraProfile"));
-// Removed: Drift, Recovery, Employer — functionality absorbed into workout pipeline
 const Settings = lazy(() => import("@/pages/Settings"));
 const History = lazy(() => import("@/pages/History"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -48,8 +46,12 @@ function AnimatedRoutes() {
         <Route path="/" element={<Landing />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/today" element={<ProtectedRoute><PageTransition><Today /></PageTransition></ProtectedRoute>} />
-        <Route path="/agent" element={<ProtectedRoute><PageTransition><Agent /></PageTransition></ProtectedRoute>} />
-        <Route path="/oura" element={<ProtectedRoute><PageTransition><OuraProfile /></PageTransition></ProtectedRoute>} />
+        {/* Insights (was Agent) — primary route + legacy redirect */}
+        <Route path="/insights" element={<ProtectedRoute><PageTransition><Agent /></PageTransition></ProtectedRoute>} />
+        <Route path="/agent" element={<Navigate to="/insights" replace />} />
+        {/* Data (was OuraProfile) — promoted to main nav + legacy redirect */}
+        <Route path="/data" element={<ProtectedRoute><PageTransition><OuraProfile /></PageTransition></ProtectedRoute>} />
+        <Route path="/oura" element={<Navigate to="/data" replace />} />
         <Route path="/history" element={<ProtectedRoute><PageTransition><History /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
@@ -66,7 +68,7 @@ function AppContent() {
     <>
       <SmoothScroll />
       {!isLanding && <NavBar />}
-      <main className={isLanding ? "" : "pt-14"}>
+      <main className={isLanding ? "" : "pt-14 pb-20 md:pb-0"}>
         <AnimatedRoutes />
       </main>
     </>

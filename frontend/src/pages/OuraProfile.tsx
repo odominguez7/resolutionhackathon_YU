@@ -153,7 +153,7 @@ const SectionHeader = ({ icon: Icon, title, description }: { icon: any; title: s
 const Tip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0a0e27]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
+    <div className="rounded-xl border border-white/10 bg-[#0a0b0d]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
       <p className="text-[10px] text-slate-500 mb-1 font-semibold tracking-wider uppercase">{label}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} className="text-sm font-bold" style={{ color: p.color || p.fill }}>
@@ -303,7 +303,7 @@ const OuraProfile = () => {
 
   /* ── loading / error ── */
   if (loading) return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0a0e27,#111638)" }}>
+    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0a0b0d,#111215)" }}>
       <div className="max-w-6xl mx-auto px-5 py-16 space-y-5">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="h-36 rounded-2xl animate-pulse" style={{ background: "rgba(30,41,59,.4)" }} />
@@ -313,7 +313,7 @@ const OuraProfile = () => {
   );
 
   if (error) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0e27" }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0a0b0d" }}>
       <div className="text-center space-y-4">
         <p className="text-xl font-bold text-red-400">Failed to load Oura data</p>
         <p className="text-slate-500 text-sm">{error}</p>
@@ -325,7 +325,7 @@ const OuraProfile = () => {
   const dateRange = allChart.length > 1 ? `${fmtDate(allChart[0].day)} — ${fmtDate(allChart[allChart.length - 1].day)}` : "";
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0a0e27 0%,#111638 100%)" }}>
+    <div className="min-h-screen" style={{ background: "linear-gradient(180deg,#0a0b0d 0%,#111215 100%)" }}>
 
       {/* Live data indicator */}
       <div className="flex items-center justify-center pt-4 pb-1 gap-3 flex-wrap">
@@ -618,7 +618,7 @@ const OuraProfile = () => {
                   label={{ value: `Avg ${Math.round(stats.avgSleepScore)}`, fill: "#3B82F666", fontSize: 10, position: "insideTopRight" }} />
               )}
               <Area yAxisId="score" type="monotone" dataKey="sleepScore" stroke="#3B82F6" strokeWidth={2} fill="url(#sleepGrad)"
-                dot={false} activeDot={{ r: 4, fill: "#3B82F6", stroke: "#0a0e27", strokeWidth: 2 }} name="Sleep Score" />
+                dot={false} activeDot={{ r: 4, fill: "#3B82F6", stroke: "#0a0b0d", strokeWidth: 2 }} name="Sleep Score" />
               <Area yAxisId="hrv" type="monotone" dataKey="hrv" stroke="#8B5CF6" strokeWidth={1.5} strokeDasharray="4 3"
                 fill="none" dot={false} activeDot={{ r: 3, fill: "#8B5CF6" }} name="HRV (ms)" />
             </AreaChart>
@@ -734,9 +734,9 @@ const OuraProfile = () => {
               <YAxis tick={{ fill: "#475569", fontSize: 10 }} tickLine={false} axisLine={false} domain={[30, 100]} />
               <Tooltip content={<Tip />} />
               <Area type="monotone" dataKey="readinessScore" stroke="#4ADE80" strokeWidth={2} fill="url(#rdyG)"
-                dot={false} activeDot={{ r: 4, fill: "#4ADE80", stroke: "#0a0e27", strokeWidth: 2 }} name="Readiness" />
+                dot={false} activeDot={{ r: 4, fill: "#4ADE80", stroke: "#0a0b0d", strokeWidth: 2 }} name="Readiness" />
               <Area type="monotone" dataKey="activityScore" stroke="#3B82F6" strokeWidth={2} fill="url(#actG)"
-                dot={false} activeDot={{ r: 4, fill: "#3B82F6", stroke: "#0a0e27", strokeWidth: 2 }} name="Activity" />
+                dot={false} activeDot={{ r: 4, fill: "#3B82F6", stroke: "#0a0b0d", strokeWidth: 2 }} name="Activity" />
             </AreaChart>
           </ResponsiveContainer>
           <div className="flex items-center justify-center gap-5 mt-2 text-[10px] font-semibold text-slate-500">
@@ -819,7 +819,7 @@ const OuraProfile = () => {
                 <ReferenceLine y={stats?.age ?? 36} stroke="#64748b" strokeDasharray="6 4" strokeOpacity={0.4}
                   label={{ value: `Actual Age: ${stats?.age ?? 36}`, fill: "#64748b88", fontSize: 10, position: "insideTopRight" }} />
                 <Area type="monotone" dataKey="vascularAge" stroke="#F472B6" strokeWidth={2} fill="url(#caG)"
-                  dot={false} activeDot={{ r: 4, fill: "#F472B6", stroke: "#0a0e27", strokeWidth: 2 }} name="Vascular Age" />
+                  dot={false} activeDot={{ r: 4, fill: "#F472B6", stroke: "#0a0b0d", strokeWidth: 2 }} name="Vascular Age" />
               </AreaChart>
             </ResponsiveContainer>
           </Glass>
@@ -850,14 +850,14 @@ const OuraProfile = () => {
                 <Tooltip content={({ active, payload, label }: any) => {
                   if (!active || !payload?.length) return null;
                   return (
-                    <div className="rounded-xl border border-white/10 bg-[#0a0e27]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
+                    <div className="rounded-xl border border-white/10 bg-[#0a0b0d]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
                       <p className="text-[10px] text-slate-500 font-semibold uppercase">{label}</p>
                       <p className="text-sm font-bold text-indigo-400">{payload[0]?.payload?.time}</p>
                     </div>
                   );
                 }} />
                 <Area type="monotone" dataKey="mins" stroke="#818CF8" strokeWidth={2} fill="url(#btG)"
-                  dot={false} activeDot={{ r: 4, fill: "#818CF8", stroke: "#0a0e27", strokeWidth: 2 }} name="Bedtime" />
+                  dot={false} activeDot={{ r: 4, fill: "#818CF8", stroke: "#0a0b0d", strokeWidth: 2 }} name="Bedtime" />
               </AreaChart>
             </ResponsiveContainer>
           </Glass>

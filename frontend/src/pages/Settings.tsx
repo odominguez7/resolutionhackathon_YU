@@ -80,17 +80,26 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen px-6 py-8 max-w-md mx-auto" style={{ background: "#0a0b0d" }}>
-      <h1 className="text-2xl font-black text-white mb-6">Settings</h1>
+      <div className="mb-6">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: "rgba(255,92,53,0.5)" }}>Configure</p>
+        <h1 className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>Settings</h1>
+      </div>
 
       {/* Profile */}
-      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Account</p>
-        <p className="text-sm text-white font-bold">{user?.displayName || user?.email || "Athlete"}</p>
-        <p className="text-[10px] text-slate-500 mt-0.5">{user?.email}</p>
+      <div className="rounded-2xl p-5 mb-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none" style={{ background: "radial-gradient(circle at 100% 0%, rgba(255,92,53,0.06), transparent 70%)" }} />
+        <p className="text-[9px] uppercase tracking-[0.15em] font-bold mb-3" style={{ color: "rgba(255,92,53,0.5)" }}>Account</p>
+        <p className="text-base text-white font-bold">{user?.displayName || user?.email || "Athlete"}</p>
+        <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>{user?.email}</p>
+      </div>
+
+      {/* Wearables — promoted to top */}
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(110,231,255,0.03)", border: "1px solid rgba(110,231,255,0.08)" }}>
+        <WearableConnect />
       </div>
 
       {/* Equipment */}
-      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
         <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Equipment</p>
         <div className="grid grid-cols-3 gap-2">
           {EQUIPMENT_OPTIONS.map(opt => {
@@ -111,7 +120,7 @@ export default function Settings() {
       </div>
 
       {/* Goals */}
-      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
         <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Goals</p>
         <div className="grid grid-cols-2 gap-2">
           {GOALS.map(g => {
@@ -132,7 +141,7 @@ export default function Settings() {
       </div>
 
       {/* Body Weight + Strength */}
-      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
         <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Body Weight + Strength Calibration</p>
         <div className="mb-3">
           <p className="text-[10px] text-slate-400 mb-1">Body weight (lbs)</p>
@@ -162,18 +171,13 @@ export default function Settings() {
 
       {/* Save */}
       <button onClick={save} disabled={saving}
-        className="w-full py-3 rounded-xl text-sm font-bold cursor-pointer border-0 mb-4 flex items-center justify-center gap-2"
-        style={{ background: saved ? "rgba(194,255,74,0.15)" : "#FF5C35", color: saved ? "#C2FF4A" : "#fff" }}>
+        className="w-full py-4 rounded-2xl text-sm font-bold cursor-pointer border-0 mb-4 flex items-center justify-center gap-2 transition-all duration-200"
+        style={{ background: saved ? "rgba(194,255,74,0.15)" : "linear-gradient(135deg, #FF5C35, #FF8040)", color: saved ? "#C2FF4A" : "#fff", boxShadow: saved ? "none" : "0 8px 32px rgba(255,92,53,0.2)" }}>
         {saving ? "Saving..." : saved ? <><Check className="w-4 h-4" /> Saved</> : "Save changes"}
       </button>
 
-      {/* Wearables */}
-      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <WearableConnect />
-      </div>
-
       {/* Injury flags */}
-      <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
         <InjuryFlag />
       </div>
 

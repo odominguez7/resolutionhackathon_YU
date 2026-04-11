@@ -220,33 +220,36 @@ export default function Today() {
   // ── PHASE 1: MORNING CHECK-IN (before biometrics) ──
   if (phase === "checkin" && !feedback) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "#0a0b0d" }}>
-        <motion.div className="w-full max-w-sm text-center space-y-8"
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 relative" style={{ background: "#0a0b0d" }}>
+        {/* Subtle ambient glow */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,92,53,0.06) 0%, transparent 70%)" }} />
+        <motion.div className="w-full max-w-md text-center space-y-10 relative z-10"
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ease }}>
           <div>
-            <p className="text-2xl font-black text-white mb-2">How are you showing up today?</p>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>Before we show you the data. Your felt state matters.</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4" style={{ color: "rgba(255,92,53,0.5)" }}>Morning read</p>
+            <p className="text-3xl font-black text-white mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em", lineHeight: 1.15 }}>How are you showing up today?</p>
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>Before we show you the data. Your felt state matters.</p>
           </div>
           <div className="flex justify-center gap-3">
             {[
-              { score: 1, label: "Drained", color: "#FF5D6C" },
-              { score: 2, label: "Low", color: "#FFC36B" },
-              { score: 3, label: "Okay", color: "#94A3B8" },
-              { score: 4, label: "Good", color: "#6EE7FF" },
-              { score: 5, label: "Peak", color: "#C2FF4A" },
+              { score: 1, label: "Drained", emoji: "🔻", color: "#FF5D6C" },
+              { score: 2, label: "Low", emoji: "△", color: "#FFC36B" },
+              { score: 3, label: "Okay", emoji: "●", color: "#94A3B8" },
+              { score: 4, label: "Good", emoji: "▲", color: "#6EE7FF" },
+              { score: 5, label: "Peak", emoji: "⚡", color: "#C2FF4A" },
             ].map(e => (
               <motion.button key={e.score}
                 onClick={() => submitCheckin(e.score)}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl cursor-pointer border-0"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-                whileHover={{ scale: 1.05, borderColor: `${e.color}40` }}
-                whileTap={{ scale: 0.95 }}>
-                <span className="text-2xl font-black" style={{ color: e.color }}>{e.score}</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: `${e.color}80` }}>{e.label}</span>
+                className="flex flex-col items-center gap-2 py-5 px-4 rounded-2xl cursor-pointer border-0"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", minWidth: 68 }}
+                whileHover={{ scale: 1.08, borderColor: `${e.color}50`, background: `${e.color}08` }}
+                whileTap={{ scale: 0.93 }}>
+                <span className="text-3xl font-black" style={{ color: e.color }}>{e.score}</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: `${e.color}70` }}>{e.label}</span>
               </motion.button>
             ))}
           </div>
-          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.1)" }}>2 taps. Under 10 seconds.</p>
+          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.12)" }}>Tap once. Under 3 seconds.</p>
         </motion.div>
       </div>
     );
@@ -292,18 +295,28 @@ export default function Today() {
 
       {/* BODY CONTEXT */}
       <motion.div className="mb-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ ease }}>
-        <p className="text-[10px] uppercase tracking-wider font-bold mb-3" style={{ color: "rgba(255,255,255,0.2)" }}>Your body right now</p>
-        <div className="grid grid-cols-4 gap-2">
+        <p className="text-[10px] uppercase tracking-[0.2em] font-bold mb-4" style={{ color: "rgba(255,255,255,0.25)" }}>Your body right now</p>
+        <div className="grid grid-cols-2 gap-3">
           {[
-            { label: "HRV", value: body.hrv ? `${body.hrv}ms` : "--", sub: body.hrv_baseline ? `bl ${Math.round(body.hrv_baseline)}` : "" },
-            { label: "Ready", value: body.readiness || "--" },
-            { label: "Sleep", value: body.sleep_score || "--" },
-            { label: "Stress", value: body.stress_min != null ? `${body.stress_min}m` : "--" },
+            { label: "HRV", value: body.hrv ? `${body.hrv}` : "--", unit: "ms", sub: body.hrv_baseline ? `baseline ${Math.round(body.hrv_baseline)}` : "", color: "#6EE7FF", delta: body.hrv && body.hrv_baseline ? body.hrv - body.hrv_baseline : null },
+            { label: "Readiness", value: body.readiness || "--", unit: "", color: "#C2FF4A", delta: null },
+            { label: "Sleep", value: body.sleep_score || "--", unit: "", color: "#A78BFA", delta: null },
+            { label: "Stress", value: body.stress_min != null ? `${body.stress_min}` : "--", unit: "min", color: "#FF5D6C", delta: null },
           ].map(m => (
-            <div key={m.label} className="rounded-xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <p className="text-xl font-black text-white">{m.value}</p>
-              <p className="text-[8px] uppercase tracking-wider font-bold" style={{ color: "rgba(255,255,255,0.2)" }}>{m.label}</p>
-              {m.sub && <p className="text-[8px]" style={{ color: "rgba(255,255,255,0.1)" }}>{m.sub}</p>}
+            <div key={m.label} className="rounded-2xl p-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              {/* Subtle color glow */}
+              <div className="absolute top-0 right-0 w-20 h-20 pointer-events-none" style={{ background: `radial-gradient(circle at 100% 0%, ${m.color}08, transparent 70%)` }} />
+              <p className="text-[9px] uppercase tracking-[0.15em] font-bold mb-2" style={{ color: `${m.color}80` }}>{m.label}</p>
+              <div className="flex items-baseline gap-1">
+                <p className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>{m.value}</p>
+                {m.unit && <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.25)" }}>{m.unit}</span>}
+              </div>
+              {m.sub && <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.2)" }}>{m.sub}</p>}
+              {m.delta != null && m.delta !== 0 && (
+                <p className="text-[10px] font-bold mt-1" style={{ color: m.delta > 0 ? "#C2FF4A" : "#FF5D6C" }}>
+                  {m.delta > 0 ? "▲" : "▼"} {Math.abs(Math.round(m.delta))} vs baseline
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -377,18 +390,31 @@ export default function Today() {
                 {["warmup", "strength", "metcon", "workout", "cooldown"].map(bk => {
                   const block = workout[bk];
                   if (!block?.movements?.length) return null;
+                  const blockColors: Record<string,string> = { warmup: "#FFC36B", strength: "#FF5C35", metcon: "#6EE7FF", workout: "#FF5C35", cooldown: "#A78BFA" };
+                  const bc = blockColors[bk] || color;
                   return (
-                    <div key={bk} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)" }}>
-                      <p className="text-[9px] font-black uppercase tracking-wider mb-2" style={{ color: `${color}80` }}>
+                    <div key={bk} className="rounded-xl p-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", borderLeft: `3px solid ${bc}40` }}>
+                      <p className="text-[9px] font-black uppercase tracking-[0.15em] mb-3" style={{ color: `${bc}90` }}>
                         {bk}{block.sets ? ` · ${block.sets} sets` : ""}{block.rounds ? ` · ${block.rounds} rounds` : ""}
                       </p>
-                      {block.movements.map((m: any, i: number) => (
-                        <p key={i} className="text-xs text-slate-300 pl-2">
-                          {typeof m === "object" ? `${m.reps || ""} ${m.movement_name || ""} ${m.load ? `(${m.load})` : ""}`.trim() : m}
-                        </p>
-                      ))}
-                      {block.rest && <p className="text-[10px] text-slate-500 mt-1">Rest: {block.rest}</p>}
-                      {block.time_cap && <p className="text-[10px] text-slate-500 mt-1">Time Cap: {block.time_cap}{typeof block.time_cap === "number" ? " min" : ""}</p>}
+                      <div className="space-y-2">
+                        {block.movements.map((m: any, i: number) => {
+                          const name = typeof m === "object" ? (m.movement_name || m.name || "") : String(m);
+                          const reps = typeof m === "object" ? (m.reps || "") : "";
+                          const load = typeof m === "object" ? (m.load || "") : "";
+                          return (
+                            <div key={i} className="flex items-baseline gap-2 pl-1">
+                              <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: `${bc}50` }} />
+                              <div>
+                                <p className="text-sm font-semibold text-white">{name}</p>
+                                {(reps || load) && <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>{reps}{load ? ` · ${load}` : ""}</p>}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {block.rest && <p className="text-[10px] mt-3 pt-2" style={{ color: "rgba(255,255,255,0.2)", borderTop: "1px solid rgba(255,255,255,0.04)" }}>Rest: {block.rest}</p>}
+                      {block.time_cap && <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.2)" }}>Time Cap: {block.time_cap}{typeof block.time_cap === "number" ? " min" : ""}</p>}
                     </div>
                   );
                 })}
@@ -398,9 +424,11 @@ export default function Today() {
             {/* START SESSION */}
             {!feedback && (
               <button onClick={() => setSessionActive(true)}
-                className="w-full py-3.5 rounded-xl text-sm font-black cursor-pointer border-0 mb-2"
-                style={{ background: "#FF5C35", color: "#fff" }}>
-                <Zap className="w-4 h-4 inline mr-1" /> Start Session
+                className="w-full py-4 rounded-2xl text-sm font-black cursor-pointer border-0 mb-2 transition-all duration-200"
+                style={{ background: "linear-gradient(135deg, #FF5C35, #FF8040)", color: "#fff", boxShadow: "0 8px 32px rgba(255,92,53,0.25)" }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(255,92,53,0.35)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 8px 32px rgba(255,92,53,0.25)"; }}>
+                <Zap className="w-4 h-4 inline mr-2" /> Start Session
               </button>
             )}
           </>
@@ -559,11 +587,24 @@ export default function Today() {
 
       {/* FEEDBACK CONFIRMED */}
       {feedback && !showRpe && (
-        <motion.div className="text-center py-2 mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <Check className="w-5 h-5 mx-auto mb-1" style={{ color: "#C2FF4A" }} />
-          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>
-            Logged: {feedback === "yes" ? "completed" : feedback === "partial" ? "partial" : "skipped"}. Tomorrow's session will account for this.
-          </p>
+        <motion.div className="rounded-2xl p-6 mb-4 text-center relative overflow-hidden"
+          style={{ background: feedback === "yes" ? "rgba(194,255,74,0.04)" : "rgba(255,255,255,0.02)", border: `1px solid ${feedback === "yes" ? "rgba(194,255,74,0.12)" : "rgba(255,255,255,0.06)"}` }}
+          initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ ease }}>
+          {feedback === "yes" && (
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 30%, rgba(194,255,74,0.06) 0%, transparent 60%)" }} />
+          )}
+          <div className="relative z-10">
+            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center"
+              style={{ background: feedback === "yes" ? "rgba(194,255,74,0.12)" : "rgba(255,255,255,0.06)" }}>
+              <Check className="w-6 h-6" style={{ color: feedback === "yes" ? "#C2FF4A" : "#94A3B8" }} />
+            </div>
+            <p className="text-sm font-bold text-white mb-1">
+              {feedback === "yes" ? "Session complete" : feedback === "partial" ? "Partial — still counts" : "Rest day logged"}
+            </p>
+            <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+              Tomorrow's session will account for this. The loop keeps turning.
+            </p>
+          </div>
         </motion.div>
       )}
 

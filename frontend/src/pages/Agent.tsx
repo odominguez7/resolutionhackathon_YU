@@ -2,15 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { Heart, Target, Moon, Zap, ArrowRight, Check, RefreshCw, X, Share2 } from "lucide-react";
 
-/* ── YU brand tokens (mirrors yu.boston) ─────────────── */
+/* ── YU brand tokens — dark theme (matches #0a0b0d canvas) ── */
 const YU = {
-  bg: "#FFFFFF",
-  bgSoft: "#F8FAFC",
-  ink: "#1C2B3A",
-  body: "#374151",
-  muted: "#6B7280",
-  label: "#9CA3AF",
-  line: "#E5E7EB",
+  bg: "#0a0b0d",
+  bgSoft: "rgba(255,255,255,0.03)",
+  ink: "#F0F0F2",
+  body: "rgba(255,255,255,0.7)",
+  muted: "rgba(255,255,255,0.4)",
+  label: "rgba(255,255,255,0.28)",
+  line: "rgba(255,255,255,0.08)",
   teal: "#00BFA6",
   amber: "#F59E0B",
   indigo: "#6366F1",
@@ -318,7 +318,7 @@ export default function Agent() {
         @keyframes yuPipBreath { 0%,100%{opacity:0.75} 50%{opacity:1} }
         .yu-rise { animation: yuRise .55s cubic-bezier(.2,.8,.2,1) both; }
         .yu-pip-active { animation: yuPipBreath 2.4s ease-in-out infinite; }
-        .yu-stat-pill:hover { border-color: var(--c) !important; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(28,43,58,.06); }
+        .yu-stat-pill:hover { border-color: var(--c) !important; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
       `}</style>
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "56px 24px 96px" }}>
@@ -367,7 +367,7 @@ export default function Agent() {
                 onClick={() => swapSpokesperson(agent.id)}
                 style={{
                   ["--c" as any]: agent.color,
-                  background: isActive ? `${agent.color}08` : "#fff",
+                  background: isActive ? `${agent.color}15` : "rgba(255,255,255,0.03)",
                   border: `1px solid ${isActive ? agent.color : YU.line}`,
                   borderRadius: 16,
                   padding: "12px 12px 10px",
@@ -408,7 +408,7 @@ export default function Agent() {
                     width: 22,
                     height: 22,
                     borderRadius: "50%",
-                    background: "#fff",
+                    background: "rgba(255,255,255,0.06)",
                     border: `1px solid ${YU.line}`,
                     color: YU.muted,
                     cursor: "pointer",
@@ -516,7 +516,7 @@ export default function Agent() {
                     aspectRatio: "1",
                     borderRadius: "50%",
                     border: `1px solid ${mood === n ? sp.color : YU.line}`,
-                    background: mood === n ? sp.color : "#fff",
+                    background: mood === n ? sp.color : "rgba(255,255,255,0.04)",
                     color: mood === n ? "#fff" : YU.ink,
                     fontFamily: sans,
                     fontSize: 13,
@@ -733,8 +733,8 @@ function BaselineTrendChart({ trend, metricLabel, agent }: { trend: BaselineTren
           50% { transform: scale(1.06); opacity: .35; }
         }
         @keyframes yuShazamGlow {
-          0%, 100% { box-shadow: 0 0 0 0 var(--yc), 0 24px 64px rgba(28,43,58,0.08); }
-          50% { box-shadow: 0 0 0 24px transparent, 0 24px 64px rgba(28,43,58,0.10); }
+          0%, 100% { box-shadow: 0 0 0 0 var(--yc), 0 24px 64px rgba(0,0,0,0.3); }
+          50% { box-shadow: 0 0 0 24px transparent, 0 24px 64px rgba(0,0,0,0.4); }
         }
       `}</style>
 
@@ -781,10 +781,10 @@ function BaselineTrendChart({ trend, metricLabel, agent }: { trend: BaselineTren
           {/* clean 270° arc */}
           <path d={ringPath} fill="none" stroke={`url(#yu-ring-${stateLabel})`} strokeWidth={3} strokeLinecap="round" />
           {/* starting endpoint */}
-          <circle cx={startPt[0]} cy={startPt[1]} r={6} fill="#fff" stroke={YU.label} strokeWidth={2} />
+          <circle cx={startPt[0]} cy={startPt[1]} r={6} fill="#1a1b1e" stroke={YU.label} strokeWidth={2} />
           {/* today endpoint */}
           <circle cx={endPt[0]} cy={endPt[1]} r={9} fill={stateColor} />
-          <circle cx={endPt[0]} cy={endPt[1]} r={4} fill="#fff" />
+          <circle cx={endPt[0]} cy={endPt[1]} r={4} fill="#1a1b1e" />
         </svg>
 
         {/* Inner button face */}
@@ -794,7 +794,7 @@ function BaselineTrendChart({ trend, metricLabel, agent }: { trend: BaselineTren
             position: "absolute",
             inset: 60,
             borderRadius: "50%",
-            background: `radial-gradient(circle at 30% 25%, #fff 0%, #fff 40%, ${stateColor}10 100%)`,
+            background: `radial-gradient(circle at 30% 25%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 40%, ${stateColor}10 100%)`,
             border: `1.5px solid ${stateColor}40`,
             display: "flex",
             flexDirection: "column",
@@ -911,8 +911,8 @@ function buildStateCardSVG(agent: any, ritual: Ritual, fmt: { w: number; h: numb
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
   <defs>
     <linearGradient id="yu-bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#F8FAFC"/>
+      <stop offset="0%" stop-color="#0a0b0d"/>
+      <stop offset="100%" stop-color="#111215"/>
     </linearGradient>
     <radialGradient id="yu-glow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="${color}" stop-opacity="0.10"/>
@@ -926,7 +926,7 @@ function buildStateCardSVG(agent: any, ritual: Ritual, fmt: { w: number; h: numb
 
   <!-- Ring around the glyph -->
   <circle cx="${cx}" cy="${ringCY}" r="${ringR}" fill="none" stroke="${color}" stroke-width="${Math.max(2, base * 0.005)}" opacity="0.35"/>
-  <circle cx="${cx}" cy="${ringCY}" r="${ringR * 0.78}" fill="#fff"/>
+  <circle cx="${cx}" cy="${ringCY}" r="${ringR * 0.78}" fill="#141518"/>
 
   <!-- Glyph in center of ring -->
   <text x="${cx}" y="${ringCY + glyphSize * 0.36}" font-family="Space Grotesk, -apple-system, sans-serif" font-size="${glyphSize}" font-weight="700" fill="${color}" text-anchor="middle">${glyph}</text>
@@ -964,7 +964,7 @@ async function svgToPngBlob(svg: string, w: number, h: number): Promise<Blob> {
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#FFFFFF";
+  ctx.fillStyle = "#0a0b0d";
   ctx.fillRect(0, 0, w, h);
   ctx.drawImage(img, 0, 0, w, h);
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
@@ -1020,12 +1020,12 @@ function ShareStateModal({ agent, ritual, onClose }: { agent: any; ritual: Ritua
 
   return (
     <div onClick={onClose} style={{
-      position: "fixed", inset: 0, background: "rgba(28,43,58,0.55)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24, zIndex: 70, fontFamily: sans, animation: "yuFade .2s ease",
     }}>
       <div onClick={(e) => e.stopPropagation()} style={{
-        background: "#fff", maxWidth: 520, width: "100%", borderRadius: 22, padding: 28,
-        border: `1px solid ${YU.line}`, boxShadow: "0 30px 80px rgba(28,43,58,0.20)", animation: "yuRise .35s cubic-bezier(.2,.8,.2,1)",
+        background: "#141518", maxWidth: 520, width: "100%", borderRadius: 22, padding: 28,
+        border: `1px solid ${YU.line}`, boxShadow: "0 30px 80px rgba(0,0,0,0.45)", animation: "yuRise .35s cubic-bezier(.2,.8,.2,1)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
           <div>
@@ -1043,7 +1043,7 @@ function ShareStateModal({ agent, ritual, onClose }: { agent: any; ritual: Ritua
 
         {/* Preview */}
         <div style={{
-          background: YU.bgSoft,
+          background: "rgba(255,255,255,0.02)",
           border: `1px solid ${YU.line}`,
           borderRadius: 16,
           padding: 16,
@@ -1068,9 +1068,9 @@ function ShareStateModal({ agent, ritual, onClose }: { agent: any; ritual: Ritua
               key={f.id}
               onClick={() => setFmt(f.id)}
               style={{
-                background: fmt === f.id ? YU.ink : "#fff",
-                color: fmt === f.id ? "#fff" : YU.ink,
-                border: `1px solid ${fmt === f.id ? YU.ink : YU.line}`,
+                background: fmt === f.id ? "rgba(255,255,255,0.12)" : "transparent",
+                color: fmt === f.id ? "#fff" : YU.muted,
+                border: `1px solid ${fmt === f.id ? "rgba(255,255,255,0.2)" : YU.line}`,
                 borderRadius: 999,
                 padding: "8px 16px",
                 fontSize: 12,
@@ -1089,7 +1089,7 @@ function ShareStateModal({ agent, ritual, onClose }: { agent: any; ritual: Ritua
             onClick={download}
             disabled={busy}
             style={{
-              background: "#fff",
+              background: "rgba(255,255,255,0.04)",
               color: YU.ink,
               border: `1px solid ${YU.line}`,
               borderRadius: 999,
@@ -1153,7 +1153,7 @@ function HistoryChart({ values, baseline, color, lowerIsWorse }: { values: numbe
       <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label, margin: "0 0 6px" }}>
         last {values.length} days
       </p>
-      <div style={{ width: "100%", border: `1px solid ${YU.line}`, borderRadius: 14, padding: "10px 14px", background: "#fff" }}>
+      <div style={{ width: "100%", border: `1px solid ${YU.line}`, borderRadius: 14, padding: "10px 14px", background: "rgba(255,255,255,0.02)" }}>
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 100, display: "block" }}>
           {baseline != null && (
             <line x1={PAD} y1={y(baseline)} x2={W - PAD} y2={y(baseline)} stroke={YU.line} strokeWidth={1} strokeDasharray="3 4" />
@@ -1267,7 +1267,7 @@ function ClosedState({ sp, ritual, closed, adherenceCount, onLogAdherence, onDis
                 key={v}
                 onClick={() => handleAdherence(v)}
                 style={{
-                  background: "#fff",
+                  background: "rgba(255,255,255,0.04)",
                   color: YU.ink,
                   border: `1px solid ${YU.line}`,
                   padding: "12px 22px",
@@ -1293,7 +1293,7 @@ function ClosedState({ sp, ritual, closed, adherenceCount, onLogAdherence, onDis
         </p>
         <button
           onClick={onDismiss}
-          style={{ background: YU.ink, color: "#fff", border: 0, padding: "16px 32px", borderRadius: 999, fontSize: 14, fontWeight: 600, fontFamily: sans, cursor: "pointer", boxShadow: "0 8px 24px rgba(28,43,58,.18)" }}
+          style={{ background: "#FF5C35", color: "#fff", border: 0, padding: "16px 32px", borderRadius: 999, fontSize: 14, fontWeight: 600, fontFamily: sans, cursor: "pointer", boxShadow: "0 8px 24px rgba(255,92,53,.25)" }}
         >
           Close for today
         </button>
@@ -1347,12 +1347,12 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
   const verdictColor = (label: string) => label === "confirmed" ? YU.teal : label === "weakened" ? YU.red : YU.muted;
   return (
     <div onClick={onClose} style={{
-      position: "fixed", inset: 0, background: "rgba(28,43,58,0.45)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24, zIndex: 60, fontFamily: sans, animation: "yuFade .2s ease",
     }}>
       <div onClick={(e) => e.stopPropagation()} style={{
-        background: "#fff", maxWidth: 560, width: "100%", borderRadius: 20, padding: 36, maxHeight: "85vh", overflow: "auto",
-        border: `1px solid ${YU.line}`, boxShadow: "0 30px 80px rgba(28,43,58,0.18)", animation: "yuRise .35s cubic-bezier(.2,.8,.2,1)",
+        background: "#141518", maxWidth: 560, width: "100%", borderRadius: 20, padding: 36, maxHeight: "85vh", overflow: "auto",
+        border: `1px solid ${YU.line}`, boxShadow: "0 30px 80px rgba(0,0,0,0.45)", animation: "yuRise .35s cubic-bezier(.2,.8,.2,1)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
           <div>
@@ -1474,7 +1474,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
             <div style={{ display: "flex", gap: 4, marginBottom: 22 }}>
               {progress.days.map((d, i) => {
                 const isToday = i + 1 === progress.day_index;
-                const fill = d.status === "yes" ? YU.teal : d.status === "partial" ? YU.amber : d.status === "no" ? YU.red : isToday ? YU.line : "#F3F4F6";
+                const fill = d.status === "yes" ? YU.teal : d.status === "partial" ? YU.amber : d.status === "no" ? YU.red : isToday ? YU.line : "rgba(255,255,255,0.04)";
                 return <div key={d.date} style={{ flex: 1, height: 8, borderRadius: 4, background: fill }} />;
               })}
             </div>
@@ -1520,7 +1520,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
                     onClick={() => applySuggestion(s)}
                     style={{
                       textAlign: "left",
-                      background: isSelected ? `${YU.teal}08` : "#fff",
+                      background: isSelected ? `${YU.teal}15` : "rgba(255,255,255,0.03)",
                       border: `1px solid ${isSelected ? YU.teal : YU.line}`,
                       borderRadius: 14,
                       padding: "14px 16px",
@@ -1554,7 +1554,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
         <input
           value={behavior}
           onChange={(e) => setBehavior(e.target.value)}
-          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none" }}
+          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none", background: "rgba(255,255,255,0.04)" }}
         />
 
         <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label }}>For how many days</label>
@@ -1564,7 +1564,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
           max={30}
           value={duration}
           onChange={(e) => setDuration(parseInt(e.target.value) || 7)}
-          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none" }}
+          style={{ width: "100%", marginTop: 6, marginBottom: 18, padding: "14px 16px", border: `1px solid ${YU.line}`, borderRadius: 12, fontSize: 15, fontFamily: sans, color: YU.ink, outline: "none", background: "rgba(255,255,255,0.04)" }}
         />
 
         <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: "1.5px", textTransform: "uppercase", color: YU.label }}>Improves my</label>
@@ -1574,7 +1574,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
               key={m.id}
               onClick={() => setMetric(m.id)}
               style={{
-                background: metric === m.id ? YU.teal : "#fff",
+                background: metric === m.id ? YU.teal : "rgba(255,255,255,0.03)",
                 color: metric === m.id ? "#fff" : YU.ink,
                 border: `1px solid ${metric === m.id ? YU.teal : YU.line}`,
                 borderRadius: 12, padding: "12px 14px", fontSize: 13, fontWeight: 600, fontFamily: sans, cursor: "pointer", textAlign: "left",
@@ -1591,7 +1591,7 @@ function GoalEditSheet({ goal, progress, onClose, onSave }: { goal: any; progres
           </button>
           <button
             onClick={() => onSave({ behavior, duration_days: duration, target_metric: metric, target_metric_label: METRICS.find((x) => x.id === metric)?.label })}
-            style={{ background: YU.ink, color: "#fff", border: 0, padding: "14px 22px", borderRadius: 12, fontSize: 14, fontWeight: 600, fontFamily: sans, cursor: "pointer" }}
+            style={{ background: "#FF5C35", color: "#fff", border: 0, padding: "14px 22px", borderRadius: 12, fontSize: 14, fontWeight: 600, fontFamily: sans, cursor: "pointer", boxShadow: "0 8px 24px rgba(255,92,53,.25)" }}
           >
             Start the test
           </button>
