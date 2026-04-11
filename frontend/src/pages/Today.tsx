@@ -35,8 +35,8 @@ export default function Today() {
   const restRef = useRef<any>(null);
 
   useEffect(() => {
-    // HARD CONSTRAINT: always pull fresh Oura data before loading the daily action
-    api.get("/api/oura/refresh").catch(() => {}).finally(() => {
+    // Oura refresh already happens in AuthContext on app load.
+    // This just loads the daily action with the fresh data.
     api.get("/api/oura/daily-action").then(d => {
       setTodayData(d);
       if (d?.existing_workout?.full_workout) {
@@ -46,7 +46,6 @@ export default function Today() {
         }
       }
     }).catch(() => {}).finally(() => setLoading(false));
-    }); // close refresh .finally
   }, []);
 
   const generateWorkout = async (sessionType: string = "crossfit") => {

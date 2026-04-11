@@ -36,6 +36,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
+        // HARD CONSTRAINT: always pull fresh wearable data on app load.
+        // This ensures every page sees the latest Oura data, not stale cache.
+        try { await fetch("/api/oura/refresh"); } catch {}
         await loadProfile(u.uid);
       } else {
         setProfile(null);
